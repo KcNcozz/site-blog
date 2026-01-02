@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "My Awesome Project"
+  name: "加菲猫的博客"
   text: "A VitePress Site"
   tagline: My great project tagline
   actions:
@@ -15,11 +15,11 @@ hero:
       link: /api-examples
 
 features:
-  - title: Feature A
+  - title: 综合性知识
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
+  - title: 剪辑知识
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
+  - title: 文档编写
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
 
