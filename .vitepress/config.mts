@@ -2,8 +2,10 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "My Awesome Project",
-  description: "A VitePress Site",
+  title: "加菲猫的博客",
+  description: "我是一只猫",
+  base: "/site-blog/",
+  outDir: "docs",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
