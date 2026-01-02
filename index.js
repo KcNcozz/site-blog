@@ -1,5 +1,4 @@
-import fs from 'node:fs'
-import { execSync } from 'child_process'
+import { execSync } from 'child_process' //子进程 用于执行shell命令
 import ora from 'ora'
 
 const gitCommander = (commad) => {
