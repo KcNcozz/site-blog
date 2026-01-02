@@ -26,8 +26,9 @@ export default defineConfig({
       {
         text: '小知识',
         items: [
-          { text: 'SEO', link: '/src/web/git.md' },
-
+          { text: 'Git', link: '/src/web/git.md' },
+ 
+          
         ]
       }
     ],
