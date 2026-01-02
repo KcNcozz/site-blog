@@ -19,13 +19,14 @@ export default defineConfig({
         text: '前端',
         items: [
           { text: 'SEO', link: '/src/web/seo.md' },
+         
 
         ]
       },
       {
-        text: '后端',
+        text: '小知识',
         items: [
-          { text: 'SEO', link: '/src/web/seo.md' },
+          { text: 'SEO', link: '/src/web/git.md' },
 
         ]
       }

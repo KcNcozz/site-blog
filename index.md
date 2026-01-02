@@ -4,8 +4,8 @@ layout: home
 
 hero:
   name: "加菲猫的博客"
-  text: "A VitePress Site"
-  tagline: My great project tagline
+  text: "一个用于记录学习过程的小站"
+  tagline: 学习 生活 创作 记录
   actions:
     - theme: brand
       text: Markdown Examples
@@ -15,11 +15,11 @@ hero:
       link: /api-examples
 
 features:
-  - title: 综合性知识
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: 学习笔记
+    details: 记录学习前端的心路历程，总结学习心得
   - title: 剪辑知识
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: 一些简单的剪辑要点摘录
   - title: 文档编写
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: 重要知识总结与复盘
 ---
 
