@@ -5,7 +5,7 @@ const gitCommander = (commad) => {
   execSync(`git ${commad}`)
 }
 function build() {
-  const spinner = ora('Loading unicorns').start();
+  const spinner = ora('开始执行').start();
   const commont = process.argv[2]
   execSync('npm run build')
   console.log('build 完成')
