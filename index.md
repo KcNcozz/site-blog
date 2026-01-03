@@ -12,7 +12,7 @@ hero:
       # link: /markdown-examples
       link: /jianjie
     - theme: alt
-      text: 进入博客
+      text: 知识板块
       link: /api-examples
 
 features:
