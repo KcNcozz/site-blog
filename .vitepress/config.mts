@@ -30,6 +30,14 @@ export default defineConfig({
  
           
         ]
+      },
+            {
+        text: '剪辑',
+        items: [
+          { text: '剪辑', link: '/src/jianji/剪映.md' },
+ 
+          
+        ]
       }
     ],
 
