@@ -9,7 +9,6 @@ hero:
   actions:
     - theme: brand
       text: 简介
-      # link: /markdown-examples
       link: /jianjie
     - theme: alt
       text: 知识板块
