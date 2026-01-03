@@ -11,7 +11,7 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: '主页', link: '/' },
-      { text: '前端', link: '/src/web/seo.md' }
+      { text: '前端', link: '/src/frontend/前端三件套.md' }
     ],
 
     sidebar: [
@@ -26,7 +26,7 @@ export default defineConfig({
       {
         text: '前端',
         items: [
-
+          { text: '前端三件套', link: '/src/frontend/前端三件套.md' },
 
         ]
       },
