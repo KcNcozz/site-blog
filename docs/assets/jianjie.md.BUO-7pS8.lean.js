@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as a}from"./chunks/framework.j5rXhnVA.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"jianjie.md","filePath":"jianjie.md"}'),n={name:"jianjie.md"};function i(r,o,s,c,p,_){return a(),t("div")}const f=e(n,[["render",i]]);export{m as __pageData,f as default};

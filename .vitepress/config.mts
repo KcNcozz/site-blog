@@ -34,7 +34,7 @@ export default defineConfig({
             {
         text: '剪辑',
         items: [
-          { text: '剪辑', link: '/src/jianji/剪映.md' },
+          { text: '剪映', link: '/src/jianji/剪映.md' },
  
           
         ]
@@ -42,7 +42,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/KcNco7' }
     ]
   }
 })

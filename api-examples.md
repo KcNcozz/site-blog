@@ -1,50 +1,8 @@
----
-outline: deep
----
+# 主要内容介绍
 
+本网站主要是记录自己学习和工作中遇到的一些问题和解决方案，希望能帮助到大家。目前网站还在建设中，欢迎大家提供宝贵意见。
 
-# Runtime API Examples
-
-This page demonstrates usage of some of the runtime APIs provided by VitePress.
-
-The main `useData()` API can be used to access site, theme, and page data for the current page. It works in both `.md` and `.vue` files:
-
-```md
-<script setup>
-import { useData } from 'vitepress'
-
-const { theme, page, frontmatter } = useData()
-</script>
-
-## Results
-
-### Theme Data
-<pre>{{ theme }}</pre>
-
-### Page Data
-<pre>{{ page }}</pre>
-
-### Page Frontmatter
-<pre>{{ frontmatter }}</pre>
-```
-
-<script setup>
-import { useData } from 'vitepress'
-
-const { site, theme, page, frontmatter } = useData()
-</script>
-
-## Results
-
-### Theme Data
-<pre>{{ theme }}</pre>
-
-### Page Data
-<pre>{{ page }}</pre>
-
-### Page Frontmatter
-<pre>{{ frontmatter }}</pre>
-
-## More
-
-Check out the documentation for the [full list of runtime APIs](https://vitepress.dev/reference/runtime-api#usedata).
+具体板块如下：
+1. 前端知识
+2. 边角料小知识
+3. 剪辑技巧

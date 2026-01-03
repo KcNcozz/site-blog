@@ -8,10 +8,11 @@ hero:
   tagline: 学习 生活 创作 记录
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: 简介
+      # link: /markdown-examples
+      link: /jianjie
     - theme: alt
-      text: API Examples
+      text: 进入博客
       link: /api-examples
 
 features:

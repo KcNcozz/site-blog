@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a}from"./chunks/framework.j5rXhnVA.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"src/jianji/剪映.md","filePath":"src/jianji/剪映.md"}'),r={name:"src/jianji/剪映.md"};function s(c,n,o,i,_,p){return a(),t("div")}const f=e(r,[["render",s]]);export{m as __pageData,f as default};
