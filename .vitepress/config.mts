@@ -19,7 +19,8 @@ export default defineConfig({
         text: '碎碎念',
         items: [
           { text: '2026年的碎碎念', link: '/src/other/2026年的碎碎念.md' },
-           { text: '装机注意事项', link: '/src/other/装机注意事项.md' },
+          { text: '装机注意事项', link: '/src/other/装机注意事项.md' },
+          { text: '电影清单', link: '/src/other/电影清单.md' },
 
         ]
       },
