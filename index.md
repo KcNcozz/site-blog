@@ -9,10 +9,10 @@ hero:
   actions:
     - theme: brand
       text: 简介
-      link: /jianjie
+      link: /简介
     - theme: alt
       text: 知识板块
-      link: /api-examples
+      link: /主要内容概述
 
 features:
   - title: 学习笔记

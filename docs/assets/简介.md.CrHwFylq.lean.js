@@ -1,0 +1,1 @@
+import{_ as e,c as a,o as r,ae as p}from"./chunks/framework.j5rXhnVA.js";const m=JSON.parse('{"title":"这是一个用于记录自己学习过程的网站","description":"","frontmatter":{},"headers":[],"relativePath":"简介.md","filePath":"简介.md"}'),o={name:"简介.md"};function n(s,t,_,c,i,d){return r(),a("div",null,[...t[0]||(t[0]=[p("",9)])])}const f=e(o,[["render",n]]);export{m as __pageData,f as default};
