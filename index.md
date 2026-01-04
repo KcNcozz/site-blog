@@ -19,7 +19,7 @@ features:
     details: 记录学习前端的心路历程，总结学习心得
   - title: 剪辑知识
     details: 一些简单的剪辑要点摘录
-  - title: 文档编写
-    details: 重要知识总结与复盘
+  - title: 碎碎念
+    details: 不知道该怎么说的日常吐槽
 ---
 
