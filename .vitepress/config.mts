@@ -34,7 +34,7 @@ export default defineConfig({
             {
         text: '后端',
         items: [
-          { text: '后端', link: '/src/backed/后端.md' },
+          { text: '后端', link: '/src/backend/后端.md' },
 
         ]
       },
