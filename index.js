@@ -3,7 +3,9 @@ import ora from 'ora'
 import fs from 'node:fs'
 
 const clearFolder = () => {
-  fs.rmdirSync('./docs', { recursive: true })
+  if (fs.existsSync('./docs')) {
+    fs.rmdirSync('./docs', { recursive: true })
+  }
 }
 
 
