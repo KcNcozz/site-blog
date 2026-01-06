@@ -1,8 +1,4 @@
-# 前端三件套
-
-这里是HTML、CSS、JavaScript一些重要知识的总结。
-
-## HTML
+# HTML
 
 ### 1. 图片
 图片的属性：
@@ -18,5 +14,3 @@
 
 
 
-## CSS
-## JavaScript

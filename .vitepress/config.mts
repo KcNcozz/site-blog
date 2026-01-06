@@ -5,6 +5,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "加菲猫的博客",
   lastUpdated: true,
+
   description: "我是一只猫",
   base: "/site-blog/",
   outDir: "docs",
@@ -15,7 +16,8 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: '主页', link: '/' },
-      { text: '前端', link: '/src/frontend/前端三件套.md' }
+      { text: '前端', link: '/src/frontend/前端三件套.md' },
+      { text: '随记', link: '/src/other/2026年的碎碎念.md' },
     ],
 
     sidebar: [
@@ -31,19 +33,19 @@ export default defineConfig({
       {
         text: '前端',
         items: [
-          { text: '前端三件套', link: '/src/frontend/前端三件套.md',
+          { text: '前端三件套', link: '/src/frontend/html.md',
              items:[
               {
                 text: 'HTML',
-                link: '/src/frontend/前端三件套.md#html'
+                link: '/src/frontend/html.md'
               },
               {
                 text: 'CSS',
-                link: '/src/frontend/前端三件套.md#css'
+                link: '/src/frontend/css.md'
               },
               {
                 text: 'JavaScript',
-                link: '/src/frontend/前端三件套.md#javascript'
+                link: '/src/frontend/javascript.md'
               }
              ]
            },
