@@ -1,10 +1,17 @@
 import { execSync } from 'child_process' //子进程 用于执行shell命令
 import ora from 'ora'
+import fs from 'node:fs'
+
+const clearFolder = () => {
+  fs.rmdirSync('./docs', { recursive: true })
+}
+
 
 const gitCommander = (commad) => {
   execSync(`git ${commad}`)
 }
 function build() {
+  clearFolder()
   const spinner = ora('开始执行').start();
   const commont = process.argv[2]
   execSync('npm run build')
