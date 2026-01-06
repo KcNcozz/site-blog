@@ -16,7 +16,7 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: '主页', link: '/' },
-      { text: '前端', link: '/src/frontend/前端三件套.md' },
+      { text: '前端', link: '/src/frontend/html.md' },
       { text: '随记', link: '/src/other/2026年的碎碎念.md' },
     ],
 

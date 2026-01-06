@@ -9,7 +9,7 @@ hero:
   tagline: 学习 生活 创作 记录
     # 添加主页的图片
   image: 
-    src: /网页修复.svg
+    src: https://vitepress.dev/vitepress-logo-large.svg
     alt: "加菲猫的博客"
   actions:
     - theme: brand
