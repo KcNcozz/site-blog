@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as r}from"./chunks/framework.CbHz3_YU.js";const l=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"src/other/2025年终总结.md","filePath":"src/other/2025年终总结.md","lastUpdated":null}'),a={name:"src/other/2025年终总结.md"};function o(s,c,n,_,d,p){return r(),t("div")}const m=e(a,[["render",o]]);export{l as __pageData,m as default};
