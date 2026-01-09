@@ -72,7 +72,7 @@ export default defineConfig({
         items: [
           { text: '剪映', link: '/src/jianji/剪映.md' },
           { text: '达芬奇', link: '/src/jianji/达芬奇.md' },
-
+          { text: '测试页面', link: '/src/jianji/测试页面.md' },
         ]
       }
     ],
