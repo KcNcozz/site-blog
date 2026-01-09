@@ -36,14 +36,14 @@ export default defineConfig({
       {
         text: '前端',
         items: [
-          { text: '前端三件套', link: '/src/frontend/html.md',
+          { text: '前端三件套', 
              items:[
               {
                 text: 'HTML',
                 link: '/src/frontend/html.md'
               },
               {
-                text: 'CSS', link: '/src/frontend/css.md',
+                text: 'CSS', 
                  items:[
                   {
                     text: 'CSS',
