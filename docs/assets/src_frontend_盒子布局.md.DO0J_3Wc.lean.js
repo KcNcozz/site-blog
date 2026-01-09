@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as r}from"./chunks/framework.CbHz3_YU.js";const i=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"src/frontend/盒子布局.md","filePath":"src/frontend/盒子布局.md","lastUpdated":null}'),a={name:"src/frontend/盒子布局.md"};function n(o,s,c,d,_,p){return r(),t("div")}const l=e(a,[["render",n]]);export{i as __pageData,l as default};

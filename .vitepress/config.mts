@@ -40,8 +40,21 @@ export default defineConfig({
                 link: '/src/frontend/html.md'
               },
               {
-                text: 'CSS',
-                link: '/src/frontend/css.md'
+                text: 'CSS', link: '/src/frontend/css.md',
+                 items:[
+                  {
+                    text: 'CSS',
+                    link: '/src/frontend/css.md'
+                  },
+                  {
+                    text: '盒子布局',
+                    link: '/src/frontend/盒子布局.md'
+                  },
+                  // {
+                  //   text: '其他',
+                  //   link: '/src/frontend/html.md'
+                  // }
+                 ]
               },
               {
                 text: 'JavaScript',
