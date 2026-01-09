@@ -23,11 +23,14 @@ export default defineConfig({
     sidebar: [
       {
         text: '碎碎念',
-        items: [
+        items: [ {
+             text: '一些需要记录的东西', link: '/src/other/装机注意事项.md',
+             items:[
+                { text: '装机注意事项', link: '/src/other/装机注意事项.md' },
+                { text: '电影清单', link: '/src/other/电影清单.md' }
+             ]
+        },
           { text: '2026年的碎碎念', link: '/src/other/2026年的碎碎念.md' },
-          { text: '装机注意事项', link: '/src/other/装机注意事项.md' },
-          { text: '电影清单', link: '/src/other/电影清单.md' },
-
         ]
       },
       {
@@ -68,7 +71,13 @@ export default defineConfig({
             {
         text: '后端',
         items: [
-          { text: '后端', link: '/src/backend/后端.md' },
+          { text: 'Java', items: [
+            { text: 'JavaSE', link: '/src/backend/Java/JavaSE.md' },
+            { text: 'JavaWeb', link: '/src/backend/Java/JavaWeb.md' },
+            { text: 'SpringSSM', link: '/src/backend/Java/SpringSSM.md' },
+            { text: 'Springboot', link: '/src/backend/Java/Springboot.md' },
+            { text: 'SpringCloud', link: '/src/backend/Java/SpringCloud.md' },
+          ] },
 
         ]
       },
