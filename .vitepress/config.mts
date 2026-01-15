@@ -78,7 +78,6 @@ export default defineConfig({
             { text: 'Springboot', link: '/src/backend/Java/Springboot.md' },
             { text: 'SpringCloud', link: '/src/backend/Java/SpringCloud.md' },
           ] },
-
         ]
       },
       {

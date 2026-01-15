@@ -6,6 +6,10 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 :::
 ## 常用标签
 
+::: danger 小知识
+块级元素会排斥其他元素 自动让后面的元素另起一行
+:::
+
 ### 1. 图片 <Badge type="tip" text="单标签 行内块元素" />
 图片的属性：
 ```html
@@ -26,7 +30,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 <a href="https://www.jetbrains.com/webstorm/" target="_blank" rel="noopener noreferrer">WebStorm</a>
 
 <a href="https://www.jetbrains.com/webstorm/">
-	<img src="../../网页修复.svg" alt="这是一个图片链接">
+	<img src="../../assert/网页修复.svg" alt="这是一个图片链接">
 </a>
 ```
 1. target="_blank"
@@ -42,7 +46,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 
 
 这是一个超链接<a href="https://www.jetbrains.com/webstorm/">
-	<img src="../../网页修复.svg" alt="这是一个图片链接" width="100" height="100">
+	<img src="../../assert/网页修复.svg" alt="这是一个图片链接" width="100" height="100"/>
 </a>
 结束
 

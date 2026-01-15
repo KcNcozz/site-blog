@@ -42,7 +42,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML https://developer.mozilla.org/
 - `revert` 类似于 `initial` 
 - `layer` ？？？
 
-## 字体样式 自动继承
+## 字体样式 <Badge type="tip" text="自动继承" />
 
 ### 文本字体
 
