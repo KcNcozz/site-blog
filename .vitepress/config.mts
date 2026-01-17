@@ -53,6 +53,10 @@ export default defineConfig({
                     text: '盒子布局',
                     link: '/src/frontend/盒子布局.md'
                   },
+                             {
+                    text: 'UI设计',
+                    link: '/src/frontend/UI设计.md'
+                  },
                   // {
                   //   text: '其他',
                   //   link: '/src/frontend/html.md'

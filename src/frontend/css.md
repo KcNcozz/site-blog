@@ -4,6 +4,12 @@
 https://developer.mozilla.org/zh-CN/docs/Web/HTML https://developer.mozilla.org/zh-CN/docs/Web/CSS
 :::
 
+导入样式的三种方式：
+1. 内联样式：在HTML标签中使用`style`
+2. 内部样式: 在HTML文件中的`<head>`标签中使用`<style>`
+3. 外部样式表：在CSS文件中定义样式，并使用`<link>`引入HTML文件中
+
+
 ## CSS核心
 
 ### 基本选择器    
@@ -119,3 +125,64 @@ font-family: Arial, sans-serif, monospace
 ### 文本空白处理
 
 - `white-space` 取值：nowrap 与`text-wrap:nowrap`效果相同 pre 保留全部空格，并且支持换行 pre-wrap 同`pre` 文字超出宽度会换行 pre-line 同`pre` 不保留空格
+
+
+
+### 选择器进阶
+
+#### 伪类选择器
+
+不是选取元素本身，而是选取特定状态的元素。
+- `:focus` 获取焦点
+- `:link` 未访问的链接
+- `:visited` 已访问的链接
+- `:hover` 鼠标悬停
+- `:active` 激活
+**注意**：多个伪类生效时，需要遵循**LVHA**顺序
+
+下面的一些为结构类伪类：
+- `:first-child`: 其父元素下第一个子元素
+- `:last-child`: 其父元素下最后一个子元素
+- `:nth-child(n)`: 其父元素下第n个子元素 n为数字(可以为even odd)
+- `first-of-type`: 其父元素下第一个同类元素 
+- `only-child`: 其父元素下唯一一个子元素
+- `:where`: 匹配元素，但不会继承样式
+- `:is`: 匹配元素，但不会继承样式
+- `:has`: 判断元素是否存在
+
+
+#### 伪元素选择器
+
+虚拟元素，直接看例子：
+```html
+<label>
+  <input placeholder="请输入内容">
+</label>
+```
+```css
+input {
+  border: 1px solid #a200d8;
+  border-radius: 20px;
+  line-height: 2;
+  padding: 0 12px;
+  width: 200px;
+}
+  input::placeholder {
+  color: #bc8cd3;
+  }
+```
+
+- `::before`: 在元素内容之前插入内容
+- `::after`: 在元素内容之后插入内容
+- `::selection`: 选择元素
+- `::first-line`: 第一行
+- `::first-letter`: 第一个字符
+
+#### 嵌套选择器
+
+一直在使用的语法
+
+**注意**：对于伪元素或是伪类选择器，使用`&`代表父选择器本身
+
+
+
