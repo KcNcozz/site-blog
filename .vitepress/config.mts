@@ -62,16 +62,15 @@ export default defineConfig({
                     text: 'UI设计',
                     link: '/src/frontend/UI设计.md'
                   },
-
-                  // {
-                  //   text: '其他',
-                  //   link: '/src/frontend/html.md'
-                  // }
                 ]
               },
               {
                 text: 'JavaScript',
                 link: '/src/frontend/javascript.md'
+              },
+              {
+                text: 'AJAX',
+                link: '/src/frontend/ajax.md'
               }
             ]
           },
