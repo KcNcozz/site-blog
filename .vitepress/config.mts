@@ -23,28 +23,29 @@ export default defineConfig({
     sidebar: [
       {
         text: '碎碎念',
-        items: [ {
-             text: '一些需要记录的东西', link: '/src/other/装机注意事项.md',
-             items:[
-                { text: '装机注意事项', link: '/src/other/装机注意事项.md' },
-                { text: '电影清单', link: '/src/other/电影清单.md' }
-             ]
+        items: [{
+          text: '一些需要记录的东西', link: '/src/other/装机注意事项.md',
+          items: [
+            { text: '装机注意事项', link: '/src/other/装机注意事项.md' },
+            { text: '电影清单', link: '/src/other/电影清单.md' }
+          ]
         },
-          { text: '2026年的碎碎念', link: '/src/other/2026年的碎碎念.md' },
+        { text: '2026年的碎碎念', link: '/src/other/2026年的碎碎念.md' },
         ]
       },
       {
         text: '前端',
         items: [
-          { text: '前端三件套', 
-             items:[
+          {
+            text: '前端三件套',
+            items: [
               {
                 text: 'HTML',
                 link: '/src/frontend/html.md'
               },
               {
-                text: 'CSS', 
-                 items:[
+                text: 'CSS',
+                items: [
                   {
                     text: 'CSS',
                     link: '/src/frontend/css.md'
@@ -53,35 +54,42 @@ export default defineConfig({
                     text: '盒子布局',
                     link: '/src/frontend/盒子布局.md'
                   },
-                             {
+                  {
+                    text: '变换和过渡',
+                    link: '/src/frontend/变换和过渡.md'
+                  },
+                  {
                     text: 'UI设计',
                     link: '/src/frontend/UI设计.md'
                   },
+
                   // {
                   //   text: '其他',
                   //   link: '/src/frontend/html.md'
                   // }
-                 ]
+                ]
               },
               {
                 text: 'JavaScript',
                 link: '/src/frontend/javascript.md'
               }
-             ]
-           },
+            ]
+          },
 
         ]
       },
-            {
+      {
         text: '后端',
         items: [
-          { text: 'Java', items: [
-            { text: 'JavaSE', link: '/src/backend/Java/JavaSE.md' },
-            { text: 'JavaWeb', link: '/src/backend/Java/JavaWeb.md' },
-            { text: 'SpringSSM', link: '/src/backend/Java/SpringSSM.md' },
-            { text: 'Springboot', link: '/src/backend/Java/Springboot.md' },
-            { text: 'SpringCloud', link: '/src/backend/Java/SpringCloud.md' },
-          ] },
+          {
+            text: 'Java', items: [
+              { text: 'JavaSE', link: '/src/backend/Java/JavaSE.md' },
+              { text: 'JavaWeb', link: '/src/backend/Java/JavaWeb.md' },
+              { text: 'SpringSSM', link: '/src/backend/Java/SpringSSM.md' },
+              { text: 'Springboot', link: '/src/backend/Java/Springboot.md' },
+              { text: 'SpringCloud', link: '/src/backend/Java/SpringCloud.md' },
+            ]
+          },
         ]
       },
       {
