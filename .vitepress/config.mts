@@ -110,7 +110,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/KcNco7' }
+      { icon: 'github', link: 'https://github.com/KcNcozz' }
     ]
   }
 })
