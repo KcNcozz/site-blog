@@ -91,7 +91,7 @@ export default defineConfig({
           },
           {
             text: '中间件', items: [
-              { text: 'Docker', link: '/src/backend/中间件/Docker.md' },
+              { text: 'Docker', link: '/src/backend/中间件/docker.md' },
             ]
           }
         ]
@@ -100,7 +100,7 @@ export default defineConfig({
         text: '小知识',
         items: [
           { text: 'Git', link: '/src/web/git.md' },
-          { text: '小知识总结.md', link: '/src/web/小知识总结.md' },
+          { text: '小知识总结', link: '/src/web/小知识总结.md' },
 
         ]
       },
