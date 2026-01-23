@@ -89,13 +89,18 @@ export default defineConfig({
               { text: 'SpringCloud', link: '/src/backend/Java/SpringCloud.md' },
             ]
           },
+          {
+            text: '中间件', items: [
+              { text: 'Docker', link: '/src/backend/中间件/Docker.md' },
+            ]
+          }
         ]
       },
       {
         text: '小知识',
         items: [
           { text: 'Git', link: '/src/web/git.md' },
-          { text: 'SEO', link: '/src/web/seo.md' },
+          { text: '小知识总结.md', link: '/src/web/小知识总结.md' },
 
         ]
       },
