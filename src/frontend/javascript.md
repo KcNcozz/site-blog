@@ -286,7 +286,7 @@ var iterator = arr[Symbol.iterator]();
 ```
 
 
-## 函数 没讲清楚有点问题 下来再找点知识看看
+## 函数
 JavaScript可以传任意个参数，也可以忽略参数。`arguments`对象可以获取函数传递进来的参数。
 
 ```javascript
@@ -587,62 +587,206 @@ handleData();
 ```
 
 ## JavaScript DOM
-DOM是Document Object Model的缩写，即文档对象模型。DOM是HTML和XML文档的编程接口。DOM允许JavaScript创建、修改和删除HTML元素。
 
-### 操作DOM
-- `window`: 代表浏览器窗口
-- `Navigator`: 封装了浏览器信息（大多数时候不建议使用）
-- `location`: 当前页面的URL信息
-- `document`: 当前页面内容
-- `history`: 浏览器历史记录（不建议使用 现在使用Ajax）
+### 1. 查找节点
 
-### 获取DOM
-归结到底就是：增删改查
+获取页面元素是操作 DOM 的第一步。
 
-- `getElementById()`: 根据id获取元素
-- `getElementsByClassName()`: 根据类名获取元素
-- `getElementsByTagName()`: 根据标签名获取元素
-- `querySelector()`: 根据选择器获取元素
-- `querySelectorAll()`: 根据选择器获取元素
-- `document.body`: 获取body元素
+#### 1.1 标准选择器 (推荐)
+现代浏览器主要使用 `querySelector` 和 `querySelectorAll`，语法类似于 CSS 选择器。
+
+*   **`document.querySelector(selector)`**: 返回匹配到的**第一个**元素。如果没有匹配则返回 `null`。
+*   **`document.querySelectorAll(selector)`**: 返回所有匹配元素的 **NodeList**（类数组对象）。如果没有匹配则返回空的 `NodeList`。
 
 ```javascript
-获取元素：
-var element = document.getElementById('name'); 
-var elements = document.getElementsByClassName('name'); 
-var elements = document.getElementsByTagName('div');
+// 获取 ID 为 btn 的元素
+const btn = document.querySelector('#btn');
 
-element.innerHTML; // 获取元素内容
-var childrens = element.children; // 获取父元素下所有子元素
-var parent = element.parentNode;  // 获取父元素
-var next = element.nextSibling; // 获取下一个兄弟元素
+// 获取所有 class 为 item 的元素
+const items = document.querySelectorAll('.item');
 
-修改元素：
-element.innerText = 'hello'; // 修改元素内容
-element.innerHTML = '<h1>hello</h1>'; // 修改元素内容(可以解析HTML标签)
-element.style.color = 'red'; // 修改元素样式
-element.className = 'name'; // 修改元素类名
-element.setAttribute('id', 'name'); // 添加属性
-
-删除元素(步骤：先获取父元素，然后通过父元素删除自己)：
-// 删除多个节点的时候，childrens是在时刻变化的
-element.removeChild(); // 删除
-
-添加元素：
-// 如果我们获得的DOM元素是空的，那么通过innerHTML就会添加一个元素，如果这个DOM已经存在元素，那么通过innerHTML就会替换（覆盖）这个元素。
-element.appendChild(xxx); // 追加元素
-element.insertBefore(newNode, targetNode); // 添加元素
-document.createElement('div'); // 创建一个新的div元素
-
-示例：
-var element = document.createElement('div'); // 创建一个div元素
-element.innerHTML = 'hello'; // 添加内容
-element.id = 'name'; // 添加id属性
-
-// 创建一个标签元素:
-var script = document.createElement('script');
-script.setAttribute('src', 'https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js');
+// 获取第一个 p 标签
+const firstP = document.querySelector('p');
 ```
+
+#### 1.2 传统 getElement 系列 (效率稍高，但功能单一)
+*   **`document.getElementById(id)`**: 通过 ID 获取元素。
+*   **`document.getElementsByClassName(className)`**: 通过类名获取（返回 HTMLCollection，**实时更新**）。
+*   **`document.getElementsByTagName(tagName)`**: 通过标签名获取（返回 HTMLCollection，**实时更新**）。
+
+> **注意：** `querySelectorAll` 返回的是静态 `NodeList`（获取后 DOM 变化不影响结果），而 `getElementsBy...` 返回的是动态 `HTMLCollection`（DOM 变化会自动反映在集合中）。
+
+---
+
+### 2. 修改内容与属性
+
+获取元素后，可以对其进行修改。
+
+#### 2.1 修改文本内容
+*   **`element.textContent`**: 设置或获取元素及其后代的**纯文本**内容（不解析 HTML 标签）。
+*   **`element.innerText`**: 类似于 `textContent`，但会触发重排，且受 CSS 样式（如 `display: none`）影响。**推荐使用 `textContent`**。
+*   **`element.innerHTML`**: 设置或获取元素的 **HTML 内容**（解析标签）。**注意：存在 XSS 安全风险，不要插入不可信的用户输入。**
+
+```javascript
+const div = document.querySelector('div');
+
+div.textContent = '<strong>Hello</strong>'; // 显示为纯文本：<strong>Hello</strong>
+div.innerHTML = '<strong>Hello</strong>';   // 显示为粗体：Hello
+```
+
+#### 2.2 修改样式
+*   **`element.style.property`**: 修改**行内样式**（优先级高）。属性名使用驼峰命名法（如 `backgroundColor` 而不是 `background-color`）。
+*   **`element.className`**: 替换整个 class 字符串。
+*   **`element.classList`**: 专门用于操作类名的 API，非常强大。
+
+```javascript
+div.style.color = 'red';
+div.style.fontSize = '16px';
+
+// classList 操作
+div.classList.add('active');      // 添加类
+div.classList.remove('hidden');   // 移除类
+div.classList.toggle('open');     // 有则删，无则加
+div.classList.contains('open');   // 检查是否存在
+```
+
+#### 2.3 修改属性
+*   **`element.getAttribute(attr)`**: 获取属性值。
+*   **`element.setAttribute(attr, value)`**: 设置属性值。
+*   **`element.removeAttribute(attr)`**: 移除属性。
+
+```javascript
+const link = document.querySelector('a');
+link.setAttribute('href', 'https://www.example.com');
+link.getAttribute('target'); // 返回 "_blank"
+```
+
+---
+
+### 3. 节点增删改 (DOM 结构操作)
+
+动态改变页面结构是 DOM 操作最强大的地方。
+
+#### 3.1 创建节点
+*   **`document.createElement(tagName)`**: 创建元素节点。
+*   **`document.createTextNode(text)`**: 创建文本节点（较少用）。
+*   **`document.createDocumentFragment()`**: 创建文档片段（用于性能优化，见下文）。
+
+```javascript
+const newLi = document.createElement('li');
+newLi.textContent = '我是新列表项';
+```
+
+#### 3.2 插入节点
+*   **`parentNode.appendChild(child)`**: 将子节点添加到父节点的**末尾**。
+*   **`parentNode.insertBefore(newNode, referenceNode)`**: 将新节点插入到参考节点之前。
+*   **`element.prepend()`**: 插入到父节点的**开头**。
+*   **`element.after()` / `element.before()`**: 插入到元素的后面/前面。
+
+```javascript
+const ul = document.querySelector('ul');
+ul.appendChild(newLi); // 添加到列表末尾
+
+// 插入到第一个元素之前
+const firstItem = ul.querySelector('li');
+ul.insertBefore(newLi, firstItem); 
+```
+
+#### 3.3 删除节点
+*   **`parentNode.removeChild(child)`**: 传统方法。
+*   **`element.remove()`**: 现代方法，直接删除自身。
+
+```javascript
+ul.removeChild(newLi);
+// 或者
+newLi.remove();
+```
+
+#### 3.4 替换与克隆
+*   **`parentNode.replaceChild(newChild, oldChild)`**: 替换节点。
+*   **`element.cloneNode(true)`**: 克隆节点。参数为 `true` 时深拷贝（克隆后代节点），`false` 时浅拷贝。
+
+---
+
+### 4. DOM 遍历 (节点关系)
+
+通过相对位置查找节点。
+
+*   **`parentNode`**: 父节点。
+*   **`children`**: 所有子元素（不包括文本节点和注释）。
+*   **`firstElementChild` / `lastElementChild`**: 第一个/最后一个子元素。
+*   **`previousElementSibling` / `nextElementSibling`**: 上一个/下一个兄弟元素。
+*   **`closest(selector)`**: 从当前元素开始，沿 DOM 树向上查找匹配选择器的**最近祖先**（包括自身）。
+
+> 注意：避免使用 `firstChild` 或 `nextSibling`，因为它们可能获取到空白文本节点。请使用带有 `Element` 关键字的属性。
+
+```javascript
+const item = document.querySelector('.item');
+const parentUl = item.closest('ul'); // 找到最近的 ul 祖先
+```
+
+---
+
+### 5. 事件处理
+
+让页面对用户操作做出反应。
+
+#### 5.1 添加事件监听
+*   **`addEventListener(event, handler, options)`**: 最推荐的方式。
+    *   **event**: 事件名（如 `'click'`, 不加 `on`）。
+    *   **handler**: 回调函数。
+    *   **options**: 可选配置，如 `{ once: true }` (只触发一次) 或 `{ passive: true }` (优化滚动性能)。
+
+```javascript
+btn.addEventListener('click', function(event) {
+    console.log('按钮被点击了');
+    // event.target 触发事件的元素
+});
+```
+
+#### 5.2 事件冒泡与捕获
+*   **冒泡**: 事件从目标元素向上传递到 window。
+*   **捕获**: 事件从 window 向下传递到目标元素（`addEventListener` 第三个参数设为 `true` 开启）。
+
+#### 5.3 事件委托
+**非常重要**。利用事件冒泡机制，将事件监听器加在父元素上，而不是每个子元素上。这大大提高了性能，特别是对于动态添加的元素。
+
+```javascript
+// 场景：给 ul 里的 10000 个 li 绑定点击事件
+// ❌ 错误做法：循环给每个 li 绑定，性能极差
+// li.forEach(item => item.addEventListener(...))
+
+// ✅ 正确做法：只给 ul 绑定
+ul.addEventListener('click', (e) => {
+    if (e.target.tagName === 'LI') { // 判断点击的是否是 li
+        console.log('你点击了:', e.target.textContent);
+    }
+});
+```
+
+---
+
+### 6. 性能优化
+
+DOM 操作是昂贵的（因为它会导致浏览器重排 Reflow 和重绘 Repaint），以下技巧至关重要：
+
+1.  **减少 DOM 操作次数**: 尽量合并多次修改。
+    *   **批量修改样式**: 不要频繁修改 `style.color`，而是修改 `className` 或直接操作 `style.cssText`。
+2.  **使用 DocumentFragment (文档片段)**:
+    如果要在循环中插入大量节点，先将它们插入到内存中的 `DocumentFragment`，最后一次性插入到 DOM。
+    ```javascript
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < 1000; i++) {
+        const li = document.createElement('li');
+        li.textContent = `Item ${i}`;
+        fragment.appendChild(li); // 此时还在内存中，不触发重排
+    }
+    ul.appendChild(fragment); // 只触发一次重排
+    ```
+3.  **避免 `layout thrashing` (布局抖动)**:
+    不要交替读写 DOM。
+    *   *Bad*: 读 offsetHeight -> 写 style.height -> 读 offsetHeight...
+    *   *Good*: 读 offsetHeight -> 读 offsetWidth -> 写 style.height...
 
 ### 操作表单
 
@@ -654,121 +798,6 @@ element.checked; // 获取复选框是否选中(返回值为true/false)
 
 // 2. 提交表单（加密）
 ```
-
-## DOM快速总结
-
-JavaScript DOM（文档对象模型）操作是前端开发的核心技能。简单来说，DOM 就是让 JavaScript 能够**操作 HTML 页面**的接口。
-
-要精通 DOM 操作，你需要系统地学习以下 **7 个核心板块** 的知识：
-
----
-
-### 1. DOM 树与基本结构
-在写代码之前，你需要理解浏览器的内部视图。
-*   **节点树：** 理解 HTML 文档是如何被浏览器解析成树状结构的。
-*   **节点类型：**
-    *   `Element` (元素节点，如 `<div>`)
-    *   `Text` (文本节点)
-    *   `Comment` (注释节点)
-    *   `Document` (文档节点)
-*   **核心对象：** `window` (全局对象) 和 `document` (DOM 的入口)。
-
-### 2. 元素的选择与查找
-这是第一步，你要先“找到”元素才能操作它。
-*   **现代标准方法 (必须掌握)：**
-    *   `querySelector(selector)`: 选择匹配的第一个元素。
-    *   `querySelectorAll(selector)`: 选择匹配的所有元素 (返回 NodeList)。
-*   **传统方法 (了解原理，依然有用)：**
-    *   `getElementById(id)`
-    *   `getElementsByTagName(tagName)`
-    *   `getElementsByClassName(className)`
-*   **关系遍历：**
-    *   父子节点：`parentNode`, `children`, `firstElementChild`, `lastElementChild`。
-    *   兄弟节点：`previousElementSibling`, `nextElementSibling`。
-    *   *注意：尽量避免使用 `childNodes` (包含空文本等) 和 `nextSibling`，通常使用带 Element 的版本。*
-
-### 3. 元素内容的修改
-获取到元素后，如何改变里面的文字或 HTML？
-*   **文本操作：**
-    *   `innerText` / `textContent`: 设置或获取纯文本（会自动转义 HTML 标签）。
-    *   `innerHTML`: 设置或获取 HTML 代码（可解析标签，但有 XSS 安全风险）。
-*   **元素属性操作：**
-    *   `id`, `className`, `title`, `value` (表单元素) 等直接属性访问。
-    *   `href`, `src` 等特殊属性的相对/绝对路径处理。
-*   **样式操作：**
-    *   内联样式：`element.style.color = 'red'` (驼峰命名法)。
-    *   获取计算样式：`window.getComputedStyle(element)` (只读)。
-
-### 4. 属性操作
-区分“标准属性”和“自定义属性”。
-*   **标准属性 (HTML 自带的)：**
-    *   直接操作：`div.id`, `input.disabled = true`。
-*   **通用方法 (任意属性)：**
-    *   `getAttribute(name)`: 获取属性值。
-    *   `setAttribute(name, value)`: 设置属性值。
-    *   `removeAttribute(name)`: 移除属性。
-    *   `hasAttribute(name)`: 检查是否存在。
-*   **自定义数据属性：**
-    *   `data-*` 属性。
-    *   JS 中通过 `dataset` 对象访问 (如 `div.dataset.userId`)。
-
-### 5. 类名 操作
-现代开发主要靠 CSS 类来控制样式，而不是直接操作 `style`。
-*   **属性方式：** `className` (字符串，替换所有类)。
-*   **现代 API (推荐)：** `classList`
-    *   `add(class1, class2)`: 添加类。
-    *   `remove(class1)`: 移除类。
-    *   `toggle(class)`: 有则删，无则加 (常用作开关)。
-    *   `contains(class)`: 检查是否包含类。
-    *   `replace(oldClass, newClass)`: 替换类。
-
-### 6. 节点的增删改
-动态改变页面结构。
-*   **创建节点：**
-    *   `document.createElement(tagName)`
-    *   `document.createTextNode(text)`
-*   **插入节点：**
-    *   `appendChild(child)`: 在父节点末尾添加。
-    *   `insertBefore(newNode, referenceNode)`: 在指定节点前插入。
-    *   **现代 API：** `append()`, `prepend()`, `after()`, `before()` (支持多节点和字符串)。
-*   **删除节点：**
-    *   `removeChild(child)`: 传统方式。
-    *   `remove()`: 现代方式，直接自杀 `element.remove()`。
-*   **替换与克隆：**
-    *   `replaceChild(newNode, oldNode)`
-    *   `cloneNode(true/false)`: 克隆节点（参数为 true 时深度克隆子节点）。
-
-### 7. DOM 事件
-让页面“活”起来的关键。
-*   **事件绑定：**
-    *   HTML 属性 (不推荐)。
-    *   `element.onclick = function` (只能绑定一个，不推荐)。
-    *   **addEventListener** (标准，推荐)。
-    *   `removeEventListener` (解绑)。
-*   **事件对象：**
-    *   `event.target`: 触发事件的源头元素。
-    *   `event.currentTarget`: 绑定事件的元素。
-    *   阻止默认行为：`event.preventDefault()` (如阻止链接跳转)。
-    *   阻止冒泡：`event.stopPropagation()`。
-*   **事件流：**
-    *   **冒泡:** 从里向外。
-    *   **捕获:** 从外向里。
-    *   **事件委托:** 利用冒泡原理，将事件绑定在父元素上处理子元素事件（性能优化核心技巧）。
-*   **常见事件类型：**
-    *   鼠标：`click`, `dblclick`, `mouseenter/mouseleave` (不冒泡), `mouseover/mouseout` (冒泡), `mousemove`。
-    *   键盘：`keydown`, `keyup`, `keypress`。
-    *   表单：`submit`, `input`, `change`, `focus`, `blur`。
-    *   文档/窗口：`DOMContentLoaded` (HTML 加载解析完成), `load` (资源全部加载完成), `scroll`, `resize`。
-
----
-
-### 8. 进阶与性能
-*   **DOM 重排与重绘：**
-    *   理解修改 DOM 尺寸、位置会触发“重排”，消耗性能。
-    *   优化技巧：批量读写、使用 `documentFragment` (文档片段) 进行批量插入。
-*   **DOM 与 HTMLCollection / NodeList 的区别：**
-    *   `HTMLCollection` 是实时的（页面变了，它自动变，如 `getElementsByTagName`）。
-    *   `NodeList` 通常是静态的（如 `querySelectorAll`）。
 
 
 ## 模块化
