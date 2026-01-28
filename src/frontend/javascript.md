@@ -461,7 +461,7 @@ const obj = {
 ![this](../../assert/this.png)
 
 
-### 异步编程
+## 异步编程
 
 JavaScript 是**单线程**的，意味着它同一时间只能做一件事。如果它去下载一张图片（耗时5秒），如果不处理异步，网页就会卡死5秒钟，用户什么都点不了。
 
@@ -483,15 +483,15 @@ console.log("3. 结束");
 // 解释：JS 不会傻傻等 2 秒，而是先把 setTimeout 放一边（宏任务），继续执行下面的代码，等时间到了再回来执行。
 ```
 
-#### 2. Promise
+#### 2. Promise（重要）
 以前为了处理异步，我们会把函数套在函数里（回调函数）。如果步骤一多，代码就会变成金字塔形状（回调地狱），难以维护。Promise 就是为了解决这个问题诞生的。
 
-*   **三种状态**：
+- **三种状态**：
     *   `Pending` (进行中)
     *   `Resolved` (已成功)
     *   `Rejected` (已失败)
 
-*   **基本用法**：
+- **基本用法**：
     Promise 是一个承诺：我可能会成功，也可能会失败，稍后告诉你结果。
 
     ```javascript
@@ -520,7 +520,44 @@ console.log("3. 结束");
         });
     ```
 
-#### 3. Async / Await (终极武器)
+- **链式调用**：
+这是 Promise 最强大的地方。如果你有两个任务，必须按顺序做完（比如：先拿到用户ID，再去拿用户详情），就需要链式调用。
+
+**规则**：`.then()` 里面返回一个新的 Promise，下一个 `.then()` 就会等待这个新 Promise 完成后再执行。
+
+```javascript
+模拟登录：
+function step1() {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve("用户ID: 888"), 1000);
+    });
+}
+
+function step2(userId) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(`拿到 ${userId} 的详细资料`), 1000);
+    });
+}
+
+// 开始链式调用
+step1()
+    .then((id) => {
+        console.log("第一步结果：" + id);
+        // 关键点：返回一个 Promise，把结果传给下一个 then
+        return step2(id); 
+    })
+    .then((details) => {
+        console.log("第二步结果：" + details); 
+        // 只有 step2 完成了，这里才会运行
+    })
+    .catch((err) => {
+        // 上面任何一步出错，都会直接跳到这里，中间的 .then 不会执行
+        console.log("出错了：" + err);
+    });
+```
+
+
+#### 3. Async / Await（ES7）
 这是 Promise 的语法糖。它的出现让异步代码写得**像同步代码一样直观**。这是目前最主流的写法。
 
 *   **规则**：
