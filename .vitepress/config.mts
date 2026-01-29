@@ -29,40 +29,43 @@ export default defineConfig({
             items: [
               {
                 text: 'HTML',
-                link: '/src/frontend/html.md'
+                link: '/src/frontend/base/html.md'
               },
               {
                 text: 'CSS',
                 items: [
                   {
-                    text: 'CSS',
-                    link: '/src/frontend/css.md'
+                    text: 'CSS基础',
+                    link: '/src/frontend/base/css.md'
                   },
                   {
                     text: '盒子布局',
-                    link: '/src/frontend/盒子布局.md'
+                    link: '/src/frontend/base/盒子布局.md'
                   },
                   {
                     text: '变换和过渡',
-                    link: '/src/frontend/变换和过渡.md'
+                    link: '/src/frontend/base/变换和过渡.md'
                   },
                   {
                     text: 'UI设计',
-                    link: '/src/frontend/UI设计.md'
+                    link: '/src/frontend/base/UI设计.md'
                   },
                 ]
               },
               {
                 text: 'JavaScript',
-                link: '/src/frontend/javascript.md'
-              },
-              {
-                text: 'AJAX',
-                link: '/src/frontend/ajax.md'
+                link: '/src/frontend/base/javascript.md'
               }
-            ]
+            ],
           },
-
+          {
+            text: 'AJAX',
+            link: '/src/frontend/ajax.md'
+          },
+          {
+            text: 'Vite',
+            link: '/src/frontend/vite.md'
+          },
         ]
       },
       {
