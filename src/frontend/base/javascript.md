@@ -458,7 +458,7 @@ const obj = {
 ::: warning `this`关键字的用法(第1点)
 可以把它当做Java中的this使用 `this`指向的是当前对象(使用它的人)。在JavaScript中可以改变`this`指向。 
 :::
-![this](../../../assert/this.png)
+![this](/assert/this.png)
 
 
 ## 异步编程
@@ -914,4 +914,186 @@ console.log(allMath.subtract(5, 3));
 2.  **浏览器兼容性**
     现代浏览器都支持 ES6 模块，但如果你需要兼容非常老的浏览器（如 IE11），你需要配合打包工具（如 Webpack）把模块化代码编译成浏览器能懂的旧代码。
 
+
+## ES6总结
+
+### 1. 变量声明：`let` 和 `const`
+ES6 之前只有 `var`，它只有**函数作用域**（容易导致变量污染）。ES6 引入了**块级作用域**。
+
+*   **`const`**: 常量。声明后不能重新赋值（推荐优先使用）。
+*   **`let`**: 变量。可以被重新赋值。
+
+```javascript
+// 旧写法
+var name = "XiaoMing";
+
+// 新写法
+let age = 18;
+const birthYear = 2005;
+
+age = 19; // 正确
+// birthYear = 2006; // 报错！无法给常量重新赋值
+```
+
+### 2. 箭头函数
+提供了更简洁的函数写法，并且**不绑定自己的 `this`**（它会捕获其所在上下文的 `this` 值，解决了 `this` 指向混乱的问题）。
+
+```javascript
+// 传统函数
+function add(a, b) {
+  return a + b;
+}
+
+// 箭头函数
+const add = (a, b) => a + b;
+
+// 如果只有一个参数，括号可以省略
+const double = n => n * 2;
+```
+
+### 3. 模板字符串
+使用反引号 `` ` `` 代替引号。可以直接换行，并使用 `${}` 插入变量或表达式。告别繁琐的 `+` 号拼接。
+
+```javascript
+const user = "李华";
+const greeting = `你好，${user}！`; // 插入变量
+
+const result = `1 + 1 等于 ${1 + 1}`; // 插入表达式
+```
+
+### 4. 解构赋值
+一种快速从数组或对象中提取值并赋给变量的语法。
+
+**对象解构：**
+```javascript
+const person = { name: "Bob", age: 20, city: "Beijing" };
+
+// 只提取 name 和 age
+const { name, age } = person;
+
+console.log(name); // "Bob"
+```
+
+**数组解构：**
+```javascript
+const numbers = [1, 2, 3];
+
+const [first, second] = numbers;
+
+console.log(second); // 2
+```
+
+### 5. 展开运算符与剩余参数 (`...`)
+`...` 这个语法非常强大，根据上下文不同有两种用法。
+
+**展开:** 将数组或对象“展开”成单个元素。
+```javascript
+const arr1 = [1, 2];
+const arr2 = [...arr1, 3, 4]; // 结果: [1, 2, 3, 4]
+
+// 合并对象
+const obj = { a: 1 };
+const newObj = { ...obj, b: 2 }; // { a: 1, b: 2 }
+```
+
+**剩余:** 将多个元素收集到一个数组中。
+```javascript
+function sumAll(...numbers) {
+  return numbers.reduce((total, num) => total + num, 0);
+}
+
+sumAll(1, 2, 3, 4); // 这里 numbers 变成了 [1, 2, 3, 4]
+```
+
+### 6. 数组的高阶方法
+虽然这些方法在 ES6 之前就存在，但在 ES6 时代配合箭头函数使用最为广泛。
+
+*   **`map`**: 映射，把数组里的每一项经过处理生成一个新数组。
+*   **`filter`**: 过滤，筛选出符合条件的项。
+*   **`reduce`**: 汇总，将数组计算为一个值。
+
+```javascript
+const nums = [1, 2, 3, 4, 5];
+
+// 所有数字乘以 2
+const doubled = nums.map(n => n * 2); // [2, 4, 6, 8, 10]
+
+// 筛选出偶数
+const evens = nums.filter(n => n % 2 === 0); // [2, 4]
+```
+
+### 7. 默认参数
+在函数定义时直接给参数设置默认值，不再需要 `a = a || 1` 这种hack写法。
+
+```javascript
+function multiply(a, b = 1) {
+  return a * b;
+}
+
+multiply(5);    // 返回 5 (使用了默认的 b=1)
+multiply(5, 2); // 返回 10
+```
+
+### 8. 模块化
+这是现代前端开发的基础。允许将代码拆分成多个文件。
+
+**导出:**
+```javascript
+// utils.js
+export const PI = 3.14;
+export function add(a, b) { return a + b; }
+```
+
+**导入:**
+```javascript
+// main.js
+import { PI, add } from './utils.js';
+```
+
+### 9. 类
+ES6 引入了 `class` 关键字，让面向对象编程的写法更像 Java 或 C++（虽然底层依然是基于原型的）。
+
+```javascript
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  speak() {
+    console.log(`${this.name} 发出了叫声`);
+  }
+}
+
+const dog = new Animal("旺财");
+dog.speak(); // "旺财 发出了叫声"
+```
+
+### 10. Promise
+Promise 是异步编程的一种解决方案，比传统的回调函数更合理、更强大。它解决了“回调地狱”的问题。
+
+```javascript
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("数据获取成功！");
+    }, 1000);
+  });
+};
+
+fetchData().then(data => {
+  console.log(data); // 1秒后打印 "数据获取成功！"
+});
+```
+
+### 补充：对象属性简写
+如果你的对象属性名和变量名一样，你可以简写：
+
+```javascript
+const a = 1;
+const b = 2;
+
+// 旧写法: { a: a, b: b }
+// 新写法:
+const obj = { a, b }; // { a: 1, b: 2 }
+```
 

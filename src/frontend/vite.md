@@ -213,3 +213,48 @@ const lastEnvConfig = {...baseEnvConfig,...modeEnvConfig}
 ```
 
 对于客户端：Vite会自动将环境变量注入到`import.meta.env`对象中，这样我们就可以在代码中直接使用`import.meta.env.API_KEY`来获取对应的值。为了防止我们将隐私性的变量直接送进`import.meta.env`中，vite做了一层拦截。如果你的环境变量是以`VITE_`开头的，那么vite才会将这个环境变量注入到`import.meta.env`对象中。如果我们不想使用`VITE_`前缀，我们可以使用envPrefix配置项来改变这个前缀。
+
+
+## [原理篇] Vite是怎么让浏览器可以识别.vue文件的 （听不懂node 先不总结）
+
+```javascript
+// 安装create-vite脚手架 使用脚手架的命令构建项目
+npm create vite@latest my-vue-app -- --template vue
+```
+
+用通俗的话讲：如果是Vue文件，会做一个字符串替换：`mainVueContent.toString().find("<template>")`，如果匹配到了就全部进行字符串替换。
+
+AST语法分析 ---> Vue.createElement() ---> 构建原生dom
+
+vue的编译器会把vue文件转为模板AST，再转为JS AST，最后转为VNode（本质就是JS对象），便于渲染器去挂载/更新节点，渲染器去挂载也是JS实现的
+
+总结：通过node后端将vue解析成js格式，并返回ContentType告诉浏览器按照js解析
+
+## 5. 在vite中处理css
+
+**vite天生就支持对css文件的直接处理**
+
+1. vite在读取到main.js中引用到了index.css
+2. 直接去使用fs模块去读取index.css中文件内容
+3. 直接创建一个style标签，将index.css中文件内容直接copy进style标签里
+4. 将style标签插入到index.html的head中
+5. 将该css文件中的内容直接替换为js脚本(方便热更新或者css模块化)，同时设置Content-Type为js，从而让浏览器以JS脚本的形式来执行该css
+后缀的文件
+
+> 场景:
+>- 一个组件最外层的元素类名一般取名: wrapper
+>- 一个组件最底层的元素类名一般取名: .footer   
+> 你取了footer这个名字，别人因为没有看过你这个组件的源代码，也可能去取名footer这个类名最终可能会导致样式被覆盖(因为类名重复)，这就是我们在协同开发的时候很容易出现的问题
+
+cssmodule就是来解决这个问题的
+
+::: tip 原理 全部都是基于node
+1. module.css(module是一种约定，表示需要开启css模块化)
+2. 它会将你的所有类名进行一定规则的替换(将`footer`替换成`_footer_i22st_1`)
+3. 同时创建一个映射对象{ footer: "_footer_i22st_1" }
+4. 将替换过后的内容塞进style标签里然后放入到head标签中 (能够读到index.html的文件内容)
+5. 将componentA.module.css内容进行全部抹除，替换成JS脚本
+6. 将创建的映射对象在脚本中进行默认导出
+:::
+
+## 6. vite.config.js中css配置（module篇）
