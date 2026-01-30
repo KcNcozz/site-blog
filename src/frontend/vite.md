@@ -28,7 +28,7 @@ create-vite和vite的关系是什么呢？ create-vite内置了vite
 - vue-cli create-vite: 精装房
 :::
 
-## 1. Vite开箱即用 (out of box)
+## 1. vite开箱即用 (out of box)
 
 开箱即用: 你不需要做任何额外的配置就可以使用vite来帮你处理构建工作
 
@@ -37,7 +37,7 @@ create-vite和vite的关系是什么呢？ create-vite内置了vite
 3. 构建项目：`yarn build`
 > 在默认情况下，我们的esmodule去导入资源的时候，要么是绝对路径，要么是相对路径。既然我们现在的最佳实践就是node_modules，那为什么es官方在我们导入非绝对路径和非相对路径的资源的时候不默认帮我们 搜寻node_nodules呢? ---> 假设加载`loadsh`，`loadsh`依赖更多东西，如果都加载则消耗大量性能。
 
-## 2. Vite预加载
+## 2. vite预加载
 
 在处理的过程中如果说看到了有非绝对路径或者相对路径的引用，他则会尝试开启路径补全。找寻依赖的过程是自当前目录依次向上查找的过程，直到搜寻到根目录或者搜寻到对应依赖为止 /user/node_modules/lodash，../
 
@@ -80,7 +80,7 @@ function a() {}
 // 把其他包导出的东西提取出来，用一个函数包裹，放一个包里面，调用的时候才会执行
 ```
 
-## 3. Vite的配置文件
+## 3. vite的配置文件
 
 1. Vite的配置文件：`vite.config.js`
 2. 配置文件的语法提示：
@@ -167,7 +167,7 @@ import { defineConfig  } from 'vite';
 export default defineConfig({});
 ```
 
-## 4. Vite环境变量配置
+## 4. vite环境变量配置
 
 环境变量：会根据当前的代码环境产生值的变化的变量就叫做环境变量
 
@@ -215,7 +215,7 @@ const lastEnvConfig = {...baseEnvConfig,...modeEnvConfig}
 对于客户端：Vite会自动将环境变量注入到`import.meta.env`对象中，这样我们就可以在代码中直接使用`import.meta.env.API_KEY`来获取对应的值。为了防止我们将隐私性的变量直接送进`import.meta.env`中，vite做了一层拦截。如果你的环境变量是以`VITE_`开头的，那么vite才会将这个环境变量注入到`import.meta.env`对象中。如果我们不想使用`VITE_`前缀，我们可以使用envPrefix配置项来改变这个前缀。
 
 
-## [原理篇] Vite是怎么让浏览器可以识别.vue文件的 （听不懂node 先不总结）
+## [原理篇] vite是怎么让浏览器可以识别.vue文件的 （听不懂node 先不总结）
 
 ```javascript
 // 安装create-vite脚手架 使用脚手架的命令构建项目
@@ -255,6 +255,330 @@ cssmodule就是来解决这个问题的
 4. 将替换过后的内容塞进style标签里然后放入到head标签中 (能够读到index.html的文件内容)
 5. 将componentA.module.css内容进行全部抹除，替换成JS脚本
 6. 将创建的映射对象在脚本中进行默认导出
+
+less: 一个css预处理器
 :::
 
 ## 6. vite.config.js中css配置（module篇）
+
+> 之前对vite怎么处理css文件的原理已经很清楚了，如何通过配置更改或者覆盖vite默认的处理方式呢？
+
+在vite.config.js中我们通过css属性去控制（很多属性不太用 但是面试的时候会问）
+
+- `localConvention`: 修改生成的配置对象的key的展示形式(驼峰还是中划线形式)
+- `scopeBehaviour`: 配置当前的模块化行为是模块化还是全局化(有hash就是开启了模块化的一个标志，因为他可以保证产生不同的hash值来控制我们的样式类名不被覆盖)
+- `generateScopedName`: 生成的类名的规则(可以配置为函数，也可以配置成字符串规则: https://github.com/webpack/loader-utils#interpolatename)
+- `hashPrefix`: 生成hash会根据你的类名 + 一些其他的字符串(文件名 + 他内部随机生成一个字符事)去进行生成，如果你想要你生成hash更加的独特一点，你可以配置hashPrefix，你配置的这个字符串会参与到最终的hash生成，(hash:只要你的字符串有一个字不一样，那么生成的hash就完全不一样，但是只要你的字符串完全一样，生成的hash就会一样)
+- `globalModulePaths`: 代表你不想参与css module化的文件路径(一般用于第三方css) 文件不加.module也可
+
+## 7. vite.config.js中css配置（preprocessorOptions篇） 
+
+主要是用来配置css预处理的一些全局参数
+
+> 假设没有使用构建工具，我们又想去编译less文件的话，我们需要安装less `yarn add less` 。
+> 只要你安装了node，你就可以使用node index.js。   
+> 只要你安装了less，你就可以使用lessc去编译less文件。
+
+- `less`
+- `scss`
+- `devSourcemap`: 开启css的sourceMap（文件索引）
+
+::: tip sourceMap
+文件之间的索引：
+
+假设我们的代码被压缩或者被编译过了，这个时候假设程序出错，他将不会产生正确的错误位置信息。如果设置了sourceMap，他就会有一个索引文件map
+
+原理：sourceMap在文件后面加了一行代码，其中有一个base64，这个base64将源代码copy过来
+:::
+
+## 8. vite.config.js中css配置（postcss篇）
+
+预处理器不能解决一下问题：
+1. 对未来css属性的一些使用降级问题
+2. 前缀补全：Google Chrome 浏览器会自动添加前缀 `--webkit`
+
+
+vite天生对postcss有良好的支持，所以业内也把postcss称为后处理器（在less和sass处理完之后再处理）
+### postcss的前世今生
+
+> 假设有一个全屋净水系统，水龙头里来的水是自来水。  
+>自来水从管道里：先到这个全屋净水系统 --> 给全屋净水系统做一些插槽 --> 去除砂砾 --> 净化细菌微生物 --> ... --> 输送到水龙头 --> 我们可以喝的纯净水 (为了保证到我们嘴里喝的水是万无一失) 
+
+postcss：他的工作基本和全屋净水系统一致，保证css在执行起来是万无一失的。  
+
+我们写的css代码 --> postcss --> 将语法进行编译(嵌套语法，函数，变量)成原生css **[less sass等预处理器都可以做]** --> 再次对未来的高级css语法进行降级 --> 前缀补全 --> 浏览器客户端
+
+(类比)babel：保证js在执行起来是万无一失的。
+
+我们写的js代码 --> babel --> 将最新的ts语法进行转换js语法 --> 做一次语法降级 --> 浏览器客户端去执行
+
+::: danger 对postcss的误区
+postcss和less，sass是差不多级别的[❌️]  
+postcss可以涵盖less
+:::
+
+### postcss的使用
+
+1. 安装依赖
+```bash
+npm add postcss-cli postcss -D
+```
+2. 书写描述文件
+不写的话会使用默认配置（什么都不做）
+
+```javascript
+postcss.config.js
+// 需要自己加插槽
+// 预设环境(postcssPresetEnv)里会包含很多插件
+// 语法降级 
+// 编译插件
+// ...
+const postcssPresetEnv = require('postcss-preset-env');
+
+// 预设一次性安装了这些必要的插件
+// 做语法的编译 less sass （语法嵌套 函数 变量）
+module.exports = {
+    Plugins: [postcssPresetEnv(/* pluginOptions */)]
+}
+```
+
+### 在vite中使用postcss
+
+可以像上面一样单独写一个postcss.config.js文件，也可以在vite.config.js中配置postcss（在vite.config.js中配置优先级高于postcss.config.js）
+
+### 为什么postcss没有编译全局css变量
+
+::: danger
+新版本好像没有这个？？？
+:::
+
+## [原理篇] 为什么在服务端处理路径的时候一定要用path
+
+```javascript
+/***
+ * 一定会去读文件
+ * 我们如果写的是相对路径 那么他会尝试去拼接成绝对路径
+ * commonjs 规范 注入几个变量 __dirname
+ * 
+ */
+
+const fs = require("fs"); // 处理文件的模块(读文件，修改文件等一系列操作)
+const path = require("path");// path本质上就是一个字符串处理模块，它里面有非常多的路径字符串处理方法
+
+// /Users/iamsavage/Desktop/b站课程/vite教学/test-path
+// const result = fs.readFilesync(dirname + "/variable.css"); // 我们希望基于main.js去进行一个绝对路径的生成
+const result = fs.readFilesync(path.resolve(__dirname, "./variable.css"));
+// path.resolve在拼接字符串
+
+console.log("result", result.tostring(), process.cwd(), dirname);
+// node端去读取文件或者操作文件的时候，如果发现你用的是相对路径，则会去使用process.cwd()来进行对应的拼接
+//process.cwd:获取当前的node执行目录
+
+// __dirname: 始终返回当前文件所在的目录
+```
+
+## 9. vite加载静态资源及别名
+
+> 什么是静态资源？在服务端，除了动态API以外，99%资源都被视为静态资源
+
+vite这里所说的静态资源一般指的是图片、视频、图标等存放在assert目录下的资源。vite对静态资源基本上是开箱即用的，除了一些特殊情况
+
+- 如果不是使用vite，在其他的一些构建工具里json文件的导入会作为一个JS0N字符串形式存在
+- tree shaking: 摇树优化：打包工具会自动帮你移除掉那些你没有用到的变量或者方法
+
+### vite对svg的处理
+vite对svg(scalable vector graphics 可伸缩矢量图)依旧是开箱即用的。我们在前端领域里更多的是用svg去做图标。  
+优点：
+1. svg不会失真
+2. 尺寸小
+
+缺点：没法很好的表示层次丰富的图片信息
+
+vite处理svg的方式：
+```javascript
+import svgIcon from"./assets/svgs/fullScreen.svg?url"
+// svgIcon是一个绝对路径地址
+console.log("svgIcon", svgIcon) ;
+
+// 第一种使用svg的方式
+const img = document.createElement("img");
+img.src = svgIcon;
+document.body.appendChild(img);
+
+// 第二种使用svg的方式
+import svgRaw from"./assets/svgs/fullScreen.svg?raw"
+// svgRaw是一个字符串
+document.body.innerHTML = svgRaw;
+const svgElement = document.getElementByTagName("svg")[0];
+svgElement.onmouseover = function() {
+    // 不是去改background-color也不是color，而是fill属性
+    this.style.fill = "red";
+}
+```
+
+## [原理篇] resolve.alias原理
+
+::: danger 
+听不懂 先pass
+:::
+
+别名的大体实现流程:
+```javascript
+module.exports = function(aliasConf, JSContent) {
+    const entires = Object.entries(aliasConf);
+    console.log("entires", entires, JSContent);
+    let lastContent = JSContent;
+    entires.forEach(entire => {
+        const [alia, path] = entire; 
+        // 会做path的相对路径处理
+        // 如果我用官方的方式去找相对路径的话
+        const srcIndex = path.index0f("/src");
+        // alias别名最终做的事情就是一个字符串替换
+        const realPath = path.slice(srcIndex, path.length);
+        lastContent = JSContent.replace(alia, realPath);
+})}
+    console.log("lastContent.......")
+    return lastContent;
+```
+
+## 10. vite在生产环境中对静态资源的处理
+
+> 当我们将工程进行打包完成以后，会发现找不到原来的资源
+
+::: tip webpack为什么要配置baseUrl
+配置baseUrl之后，会改变index.html中的的引用路径
+```javascript
+baseUrl: "/"
+配置前：<script src="src/main.js"></script>
+配置后：<script src="/src/main.js"></script>
+在相对路径会变成绝对路径
+```
+:::
+
+- 打包后的静态资源为什么要有hash？浏览器有缓存的机制，如果静态资源没有改变，浏览器会直接从缓存中获取，不会重新请求。所有当我们重新打包时，要避免名字一致。（hash算法：将一串字符串经过运算得到一个新的乱码字符串） 利用hash算法，可以避免浏览器缓存
+- 可以在vite.config.js中配置rollup的构建策略
+
+## 11. vite插件
+
+> 插件是什么？回顾之前的净水系统：假设有一个全屋净水系统，水龙头里来的水是自来水。自来水从管道里：先到这个全屋净水系统 --> 给全屋净水系统做一些插槽 --> 去除砂砾 --> 净化细菌微生物 --> ... --> 输送到水龙头 --> 我们可以喝的纯净水。 这当中的每一步都相当于是一个插件
+
+定义：vite会在**生命周期**的不同阶段中去调用不同的插件以达到不同的目的。**(插件 中间件的标准话术)**
+
+::: details 生命周期
+生命周期：其实就和我们人一样，vite从开始执行到执行结束，那么着整个过程就是vite的生命周期。
+:::
+
+## 12. vite常用插件——vite-aliases （支持Vite6.x）
+
+> nvm: node版本管理工具
+
+- 插件地址: https://github.com/subwaytime/vite-aliases
+- vite-aliases可以帮助我们自动生成别名：检测你当前目录下包括src在内的所有文件夹，并帮助我们去生成别名
+- 配置：
+    1. 安装：`npm i vite-aliases -D`
+    2. 配置：在vite.config.js中配置
+```javascript
+// vite.config.js
+import { ViteAliases } from 'vite-aliases'
+
+export default {
+  plugins: [
+    ViteAliases()
+  ]
+};
+```
+
+## [原理篇] 手搓vite-aliases插件
+
+如果想手写一个插件，那么需要了解vite的插件机制。插件API：https://cn.vitejs.dev/guide/api-plugin 想要手写Vite-aliases其实就是在vite执行配置文件之前去改写配置文件，而vite独有钩子中的`config`钩子（在解析 Vite 配置前调用），即可实现。
+
+通过vite.config.js返回出去的配置对象以及我们在插件的config生命周期中返回的对象都不是最终的一个配置对象，vite会把这几个配置对象进行一个merge合并。
+
+```javascript
+// vite的插件必须返回给vite一个对象
+
+const { dir } = require("console");
+const fs = require("fs");
+const path = require("path");
+
+function diffDirAndFile(dirFilsArr = [], basePath = "") { 
+    const result =  {
+        dirs: [],
+        files: [],
+    };
+    dirFilsArr.forEach(name => { 
+        const currentFileStat = fs.statSync(path.resolve(__dirname, basePath,"/", name));
+        console.log("currentFileStat", currentFileStat);
+        const isDir = currentFileStat.isDirectory();
+
+        if (isDir) { 
+            result.dirs.push(name);
+        } else {
+            result.files.push(name);
+        }
+    });
+    return result;
+}
+
+function getTotalSrcDir(keyName) {
+    // 读目录
+    const result = fs.readdirSync(path.resolve(__dirname, "../"));
+    const diffResult = diffDirAndFile(result, "../src");
+    console.log("diffResult:", diffResult);
+    const resolveAliasesObj = {}; // 放的就是一个一个别名配置 @assets: xxx
+    diffResult.dirs.forEach(dirName => { 
+        const key = `${keyName}${dirName}`;
+        const abspath = path.resolve(__dirname, "../src" + "/" + dirName);
+        resolveAliasesObj[key] = abspath
+    })
+    return resolveAliasesObj;
+}
+
+module.exports = ({
+    keyName = "@"
+} = {}) => {
+    return {
+        config(config, env) {
+            /**
+             * 会将vite.config.js中的配置传递过来 但是不执行
+             * config函数可以返回一个对象，这个对象是部分的viteConfig配置(其实就是你想改的那一部分)
+             * config: 当前vite的配置对象
+             * env: 当前的环境变量 {command: 'build' | 'serve', mode: string}  (mode: string, command: string)
+             * 配置别名
+             */
+            const resolveAliasesObj = getTotalSrcDir(keyName);
+            return {
+                // 在这我们要返回一个resolve出去，将src目录下的所有文件夹进行别名控制
+                resolve: {
+                    alias: resolveAliasesObj
+                }
+            }
+        }
+    }
+}
+```
+
+## vite常用插件——vite-plugin-html
+
+动态变化html中的内容
+1. 安装：`npm add vite-plugin-html -D`
+2. 配置：在vite.config.js中配置
+
+```javascript
+// vite.config.js
+import { createHtmlPlugin } from 'vite-plugin-html'
+
+export default {
+  plugins: [
+    createHtmlPlugin({
+      inject: { // 配置注入的html文件
+        data: {
+          title: 'Vite Demo',
+        },
+      },
+    }),
+  ]
+};
+```
+
+## [原理篇] 手搓vite-plugin-html插件
