@@ -558,7 +558,7 @@ module.exports = ({
 }
 ```
 
-## vite常用插件——vite-plugin-html
+## 13. vite常用插件——vite-plugin-html
 
 动态变化html中的内容
 1. 安装：`npm add vite-plugin-html -D`
@@ -582,3 +582,85 @@ export default {
 ```
 
 ## [原理篇] 手搓vite-plugin-html插件
+
+```javascript
+export default function createHtmlPlugin() {
+    return {
+        // 转换html文件
+        // 将我们插件的一个执行时机提前
+        transformIndexHtml: {
+            enforce: 'pre', // 优先级
+            transform: (html, ctx) => {
+            /**
+             * ctx: 表示当前整个请求的一个执行期上下文:api /index.html ...
+             */
+            return html.replace(/<%= title %>/g, options.inject.data.title);
+        }
+            }
+    }
+}
+```
+
+## 14. vite常用插件——vite-plugin-mock
+
+::: danger mock.js
+mock.js已经没有人维护了，插件还是可以用的，现在建议用faker.js
+:::
+
+mock.js: 模拟数据， vite-plugin-mock的依赖项就是mock.js
+
+1. 安装：`npm i vite-plugin-mock mockjs -D`
+2. 配置：在vite.config.js中配置
+```javascript
+ plugins: [ 
+    // 配置插件
+    viteMockServe() // 配置mock服务
+  ],
+```
+3. 开箱即用：默认去找根目录下的mock文件夹下的所有文件，并自动生成mock数据
+```javascript
+import mockJS from 'mockjs'
+
+const userList = mockJS.mock({
+    'data|100': [{
+        name: '@cname', // 随机生成不同的中文名称
+        'id|+1': 1, // id自增
+    }]
+})
+
+
+module.exports = [
+    {
+        method: 'post',
+        url: '/api/user',
+        response: ({body}) => { 
+            // body: 请求体
+            return {
+                code: 200,
+                msg: 'success',
+                data: userList
+            };
+        }
+    }
+]
+```
+
+## [原理篇] 手搓vite-plugin-mock插件
+
+```javascript
+export default () => { 
+    // 做的最主要的事情就是拦截http请求
+    // 当我们使用fetch或者axios去请求的
+    // axios baseUrl //请求地址
+    // 当打给本地的开发服务器的时候 viteserver服务器接管
+    return { 
+        configureServer(server) { 
+            // 服务器相关配置
+            server.middlewares.use(async (req, res, next) => { 
+                
+            })
+        }
+    }
+}
+
+```
