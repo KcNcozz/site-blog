@@ -248,8 +248,12 @@ for (var i = 0; i < 10; i++) {
 
 foreach循环：
 var arr = [1, 2, 3, 4, 5];
-arr.forEach(function (element, index, arr) {
-    console.log(element, index, arr);
+arr.forEach(function (element, index) {
+    /**
+     * element 当前元素
+     * index 当前索引
+     */
+    console.log(element, index);
 })
 
 for-in循环：
@@ -343,7 +347,95 @@ console.log(localVar); // 报错！外面访问不到内部的变量
 ```
 
 ### 闭包
-待补充
+```javascript
+function outer() {
+    let i = 1
+    function fn() {
+        console.log(i)
+    }
+return fn
+}
+const fun = outer()
+fun() // 1
+// 外层函数使用内部函数的变量
+
+简写形式：
+function outer() {
+    let i = 1
+    return function () {
+        console.log(i)
+    }
+}
+
+const fun = outer()
+fun() // 调用
+// 函数内部使用外部的变量
+```
+
+### 变量和函数提升
+
+函数声明和变量声明（var）都会被提升到函数作用域的顶部。变量声明会被提升为 undefined，函数声明会被提升为函数。
+
+总结：
+1. 变量在未声明即被访问时会报语法错误
+2. 变量在声明之前即被访问，变量的值为 `undefined`
+3. `let` 声明的变量不存在变量提升，推荐使用 `let`
+4. 变量提升出现在相同作用域当中
+5. 实际开发中推荐先声明再访问变量
+
+> 注：关于变量提升的原理分析会涉及较为复杂的词法分析等知识，而开发中使用 `let` 可以轻松规避变量的提升，因此在此不做过多的探讨，有兴趣可[查阅资料](https://segmentfault.com/a/1190000013915935)。
+
+
+```javascript
+// 调用函数
+foo()
+// 声明函数
+function foo() {
+    console.log('声明之前即被调用...')
+  }
+
+  // 不存在提升现象
+bar()  // 错误
+var bar = function () {
+    console.log('函数表达式不存在提升现象...')
+  }
+```
+总结：
+
+1. 函数提升能够使函数的声明调用更灵活
+2. 函数表达式不存在提升的现象
+3. 函数提升出现在相同作用域当中
+
+### 可变参数
+
+```javascript
+  // 求生函数，计算所有参数的和
+  function sum() {
+    // console.log(arguments)
+    let s = 0
+    for(let i = 0; i < arguments.length; i++) {
+      s += arguments[i]
+    }
+    console.log(s)
+  }
+  // 调用求和函数
+  sum(5, 10)// 两个参数
+  sum(1, 2, 4) // 两个参数
+```
+得到一个伪数组
+
+### 剩余参数
+```javascript
+  function config(baseURL, ...other) {
+    console.log(baseURL) // 得到 'http://baidu.com'
+    console.log(other)  // other  得到 ['get', 'json']
+  }
+  // 调用函数
+  config('http://baidu.com', 'get', 'json');
+```
+
+1. `...` 是语法符号，置于最末函数形参之前，用于获取多余的实参
+2. 借助 `...` 获取的剩余实参，是个真数组
 
 ### Date
 
@@ -359,6 +451,113 @@ data.getTime(); // 获取时间戳
 
 ### JSON
 在JavaScript中一切都是对象，任何JavaScript支持的类型都可以转为JSON。`JSON.stringify()`可以将对象转为JSON字符串。`JSON.parse()`可以将JSON字符串转为对象。
+
+
+### 解构赋值
+
+解构赋值是一种快速为变量赋值的简洁语法，本质上仍然是为变量赋值，分为数组解构、对象解构两大类型。
+
+#### 数组解构
+
+数组解构是将数组的单元值快速批量赋值给一系列变量的简洁语法，如下代码所示：
+
+```javascript
+  // 普通的数组
+  let arr = [1, 2, 3]
+  // 批量声明变量 a b c 
+  // 同时将数组单元值 1 2 3 依次赋值给变量 a b c
+  let [a, b, c] = arr
+  console.log(a); // 1
+  console.log(b); // 2
+  console.log(c); // 3
+```
+
+总结：
+
+1. 赋值运算符 `=` 左侧的 `[]` 用于批量声明变量，右侧数组的单元值将被赋值给左侧的变量
+2. 变量的顺序对应数组单元值的位置依次进行赋值操作
+3. 变量的数量大于单元值数量时，多余的变量将被赋值为  `undefined`
+4. 变量的数量小于单元值数量时，可以通过 `...` 获取剩余单元值，但只能置于最末位
+5. 允许初始化变量的默认值，且只有单元值为 `undefined` 时默认值才会生效
+
+注：支持多维解构赋值，比较复杂后续有应用需求时再进一步分析
+
+#### 对象解构
+
+对象解构是将对象属性和方法快速批量赋值给一系列变量的简洁语法，如下代码所示：
+
+```javascript
+  // 普通对象
+  const user = {
+    name: '小明',
+    age: 18
+  };
+  // 批量声明变量 name age
+  // 同时将数组单元值 小明  18 依次赋值给变量 name  age
+  const {name, age} = user
+
+  console.log(name) // 小明
+  console.log(age) // 18
+```
+例2：
+```html
+<body>
+  <script>
+    // 1. 这是后台传递过来的数据
+    const msg = {
+      "code": 200,
+      "msg": "获取新闻列表成功",
+      "data": [
+        {
+          "id": 1,
+          "title": "5G商用自己，三大运用商收入下降",
+          "count": 58
+        },
+        {
+          "id": 2,
+          "title": "国际媒体头条速览",
+          "count": 56
+        },
+        {
+          "id": 3,
+          "title": "乌克兰和俄罗斯持续冲突",
+          "count": 1669
+        },
+
+      ]
+    }
+
+    // 需求1： 请将以上msg对象  采用对象解构的方式 只选出 data 方面后面使用渲染页面
+    const { data } = msg
+    console.log(data)
+    // 需求2： 上面msg是后台传递过来的数据，我们需要把data选出当做参数传递给 函数
+    const { data } = msg
+    // msg 虽然很多属性，但是我们利用解构只要 data值
+    function render({ data }) {
+      const { data } = arr
+      // 我们只要 data 数据
+      // 内部处理
+      console.log(data)
+    }
+    render(msg)
+
+    // 需求3， 为了防止msg里面的data名字混淆，要求渲染函数里面的数据名改为 myData
+    function render({ data: myData }) {
+      // 要求将 获取过来的 data数据 更名为 myData
+      // 内部处理
+      console.log(myData)
+    }
+    render(msg)
+  </script>
+```
+总结：
+
+1. 赋值运算符 `=` 左侧的 `{}` 用于批量声明变量，右侧对象的属性值将被赋值给左侧的变量
+2. 对象属性的值将被赋值给与属性名相同的变量
+3. 对象中找不到与变量名一致的属性时变量值为 `undefined`
+4. 允许初始化变量的默认值，属性不存在或单元值为 `undefined` 时默认值才会生效
+
+注：支持多维解构赋值
 
 ## 面向对象编程
 
@@ -459,6 +658,117 @@ const obj = {
 可以把它当做Java中的this使用 `this`指向的是当前对象(使用它的人)。在JavaScript中可以改变`this`指向。 
 :::
 ![this](/assert/this.png)
+
+
+### 改变this指向
+
+以上归纳了普通函数和箭头函数中关于 `this` 默认值的情形，不仅如此 JavaScript 中还允许指定函数中 `this` 的指向，有 3 个方法可以动态指定普通函数中 `this` 的指向：
+
+#### call
+
+使用 `call` 方法调用函数，同时指定函数中 `this` 的值，使用方法如下代码所示：
+
+```html
+<script>
+  // 普通函数
+  function sayHi() {
+    console.log(this);
+  }
+
+  let user = {
+    name: '小明',
+    age: 18
+  }
+
+  let student = {
+    name: '小红',
+    age: 16
+  }
+
+  // 调用函数并指定 this 的值
+  sayHi.call(user); // this 值为 user
+  sayHi.call(student); // this 值为 student
+
+  // 求和函数
+  function counter(x, y) {
+    return x + y;
+  }
+
+  // 调用 counter 函数，并传入参数
+  let result = counter.call(null, 5, 10);
+  console.log(result);
+</script>
+```
+
+总结：
+
+1. `call` 方法能够在调用函数的同时指定 `this` 的值
+2. 使用 `call` 方法调用函数时，第1个参数为 `this` 指定的值
+3. `call` 方法的其余参数会依次自动传入函数做为函数的参数
+
+#### apply
+
+使用 `call` 方法**调用函数**，同时指定函数中 `this` 的值，使用方法如下代码所示：
+
+```html
+<script>
+  // 普通函数
+  function sayHi() {
+    console.log(this)
+  }
+
+  let user = {
+    name: '小明',
+    age: 18
+  }
+
+  let student = {
+    name: '小红',
+    age: 16
+  }
+
+  // 调用函数并指定 this 的值
+  sayHi.apply(user) // this 值为 user
+  sayHi.apply(student) // this 值为 student
+
+  // 求和函数
+  function counter(x, y) {
+    return x + y
+  }
+  // 调用 counter 函数，并传入参数
+  let result = counter.apply(null, [5, 10])
+  console.log(result)
+</script>
+```
+
+总结：
+
+1. `apply` 方法能够在调用函数的同时指定 `this` 的值
+2. 使用 `apply` 方法调用函数时，第1个参数为 `this` 指定的值
+3. `apply` 方法第2个参数为数组，数组的单元值依次自动传入函数做为函数的参数
+
+#### bind
+
+`bind` 方法并**不会调用函数**，而是创建一个指定了 `this` 值的新函数，使用方法如下代码所示：
+
+```html
+<script>
+  // 普通函数
+  function sayHi() {
+    console.log(this)
+  }
+  let user = {
+    name: '小明',
+    age: 18
+  }
+  // 调用 bind 指定 this 的值
+  let sayHello = sayHi.bind(user);
+  // 调用使用 bind 创建的新函数
+  sayHello()
+</script>
+```
+
+注：`bind` 方法创建新的函数，与原函数的唯一的变化是改变了 `this` 的值。
 
 
 ## 异步编程
@@ -915,6 +1225,22 @@ console.log(allMath.subtract(5, 3));
     现代浏览器都支持 ES6 模块，但如果你需要兼容非常老的浏览器（如 IE11），你需要配合打包工具（如 Webpack）把模块化代码编译成浏览器能懂的旧代码。
 
 
+## 防抖与节流
+
+1. 防抖（debounce）  
+所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间  
+- lodash库中有 `debounce` 函数来实现防抖功能
+```javascript
+box.addEventListener('mousemove', __debounce(mousemove, 500))
+```
+2. 节流（throttle）  
+所谓节流，就是指连续触发事件但是在 n 秒中只执行一次函数
+- lodash库中有 `throttle` 函数来实现节流功能
+` 函数来实现防抖功能
+```javascript
+box.addEventListener('mousemove', __throttle(mousemove, 500))
+```
+
 ## ES6总结
 
 ### 1. 变量声明：`let` 和 `const`
@@ -935,7 +1261,7 @@ age = 19; // 正确
 // birthYear = 2006; // 报错！无法给常量重新赋值
 ```
 
-### 2. 箭头函数
+### 2. 箭头函数（lambda表达式）
 提供了更简洁的函数写法，并且**不绑定自己的 `this`**（它会捕获其所在上下文的 `this` 值，解决了 `this` 指向混乱的问题）。
 
 ```javascript
@@ -949,6 +1275,56 @@ const add = (a, b) => a + b;
 
 // 如果只有一个参数，括号可以省略
 const double = n => n * 2;
+
+// 箭头函数可以直接返回一个对象
+const fn = (uname) => ({ uname: uname })
+console.log(fn('刘德华'))
+
+this指向问题：
+// 以前this的指向：  谁调用的这个函数，this 就指向谁
+console.log(this)  // window
+
+// 普通函数
+function fn() {
+    console.log(this)  // window
+}
+window.fn()
+
+// 对象方法里面的this
+const obj = {
+    name: 'andy',
+    sayHi: function () {
+    console.log(this)  // obj
+    }
+}
+    obj.sayHi()
+
+// 箭头函数的this  是上一层作用域的this 指向
+const fn = () => {
+    console.log(this)  // window
+}
+fn()
+// 对象方法箭头函数 this
+    const obj = {
+      uname: 'pink老师',
+      sayHi: () => {
+        console.log(this)  // this 指向谁？ window
+      }
+    }
+    obj.sayHi()
+
+const obj = {
+    uname: 'pink老师',
+    sayHi: function () {
+    console.log(this)  // obj
+    let i = 10
+    const count = () => {
+        console.log(this)  // obj 
+    }
+    count()
+    }
+}
+obj.sayHi()
 ```
 
 ### 3. 模板字符串

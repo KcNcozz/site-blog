@@ -205,12 +205,69 @@ btn.addEventListener('click', async () => {
 
 **Axios 示例**：
 ```javascript
-axios.get('https://jsonplaceholder.typicode.com/users')
-    .then(response => {
-        // Axios 自动把 data 解析好了，直接用 response.data
-        console.log(response.data);
-    });
+// get请求：
+axios({
+    url: 'http://hmajax.itheima.net/api/city',
+    params: {     // 查询参数
+    pname: '辽宁省' 
+    }
+}).then(result => {
+    console.log(result.data.list)
+    document.querySelector('p').innerHTML = result.data.list.join('<br>')
+})
+// post请求
+document.querySelector('.btn').addEventListener('click', () => {
+    axios({
+      url: 'http://hmajax.itheima.net/api/register', // 接口地址
+      method: 'post', // 请求方式
+      data: { // 请求携带的数据
+        username: 'admin',
+        password: '123456'
+      }
+    }).then(result => {
+      // 成功
+      console.log(result)
+    }).catch(error => {      // 失败
+      // 处理错误信息
+      console.log(error)
+    })
+})
+```
+**异步实现：**
+```javascript
+/**
+ * 目标：封装_简易axios函数_获取省份列表
+ *  1. 定义myAxios函数，接收配置对象，返回Promise对象
+ *  2. 发起XHR请求，默认请求方法为GET
+ *  3. 调用成功/失败的处理程序
+ *  4. 使用myAxios函数，获取省份列表展示
+*/
+// 1. 定义myAxios函数，接收配置对象，返回Promise对象
+function myAxios(config) {
+  return new Promise((resolve, reject) => {
+    // 2. 发起XHR请求，默认请求方法为GET
+    const xhr = new XMLHttpRequest()
+    xhr.open(config.method || 'GET', config.url)
+    xhr.addEventListener('loadend', () => {
+      // 3. 调用成功/失败的处理程序
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(JSON.parse(xhr.response))
+      } else {
+        reject(new Error(xhr.response))
+      }
+    })
+    xhr.send()
+  })
+}
 
-// 发送 POST 也更简单
-axios.post('/url', { name: '张三' });
+// 4. 使用myAxios函数，获取省份列表展示
+myAxios({
+  url: 'http://hmajax.itheima.net/api/province'
+}).then(result => {
+  console.log(result)
+  document.querySelector('.my-p').innerHTML = result.list.join('<br>')
+}).catch(error => {
+  console.log(error)
+  document.querySelector('.my-p').innerHTML = error.message
+})
 ```
