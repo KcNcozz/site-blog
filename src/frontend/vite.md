@@ -468,6 +468,7 @@ baseUrl: "/"
 生命周期：其实就和我们人一样，vite从开始执行到执行结束，那么着整个过程就是vite的生命周期。
 :::
 
+
 ## 12. vite常用插件——vite-aliases （支持Vite6.x）
 
 > nvm: node版本管理工具
@@ -648,6 +649,9 @@ module.exports = [
 ## [原理篇] 手搓vite-plugin-mock插件
 
 ```javascript
+import fs from 'fs';
+import path from 'path';
+
 export default () => { 
     // 做的最主要的事情就是拦截http请求
     // 当我们使用fetch或者axios去请求的
@@ -655,12 +659,457 @@ export default () => {
     // 当打给本地的开发服务器的时候 viteserver服务器接管
     return { 
         configureServer(server) { 
+            const mockStat = fs.statSync('mock');
+            let mockResult = [];
+            if (mockStat.isDirectory()) { 
+                const mockResult = requore(path.resolve(process.cwd(), 'mock/index.js'))
+                consle.log("mockResult", mockResult);   
+            }
             // 服务器相关配置
-            server.middlewares.use(async (req, res, next) => { 
-                
+                server.middlewares.use(async (req, res, next) => {
+                    /**
+                     * req: 请求对象 请求头 请求体 url cookie
+                     * res: 响应对象 响应头 ...
+                     * next: 是否继续执行下一个中间件，调用next方法会将处理结果交给下一个中间件
+                     */
+                    // 看我们请求的地址在mock里面有没有
+                    const mockItem = mockResult.find(item => item.url === req.url);
+                    console.log("mockItem", mockItem);
+                    if (mockItem) {
+                        const responseData = responseData.response(req);
+                        console.log("responseData", responseData);
+                        // 强制设置请求头格式为json
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(responseData)); // 响应数据
+                     } else { 
+                        next(); // 继续执行下一个中间件
+                     }
             })
         }
     }
 }
+```
 
+## [总结篇] vite-plugin
+
+**目前已经学习：**
+- config: 配置vite.config.js文件
+- configureServer: 配置服务端处理
+- transformIndexHtml: 配置html文件
+- ......
+
+plugin的实现过程：......
+
+## 15. vite与ts结合
+
+> ts是js的类型检查工具，能够检查我们代码中可能会存在的一些隐形问题，同时给到我们一些语法提示。
+
+在企业级应用里面ts是怎么去配置的，我们怎么让ts的错误直接输出到控制台，在vite中需要借助一个插件：vite-plugin-checker
+
+1. 安装：`npm i vite-plugin-checker -D`
+2. 在vite.config.js中配置
+```javascript
+import { defineConfig } from 'vite'
+import checker from 'vite-plugin-checker'
+
+export default defineConfig({
+  plugins: [
+    checker({
+      typescript: true
+    }),
+  ]
+})
+```
+3. 在tsconfig.json中配置ts的检查手段和检查规则
+```json
+// 配置ts的检查手段
+{
+    "compilerOptions": {
+        "skipLibCheck": true, // 是否跳过node_modules目录的检查
+    }
+}
+```
+### 环境变量问题
+
+```json
+// 配置ts的检查手段
+{
+    "compilerOptions": {
+        "skipLibCheck": true, // 是否跳过node_modules目录的检查
+        "module": "esnext", 
+    }
+}
+```
+
+```javascript
+// .env
+VITE_PROXY_TARGE = http://www.baidu.com
+```
+```typescript
+// vite-env.d.ts
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_PROXY_TARGET: string;
+}
+```
+
+## 16. vite性能优化
+
+> 我们平时说的性能优化是在说什么？
+
+1. 开发时态的构建速度优化： `yarn dev` / `yarn start` 敲下的一瞬间到呈现结果要占用多少时长。
+    - webpack在这方面下的功夫是很重: cache-loader cache loader结果(如果两次构建源代码没有产生变化，则直接使用缓存不调用loader)，thread-loader，开启多线程去构建 ...
+    - vite是按需加载，所以我们不需要太care这方面。
+
+2. 页面性能指标： 和我们怎么去写代码有关
+    - 首屏渲染时：fcp(first content paint),(first content paint --> 页面中第一个元素的渲染时长)
+      - **懒加载**：要我们去写代码实现的   
+      - **http优化**：协商缓存 和强缓存
+        - **强缓存**：服务端给响应头追加一些字段(expires)，客户端会记住这些字段，在expires(截止失效时间)没有到达之前，无论你怎么刷新页面，浏览器都不会重新请求页面，而是从缓存里取。
+        - **协商缓存**：是否使用缓存要跟后端商量一下，当服务端给我们打上协商缓存的标记以后，客户端在下次刷新页面需要重新请求资源时会发送一个协商请求给到服务端，服务端如果说需要变化 则会响应具体的内容，如果服务端觉得没变化则会响应304。
+    - 页面中最大元素的一个时长:lcp(largest content paint)
+    - ...
+
+3. js逻辑:
+    - 我们要注意副作用的清除。组件是会频繁的挂载和卸载：如果我们在某一个组件中有计时器(setTimeout)，如果我们在卸载的时候不去清除这个计时器，下次再次挂载的时候计时器等于开了两个线程。
+    ```javascript
+    const [timer, setTimer] = useState(null);
+    useEffect(() => {
+    setTimer(setTimeout (() => {}));
+    return () => clearTimeout(timer);
+    })
+    ```
+    - 我们在写法上一个注意事项：requestAnimationFrame, requestIdleCallback （卡浏览器帧率）对浏览器渲染原理要有一定的认识，然后再这方面做优化。
+      - 浏览器的帧率:16.6ms去更新一次 (执行js逻辑 以及 重排重绘...)
+      - requestIdleCallback: 传一个函数进去，如果在16.6ms中执行完js逻辑 以及 重排重绘... 会去执行这个函数。
+      - concurrency: 可中断渲染 (react)
+
+    - 防抖 节流：使用lodash库中的方法
+    ```javascript
+    const arr = [] // 几千条数据
+    arr.forEach(item => {}) // 不要使用arr.forEach，使用lodash.forEach    
+    ```
+    - 对作用域的控制
+     ```javascript
+    const arr = [1, 2, 3];
+    for (let i = 0; i < arr.length; i++) { 
+        // 每次循环都会去windows中取（访问父级）
+    }
+        for (let i = 0; len = arr.length; i < len; i++) { 
+        // 只会在首次访问
+    }
+    ```
+    - ...
+
+4. css：
+    - 关注继承属性：能继承的旧不要重复写
+    - 尽量避免太过于深的css嵌套
+
+5. 构建优化:vite(rollup) webpack  
+优化体积：压缩，treeshaking，图片资源压缩，cdn加载，分包
+
+6. ...
+
+## 17. [性能优化篇] 分包策略
+
+> 为什么测试的有些时候没有生效，要去清缓存？  
+> 本身浏览器缓存策略：静态资源 --> 名字没有变化，就不会重新去拿 xxx.js。
+
+```typescript
+import { forEach } from 'lodash'
+
+const mainArr = [];
+
+forEach(mainArr, (item) => {
+    console.log(item);
+});
+```
+打包后的文件lodash有5000多行，但是主要业务代码只有很少几行。vite在打包的时候，会加上hash值，所以每次打包的hash值都会变化，就会重新去拿 xxx.js。我们的业务代码是会经常变化，但是lodash不会经常变化。在打包的时候，每次都会重新请求整个文件并打包。这时候就会出现浏览器性能损耗。
+
+**分包**：分包就是把一些不会常规更新的文件 进行单独打包处理
+
+```typescript
+// tsconfig.json
+{
+    "compilerOptions": {
+        "moduleResolution": "node", // 模块解析方案
+        "skipLibCheck": true, // 是否跳过node_modules目录的检查
+        "module": "esnext", // 模块化方案
+        "lib": ["ES2017", "DOM"], // 指定编译时要包含的库文件
+        "allowSyntheticDefaultImports": true,
+    }
+}
+```
+
+```javascript
+// vite.config.ts
+import { defineConfig } from 'vite'
+import checker from 'vite-plugin-checker'
+import path from 'path'
+
+export default defineConfig({
+  "build": {
+    "minify": false, // 关闭代码压缩
+    "rollupOptions": { // 配置rollup的构建策略
+      "input": { // 多入口配置
+        main: path.resolve(__dirname, './index.html'),
+        product: path.resolve(__dirname, './product.html')
+      },
+      "output": { // 分包配置 配置静态资源的输出格式
+        "manualChunks": (id: string) => {
+          console.log("id:", id);
+          if (id.includes("node_modules")) {
+            return "vendor"; // 将所有来自node_modules的代码打包到vendor.js中
+          }
+        }
+      }
+    }
+  },
+  plugins: [
+    checker({
+      typescript: true
+    }),
+  ]
+})
+```
+
+::: danger 注意
+commonjs 模块无法进行摇树优化
+:::
+
+## 18. [性能优化篇] gzip压缩 （旧）
+
+有时候我们的文件资源实在是太大了，http传输压力很大，这时我们可以将所有的静态文件进行压缩，已达到减少体积的目的。
+
+服务端 --> 压缩文件 --> 浏览器 --> 解压文件
+
+::: tip chunk
+chunk: 块 从入口文件到他的一系列依赖最终打包成的js文件叫做块，**块最终会映射成js文件，但是块不是js文件**。
+:::
+
+参考地址：https://github.com/vbenjs/vite-plugin-compression
+
+插件4年没更新了，现在使用 vite-plugin-compression2：  
+npm地址：https://www.npmjs.com/package/vite-plugin-compression2  
+github地址：https://github.com/nonzzz/vite-plugin-compression
+
+压缩完成后给后端或者给运维
+
+服务端读取gzip文件(`.gz`后缀)会设置一个响应头 content-encoding --> gzip (代表告诉浏览器该文件是使用gzip压缩过的) 浏览器收到响应结果 发现响应头里有gzip对应字段，就会执行解压，得到原来原原本本的js文件。(浏览器是要承担一定的解压时间的) 如果体积不是很大的话，不要用gzip压缩。
+
+## 19. [性能优化篇] 动态导入
+
+> webpack和vite的区别：vite是按需加载。动态导入是ES6的新特性，和按需加载异曲同工。
+
+动态导入一般会用在路由中。（路由：根据不同的地址，展现不同的组件）
+
+```javascript
+// 原写法
+import "./src/svgLoader";
+// 新写法
+import("./src/imageLoader").then(data => {
+    console.log("data",data)
+    });
+```
+
+异步加载，会造成代码分割情况 （webpack里的原理）
+
+
+## 20. [性能优化篇] CDN加速
+
+> 服务器在深圳，想在纽约访问这个网站，会卡顿
+
+CDN(content delivery network): 内容分发网络
+
+将我们依赖的第三方模块全部写成cdn的形式，然后保证我们自己代码的一个小体积。(体积小服务器和客户端的传输压力就没那么大) 例如：lodash，通过：https://www.jsdelivr.com/package/npm/lodash 引入，由于lodash是通过cdn加载的，自身的体积就小了。
+
+使用vite-plugin-cdn-import插件：
+1. 安装：`npm i vite-plugin-cdn-import -D`
+2. 配置：
+```javascript
+// vite.config.js
+import viteCDNPlugin from 'vite-plugin-cdn-import';
+
+export default {
+    plugins: [
+        viteCDNPlugin({
+            modules: [
+                {
+                name: 'lodash', // 模块名
+                var: '_', // 模块变量名
+                path: 'https://cdn.bootcdn.net/ajax/libs/lodash.js/4.17.21/lodash.min.js' // CDN 地址
+        }
+            ]
+        })
+    ]
+}
+```
+
+## 21. [拓展篇] 跨域
+
+> 同源策略（浏览器规则，仅在浏览器发生）：http交互默认情况下只能在同协议同域名同端口的两台终端进行。
+
+跨域（仅发生在浏览器）：当A源浏览器的网页向B源的服务器地址 (不满足同源策略，满足同源限制) 请求对应信息，就会产生跨域，跨域请求默认情况下会被浏览器拦截，除非对应的请求服务器出具标记允许。
+
+- 开发时态：一般就利用构建工具或者脚手架或者第三方库的proxy代理配置，或者我们自己搭一个开发服务器来解决这个问题。
+- 生产时态：一般交给后端处理（后端或者运维）
+    - nginx：代理服务（本质原理和本地开发vite服务器做跨域是一样）
+    - 配置身份标记：`Access-Control-Allow-Origin`: 允许的源
+```javascript
+// vite.config.js
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+    server: { // 开发服务器中的配置
+        proxy: { // 配置跨域解决方案
+            "/api": { // key: 描述对象 以后在遇到/api开头的请求时 都将其代理到 target属性对应的域中去
+                target: "http://www.baidu.com", 
+                changeOrigin: true, 
+                rewrite: (path) => path.replace(/^\/api/, "") // 重写api路径(正则)
+            }
+        }
+    }
+})
+```
+
+浏览器发请求 --> 自己的服务器 --> 目标服务器 --> 返回响应数据 --> 浏览器（因为跨域发生在浏览器，服务器之间传输不影响）
+```javascript
+if (ctx.request.url.includes("/api")) {
+const target = proxy.target;
+const rewrite = str => str
+
+const result = await request(target + rewrite("/api"));
+
+ctx.response.bodyresult;
+}
+```
+
+## 22. [总结] 一些文件配置示例
+
+```javascript
+// vite.config.js
+import { defineConfig, loadEnv } from 'vite';
+import viteBaseConfig from './vite.base.config';
+import viteDevConfig from './vite.dev.config';
+import viteProdConfig from './vite.prod.config';
+
+// 策略模式
+const envResolver = {
+    "build": () => {
+        console.log("生产环境");
+        return ({...viteBaseConfig, ...viteProdConfig})
+    },
+    "serve": () => {
+        console.log("开发环境");
+        return Object.assign({}, viteBaseConfig, viteDevConfig); // 新配置里是可能会被配置envDir
+    }
+    // 两个返回配置合并的写法都可以
+}
+
+export default defineConfig(({command, mode}) => {
+    // 是build还是serve主要取决于我们执行的命令是开启生产环境还是开发环境
+    // console.log("command:", command);
+    // 当前env文件所在的目录
+    // 第二个参数不是必须要用process.cwd(), 自己配置目录也可
+    const env = loadEnv(mode, process.cwd(), ".env"); // .env为默认值可以不传
+    // console.log("env:", env);
+    return envResolver[command]();
+});
+```
+
+```javascript
+// vite.example.config.js
+import { defineConfig } from 'vite';
+import viteBaseConfig from './vite.base.config';
+
+const postcssPresetEnv = require('postcss-preset-env');
+
+export default defineConfig({
+  optimizeDeps: {
+    exclude: [], // 将某些包排除在预构建之外
+  },
+  envPrefix: 'ENV_', // 配置vite注入到客户端源码中的环境变量校验前缀
+  css: {  // 对css的相关配置
+    // modules配置最终是会丢给postcss modules
+    modules: {  // 对css模块化的默认行为进行覆盖
+      localsConvention: 'camelCase', // 配置css module转换类名的格式
+      scopeBehaviour: 'local', // 配置css module的作用域行为是局部作用域还是全局作用域
+      generateScopedName: '[name]_[local]_[hash:5]', // 配置css module生成的类名格式
+      // generateScopedName: (name, filename, css) => { 
+      //   // name: css文件中的类名
+      //   // filename: css文件的绝对路径
+      //   // css: css文件的样式
+      //   console.log("name:", name, "filename:", filename, "css:", css);
+      //   return `${name}_${Math.random().toString(16).substring(2, 8)}`;
+      // }, // 自定义生成css module类名的函数
+      hashPrefix: 'hello', // 生成hash会根据你的类名 + 一些其他的字符串(文件名 + 他内部随机生成一个字符事)去进  行生成，如果你想要你生成hash更加的独特一点，你可以配置hashPrefix，你配置的这个字符串会参与到最终的hash生成，(hash:只要你的字符串有一个字不一样，那么生成的hash就完全不一样，但是只要你的字符串完全一样，生成的hash就会一样)
+      globalModulePaths: [] // 代表你不想参与css module化的文件路径
+    },
+    preprocessorOptions: {  // 配置css预处理器
+      less: { // 配置less
+        math: "always", // 
+        globalVars: { // 配置全局变量
+          mainColor: 'red',
+        },
+      },
+      sass: { // 配置sass
+      },
+    },
+    devSourcemap: true, // 开启css的sourceMap（文件索引）
+    postcss: {
+      plugins: [postcssPresetEnv()] // 配置postcss的插件
+    },
+  }, 
+  resolve: {  // 配置路径别名
+    alias: {
+      '@': path.resolve(__dirname, './src'), // 设置别名，以后我们在其他组件中可以使用@来代替src这个目录
+      '@assets': path.resolve(__dirname, './src/assets'),
+    },
+  },
+  build: {  // 构建生产包时的一些配置策略
+    rollupOptions: { // 配置rollup的构建策略
+      output: { // 控制输出
+        // 在rollup中，hash代表将你的文件名和文件内容组合计算得来的结果
+        assetFileNames: '[hash].[name].[ext]', // 配置静态资源的输出格式
+      }
+    },
+    outDir: 'dist', // 配置构建输出目录（默认为dist）
+    assetsDir: 'assets', // 配置静态资源目录 例如改为static 则最终输出目录为dist/static
+    assetsInlineLimit: 4096000, // 默认是4096（4kb）配置静态资源打包的阈值，小于这个阈值的静态资源会被打包成base64格式
+    emptyOutDir: true, // 构建之前是否清空输出目录
+  },
+  plugins: [ 
+   {
+     // 配置插件
+    viteAliases() {
+      // 配置路径别名插件
+    },
+    createHtmlPlugin({
+      inject: { // 配置注入的html文件
+        data: {
+        }
+      }
+    }) { 
+
+    },
+    viteMockServe() {
+      // 配置mock服务
+    }, 
+    configResolved(options) { 
+      // 整个vite配置解析完成后会执行这个钩子
+      // vite在内部有一个默认的配置文件
+      console.log("options:", options);
+    },
+    configurePreviewServer() { // 配置预览服务
+
+    },
+    options(rollupOptions) {
+      console.log(rollupOptions);
+    }, // 配置其他插件
+    buildStart() { // 构建开始时执行
+    },
+   }
+  ],
+});
 ```
