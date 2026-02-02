@@ -66,6 +66,10 @@ export default defineConfig({
             text: 'Vite',
             link: '/src/frontend/vite.md'
           },
+          {
+            text: 'TypeScript',
+            link: '/src/frontend/typeScript.md'
+          },
         ]
       },
       {
