@@ -32,7 +32,9 @@ create-vite和vite的关系是什么呢？ create-vite内置了vite
 
 开箱即用: 你不需要做任何额外的配置就可以使用vite来帮你处理构建工作
 
-1. 创建项目：`yarn create vite@latest`
+创建vite: `npm init -y`
+
+1. 创建vite脚手架：`yarn create vite@latest`
 2. 运行项目：`yarn dev`
 3. 构建项目：`yarn build`
 > 在默认情况下，我们的esmodule去导入资源的时候，要么是绝对路径，要么是相对路径。既然我们现在的最佳实践就是node_modules，那为什么es官方在我们导入非绝对路径和非相对路径的资源的时候不默认帮我们 搜寻node_nodules呢? ---> 假设加载`loadsh`，`loadsh`依赖更多东西，如果都加载则消耗大量性能。
