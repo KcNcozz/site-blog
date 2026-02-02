@@ -68,7 +68,7 @@ export default defineConfig({
           },
           {
             text: 'TypeScript',
-            link: '/src/frontend/typeScript.md'
+            link: '/src/frontend/typescript.md'
           },
         ]
       },
