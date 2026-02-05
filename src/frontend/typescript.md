@@ -38,6 +38,12 @@ object：object类型只能是引用类型，不能是原始类型。
 
 ## 3. 接口(interface)和对象类型
 
+1. 遇到重名的interface，会进行合并
+2. 索引签名：`interface Person { [property: string]: any }`
+3. `?`和`readonly`：可选属性和只读
+4. 接口继承
+5. 用interface定义函数类型
+
 ```typescript
 inferface Person extends B {
     name: string;
@@ -59,11 +65,7 @@ let person: Person = {
     xxx: 'xxx'
 }
 ```
-1. 遇到重名的interface，会进行合并
-2. 索引签名：`interface Person { [property: string]: any }`
-3. `?`和`readonly`：可选属性和只读
-4. 接口继承
-5. 用interface定义函数类型
+
 ```typescript
 interface Function {
     (name:string): number[];
@@ -75,6 +77,11 @@ const fn: Function = function (name: string) {
 ```
 
 ## 4. 数组类型
+
+1. 定义数组的方式(2种)
+2. 定义二维数组(2种)
+3. 多种值类型的数组
+4. 数组在函数中的用法（定义伪数组）
 
 ```typescript
 // 定义数组的方式(2种)
@@ -105,12 +112,15 @@ function fn(...args: number[]) {
 }
 fn(1,2,3)
 ```
-1. 定义数组的方式(2种)
-2. 定义二维数组(2种)
-3. 多种值类型的数组
-4. 数组在函数中的用法（定义伪数组）
 
 ## 5. 函数类型
+
+1. 定义函数参数和返回值
+2. 函数的默认值和可选参数（默认值和可选参数不能同时使用）
+3. 如何定义参数类型是对象的函数
+4. this ts可以定义this类型，必须是第一个参数定义this的类型
+5. 函数重载
+
 ```typescript
 // 1. 定义函数参数和返回值
 function add(a: number, a: number): number {
@@ -165,12 +175,6 @@ function findNum(ids?: number | number[]): number[] {
     }
 }
 ```
-
-1. 定义函数参数和返回值
-2. 函数的默认值和可选参数（默认值和可选参数不能同时使用）
-3. 如何定义参数类型是对象的函数
-4. this ts可以定义this类型，必须是第一个参数定义this的类型
-5. 函数重载
 
 ## 6. 类型断言 联合类型 交叉类型
 
@@ -298,6 +302,16 @@ setInterval(rain, 50);
 
 ## 8. 类
 
+1. class基本用法 继承 约束类型
+2. class修饰符 readonly private protected public （Java）
+    - readonly 只读属性
+    - private 私有属性 自己内部使用
+    - protected 保护属性 自己内部可以使用 子类继承的可以使用
+    - public 公有属性 默认
+3. super()原理
+4. 静态方法
+5. get set
+
 ```typescript
 // 1. class基本用法 继承 约束类型
 inferface Options { 
@@ -406,17 +420,12 @@ console.log(ref.value); // '123111'
 
 ```
 
-1. class基本用法 继承 约束类型
-2. class修饰符 readonly private protected public （Java）
-    - readonly 只读属性
-    - private 私有属性 自己内部使用
-    - protected 保护属性 自己内部可以使用 子类继承的可以使用
-    - public 公有属性 默认
-3. super()原理
-4. 静态方法
-5. get set
-
 ## 9. 抽象类 基类
+
+抽象类：
+    - 抽象类不允许被实例化
+    - 可以使用派生类去继承抽象类
+    - 派生类可以被实例化
 
 ```typescript
 // 定义抽象类
@@ -449,10 +458,6 @@ class Dog extends Animal {
 const dog = new Dog();
 dog.setName('Dog');
 ```
-抽象类：
-    - 抽象类不允许被实例化
-    - 可以使用派生类去继承抽象类
-    - 派生类可以被实例化
 
 ## 10. 元组
 
@@ -468,6 +473,12 @@ type length = typeof arr2['length'];
 ```
 
 ## 11. 枚举
+
+- 数字枚举
+- 字符串枚举
+- 接口枚举
+- const 枚举
+- 反向映射(value -> key) 字符串不支持
 
 ```typescript
 // 1. 数字枚举
@@ -519,11 +530,6 @@ console.log(success); // 0
 let key = Types[success];
 console.log(key); // success
 ```
-- 数字枚举
-- 字符串枚举
-- 接口枚举
-- const 枚举
-- 反向映射(value -> key) 字符串不支持
 
 ## 12. 类型推断和类型别名
 
@@ -595,6 +601,10 @@ function kun(value: A) {
 
 ## 14. symbol类型
 
+1. 基本使用
+2. 索引签名
+3. 读symbol
+
 ```typescript
 // 基本使用
 let a1: symbol = Symbol(1); // 唯一的
@@ -632,11 +642,19 @@ console.log(Object.getOwnPropertySymbols(obj));
 // 同时读到symbol和name
 console.log(Reflect.ownKeys(obj)); // [ 'name', Symbol(1), Symbol(2) ]
 ```
-1. 基本使用
-2. 索引签名
-3. 读symbol
 
 ## 15. 迭代器 生成器
+
+1. 生成器
+2. 迭代器
+3. set 和 map
+    - set：集合（和数组的区别：天然去重）
+    - map：字典（和对象区别：对象属性名只能是字符串，字典的属性名可以是任意类型） 
+4. arguements
+5. 迭代器语法糖 for...of
+6. for...of 对象不可使用
+7. 数组解构：数组解构的底层原理也是迭代器
+8. for...of 如何支持对象
 
 ```typescript
 // 1. 生成器（和迭代器用法一样）
@@ -723,17 +741,6 @@ for (let value of obj) {
 }
 
 ```
-
-1. 生成器
-2. 迭代器
-3. set 和 map
-    - set：集合（和数组的区别：天然去重）
-    - map：字典（和对象区别：对象属性名只能是字符串，字典的属性名可以是任意类型） 
-4. arguements
-5. 迭代器语法糖 for...of
-6. for...of 对象不可使用
-7. 数组解构：数组解构的底层原理也是迭代器
-8. for...of 如何支持对象
 
 ## 16. 泛型
 
@@ -919,7 +926,10 @@ type B = Options<Data>
 
 ## 19. namespace命名空间
 
-TypeScript提供了namespace避免全局变量造成的污染
+TypeScript提供了namespace避免全局变量造成的污染。
+1. 命名空间的用法嵌套抽离 导出 简化 
+2. 合并命名空间的案例
+
 ```typescript
 // 1. 命名空间的用法嵌套抽离 导出 简化 
 
@@ -964,10 +974,11 @@ namespace android {
 }
 ```
 
-1. 命名空间的用法嵌套抽离 导出 简化 
-2. 合并命名空间的案例
-
 ## 20. 模块解析
+
+- 默认导出 可以导出任意类型 一个模块只能有一个默认导出
+- 分别导出
+- 解构导出
 
 1. Commonjs - > Nodejs
 ```javascript
@@ -1072,9 +1083,6 @@ if (true) {
     }) // 此时import是一个函数 返回一个promise对象
 }
 ```
-1. 默认导出 可以导出任意类型 一个模块只能有一个默认导出
-2. 分别导出
-3. 解构导出
 
 ## 21. 声明文件 (declare)
 
