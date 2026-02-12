@@ -72,7 +72,7 @@ export default defineConfig({
           },
           {
             text: 'Vue3',
-            link: '/src/frontend/vue3-heima.md'
+            link: '/src/frontend/vue3-快速上手.md'
           },
         ]
       },

@@ -43,6 +43,7 @@ object：object类型只能是引用类型，不能是原始类型。
 3. `?`和`readonly`：可选属性和只读
 4. 接口继承
 5. 用interface定义函数类型
+6. 和自定义类型 `type` 的区别 [type](#_12-类型推断和类型别名)
 
 ```typescript
 inferface Person extends B {
@@ -178,12 +179,42 @@ function findNum(ids?: number | number[]): number[] {
 
 ## 6. 类型断言 联合类型 交叉类型
 
+- 联合类型：是 "或" 的关系（要么是 A，要么是 B）。
+- 交叉类型：是 "且" 的关系（既是 A，又是 B）。
+- 类型断言：“我比你更清楚这个值的类型，请按这个类型来处理。” 
+
 ```typescript
 // 联合类型
 let a: number | string = '1' // 联合类型
 
 let fn = function (a: number | boolean):boolean { 
     return 1!!a
+}
+
+// 示例2
+// 基础示例
+let status: string | number;
+
+status = "200"; // ✅ 合法
+status = 200;   // ✅ 合法
+// status = true; // ❌ 错误
+
+// 对象联合示例
+interface Bird {
+  fly(): void;
+  layEggs(): void;
+}
+
+interface Fish {
+  swim(): void;
+  layEggs(): void;
+}
+
+type Pet = Bird | Fish;
+
+function getSmallPet(pet: Pet) {
+  pet.layEggs(); // ✅ 可以，因为 Bird 和 Fish 都有 layEggs 方法
+  // pet.fly(); // ❌ 错误：Fish 没有 fly 方法，TS 无法确定当前是 Bird 还是 Fish
 }
 
 // 交叉类型
@@ -532,6 +563,11 @@ console.log(key); // success
 ```
 
 ## 12. 类型推断和类型别名
+
+> type 和 interface 区别
+
+- type：更灵活，适合联合类型、交叉类型、工具类型组合。
+- interface：更偏向描述对象结构，支持声明合并（同名 interface 会自动合并）。
 
 ts天然支持类型推断。
 
