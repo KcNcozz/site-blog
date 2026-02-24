@@ -25,3 +25,104 @@ vue指令：`v-`
 - `v-memo`: 缓存渲染结果，如果数据没有变化，则跳过更新(一般配合`v-for`使用)
 
 ## 3. 虚拟DOM diff算法
+## 4. 
+
+
+
+## vue-router
+
+### 1. 安装
+
+### 2. 路由模式
+
+### 3. 历史记录
+
+### 4. 路由传参
+
+- `query`：内容展示在url
+- `params`：必须使用name不能使用路径 内容在内存
+
+```vue
+<!-- query -->
+<!-- login.vue -->
+<template>
+    <div>列表页面</div>
+    <table>
+        <thead>
+            <tr>
+                <th>品牌</th>
+                <th>价格</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr :key="item.id" v-for="item in data">
+                <th>{{ item.name }}</th>
+                <th>{{ item.price }}</th>
+                <th>
+                    <button @click="toDetail(item)">详情</button>
+                </th>
+            </tr>
+        </tbody>
+    </table>
+</template>
+
+<script setup lang="ts">
+
+type Item = {
+  name: string;
+  price: number;
+  id: number;
+} 
+
+import { data } from "./list.json";
+import { useRouter } from "vue-router";
+
+const router = useRouter()
+
+const toDetail = (item:Item) => {
+    router.push({
+        path: '/reg',
+        query:item
+    })
+}
+</script>
+
+<style scoped>
+    .login {
+        background-color: rebeccapurple;
+        height: 400px;
+        width: 400px;
+        font-size: 20px;
+        color: white;
+    }
+</style>
+
+<!-- reg.vue -->
+<template>
+    <div>
+    <button @click="router.back()">返回</button><h3>详情</h3>
+    </div>
+    <div>品牌：{{ route.query.name }}</div> // [!code highlight]
+    <div>价格：{{ route.query.price }}</div> // [!code highlight]
+    <div>ID：{{ route.query.id }}</div> // [!code highlight]
+</template>
+
+<script setup lang="ts">
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute()
+
+const router = useRouter()
+</script>
+
+<style scoped>
+    .reg {
+        background-color: red;
+        height: 400px;
+        width: 400px;
+        font-size: 20px;
+        color: white;
+    }
+</style>
+```

@@ -74,6 +74,10 @@ export default defineConfig({
             text: 'Vue3',
             link: '/src/frontend/vue3-快速上手.md'
           },
+          {
+            text: 'Vue3-黑马教程',
+            link: '/src/frontend/vue3-heima.md'
+          },
         ]
       },
       {
