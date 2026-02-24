@@ -5,23 +5,24 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML https://developer.mozilla.org/
 :::
 
 导入样式的三种方式：
+
 1. 内联样式：在HTML标签中使用`style`
 2. 内部样式: 在HTML文件中的`<head>`标签中使用`<style>`
 3. 外部样式表：在CSS文件中定义样式，并使用`<link>`引入HTML文件中
 
-
 ## CSS核心
 
-### 基本选择器    
+### 基本选择器
 
 - 标签选择器 直接写标签名
-- 类选择器  `.` 可同时属于几个类
+- 类选择器 `.` 可同时属于几个类
 - ID选择器 `#` 页面中唯一
 - 通配符选择器 `*`
 - 交集选择器 `element.class`
 - 并集选择器 `,`
 
 ### 高级选择器
+
 - 后代选择器 `element element` 只要是后代都生效
 - 子选择器 `element > element` 只有直接子元素才生效
 - 相邻兄弟选择器 `element + element` 只有紧邻的下一个兄弟元素才生效
@@ -45,7 +46,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML https://developer.mozilla.org/
 - `initial` 设为默认样式
 - `inherit` 设为继承父元素的样式（盒子模型）
 - `unset` 能继承就继承 不能继承就用默认颜色
-- `revert` 类似于 `initial` 
+- `revert` 类似于 `initial`
 - `layer` ？？？
 
 ## 字体样式 <Badge type="tip" text="自动继承" />
@@ -53,22 +54,25 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML https://developer.mozilla.org/
 ### 文本字体
 
 - `fontfamily`：一般写想要的字体加上**通用字体族**
-````css
-font-family: Arial, sans-serif, monospace
-````
+
+```css
+font-family: Arial, sans-serif, monospace;
+```
+
 - 自定义字体 手动添加字体
-````css
+
+```css
 @font-face {
     font-family:'BengHuai'
     src: url("../font/BengHuai.ttf")
 }
-````
+```
 
 ### 字体大小
 
 - `font-size` 默认16px
 - `1.5em` 1.5倍
-- `rem` 相对根元素大小 
+- `rem` 相对根元素大小
 
 ### 字体粗细
 
@@ -126,39 +130,40 @@ font-family: Arial, sans-serif, monospace
 
 - `white-space` 取值：nowrap 与`text-wrap:nowrap`效果相同 pre 保留全部空格，并且支持换行 pre-wrap 同`pre` 文字超出宽度会换行 pre-line 同`pre` 不保留空格
 
-
-
 ### 选择器进阶
 
 #### 伪类选择器
 
 不是选取元素本身，而是选取特定状态的元素。
+
 - `:focus` 获取焦点
 - `:link` 未访问的链接
 - `:visited` 已访问的链接
 - `:hover` 鼠标悬停
 - `:active` 激活
-**注意**：多个伪类生效时，需要遵循**LVHA**顺序
+  **注意**：多个伪类生效时，需要遵循**LVHA**顺序
 
 下面的一些为结构类伪类：
+
 - `:first-child`: 其父元素下第一个子元素
 - `:last-child`: 其父元素下最后一个子元素
 - `:nth-child(n)`: 其父元素下第n个子元素 n为数字(可以为even odd)
-- `first-of-type`: 其父元素下第一个同类元素 
+- `first-of-type`: 其父元素下第一个同类元素
 - `only-child`: 其父元素下唯一一个子元素
 - `:where`: 匹配元素，但不会继承样式
 - `:is`: 匹配元素，但不会继承样式
 - `:has`: 判断元素是否存在
 
-
 #### 伪元素选择器
 
 虚拟元素，直接看例子：
+
 ```html
 <label>
-  <input placeholder="请输入内容">
+  <input placeholder="请输入内容" />
 </label>
 ```
+
 ```css
 input {
   border: 1px solid #a200d8;
@@ -167,9 +172,9 @@ input {
   padding: 0 12px;
   width: 200px;
 }
-  input::placeholder {
+input::placeholder {
   color: #bc8cd3;
-  }
+}
 ```
 
 - `::before`: 在元素内容之前插入内容
@@ -183,6 +188,3 @@ input {
 一直在使用的语法
 
 **注意**：对于伪元素或是伪类选择器，使用`&`代表父选择器本身
-
-
-

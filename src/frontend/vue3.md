@@ -1,9 +1,10 @@
-# Vue3
+# Vue3 小满zs
 
 1. MVVM架构(Model-View-ViewModel)
 2. Composition API (组合式API)
 
 ## 1. 安装
+
 1. 使用vite构建：`npm init vite@latest`
 2. 使用vue-cli创建：`npm init vue@latest`
 
@@ -11,6 +12,7 @@
 
 模板语法：`{{ }}`  
 vue指令：`v-`
+
 - `v-text`: 将数据渲染到元素中，和模板语法相同。
 - `v-html`: 将数据渲染到元素中，但是数据会被解析成html标签，但是不支持解析组件。
 - `v-if`: 条件渲染，如果是true，则渲染元素。如果是false，则不渲染元素。（注释节点）
@@ -25,9 +27,8 @@ vue指令：`v-`
 - `v-memo`: 缓存渲染结果，如果数据没有变化，则跳过更新(一般配合`v-for`使用)
 
 ## 3. 虚拟DOM diff算法
-## 4. 
 
-
+## 4.
 
 ## vue-router
 
@@ -46,83 +47,86 @@ vue指令：`v-`
 <!-- query -->
 <!-- login.vue -->
 <template>
-    <div>列表页面</div>
-    <table>
-        <thead>
-            <tr>
-                <th>品牌</th>
-                <th>价格</th>
-                <th>操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr :key="item.id" v-for="item in data">
-                <th>{{ item.name }}</th>
-                <th>{{ item.price }}</th>
-                <th>
-                    <button @click="toDetail(item)">详情</button>
-                </th>
-            </tr>
-        </tbody>
-    </table>
+  <div>列表页面</div>
+  <table>
+    <thead>
+      <tr>
+        <th>品牌</th>
+        <th>价格</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr :key="item.id" v-for="item in data">
+        <th>{{ item.name }}</th>
+        <th>{{ item.price }}</th>
+        <th>
+          <button @click="toDetail(item)">详情</button>
+        </th>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script setup lang="ts">
-
 type Item = {
   name: string;
   price: number;
   id: number;
-} 
+};
 
 import { data } from "./list.json";
 import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
-const toDetail = (item:Item) => {
-    router.push({
-        path: '/reg',
-        query:item
-    })
-}
+const toDetail = (item: Item) => {
+  router.push({
+    path: "/reg",
+    query: item,
+  });
+};
 </script>
 
 <style scoped>
-    .login {
-        background-color: rebeccapurple;
-        height: 400px;
-        width: 400px;
-        font-size: 20px;
-        color: white;
-    }
+.login {
+  background-color: rebeccapurple;
+  height: 400px;
+  width: 400px;
+  font-size: 20px;
+  color: white;
+}
 </style>
 
 <!-- reg.vue -->
 <template>
-    <div>
-    <button @click="router.back()">返回</button><h3>详情</h3>
-    </div>
-    <div>品牌：{{ route.query.name }}</div> // [!code highlight]
-    <div>价格：{{ route.query.price }}</div> // [!code highlight]
-    <div>ID：{{ route.query.id }}</div> // [!code highlight]
+  <div>
+    <button @click="router.back()">返回</button>
+    <h3>详情</h3>
+  </div>
+  <div>品牌：{{ route.query.name }}</div>
+  // [!code highlight]
+  <div>价格：{{ route.query.price }}</div>
+  // [!code highlight]
+  <div>ID：{{ route.query.id }}</div>
+  // [!code highlight]
 </template>
 
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
 
-const route = useRoute()
+const route = useRoute();
 
-const router = useRouter()
+const router = useRouter();
 </script>
 
 <style scoped>
-    .reg {
-        background-color: red;
-        height: 400px;
-        width: 400px;
-        font-size: 20px;
-        color: white;
-    }
+.reg {
+  background-color: red;
+  height: 400px;
+  width: 400px;
+  font-size: 20px;
+  color: white;
+}
 </style>
 ```

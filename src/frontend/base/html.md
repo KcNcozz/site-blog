@@ -1,9 +1,11 @@
 # HTML
+
 这里只记录一些常用的HTML标签和属性。具体用法请参考MDN文档。
 
 ::: tip MDN文档地址
 https://developer.mozilla.org/zh-CN/docs/Web/HTML
 :::
+
 ## 常用标签
 
 ::: danger 小知识
@@ -11,42 +13,51 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 :::
 
 ### 1. 图片 <Badge type="tip" text="单标签 行内块元素" />
+
 图片的属性：
+
 ```html
 <img src="" alt="" title="" loading="lazy" width="200" height="200" />
 ```
+
 **懒加载**: loading属性可以实现图片的延迟加载，即当页面滚动到图片所在位置时才加载图片。
 
 ::: details 补充知识（相对路径和绝对路径）
+
 - **相对路径**：不在路径的最前面加 `/` ，路径将会从当前文件的位置开始计算
 - **绝对路径**：在路径的最前面加`/`，路径将会从当前项目的根目录开始计算
-:::
+  :::
 
 ### 2. 链接 <Badge type="tip" text="行内元素" />
 
 文本超链接和图片超链接
 
 ```html
-<a href="https://www.jetbrains.com/webstorm/" target="_blank" rel="noopener noreferrer">WebStorm</a>
+<a
+  href="https://www.jetbrains.com/webstorm/"
+  target="_blank"
+  rel="noopener noreferrer"
+  >WebStorm</a
+>
 
 <a href="https://www.jetbrains.com/webstorm/">
-	<img src="/assert/网页修复.svg" alt="这是一个图片链接">
+  <img src="/assert/网页修复.svg" alt="这是一个图片链接" />
 </a>
 ```
-1. target="_blank"
-这个属性的作用是让点击这个链接后，在新的浏览器标签页（或窗口）中打开链接内容。也就是说，用户点击后不会离开当前页面，而是在新标签页打开目标网页。
+
+1. target="\_blank"
+   这个属性的作用是让点击这个链接后，在新的浏览器标签页（或窗口）中打开链接内容。也就是说，用户点击后不会离开当前页面，而是在新标签页打开目标网页。
 
 2. rel="noopener noreferrer" 这是两个安全相关的属性，合在一起用以增强安全性和隐私保护
 
-    noopener：防止新打开的页面通过 JavaScript 获取到原页面的控制权，避免潜在的安全风险，比如恶意网站控制你的页面。
+   noopener：防止新打开的页面通过 JavaScript 获取到原页面的控制权，避免潜在的安全风险，比如恶意网站控制你的页面。
 
-    noreferrer：不让新页面知道是从哪个页面跳转过来的（不传递“引用”信息），这能保护用户隐私。
+   noreferrer：不让新页面知道是从哪个页面跳转过来的（不传递“引用”信息），这能保护用户隐私。
 
 这是一个超链接 <a href="https://www.jetbrains.com/webstorm/" target="_blank" rel="noopener noreferrer">WebStorm</a> 结束
 
-
 这是一个超链接<a href="https://www.jetbrains.com/webstorm/">
-	<img src="/assert/网页修复.svg" alt="这是一个图片链接" width="100" height="100"/>
+<img src="/assert/网页修复.svg" alt="这是一个图片链接" width="100" height="100"/>
 </a>
 结束
 
@@ -58,17 +69,18 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 
 ```html
 <video width="320" height="240" controls>
-    <source src="movie.mp4" type="video/mp4">
+  <source src="movie.mp4" type="video/mp4" />
 </video>
 
 <video src="movie.mp4" controls width="320" height="240">
-	<p>Your browser does not support the video element.</p>
+  <p>Your browser does not support the video element.</p>
 </video>
 
 <audio controls>
-    <source src="audio.mp3" type="audio/mpeg">
+  <source src="audio.mp3" type="audio/mpeg" />
 </audio>
 ```
+
 - controls：这是一个布尔属性，表示在视频播放器上显示播放控件（如播放、暂停、音量等）。
 - autoplay：布尔属性，表示视频自动播放。
 - loop：布尔属性，表示视频循环播放。
@@ -77,12 +89,12 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 - track：字幕文件 URL。
 
 ### 4. 列表 <Badge type="danger" text="使用频率低" />
+
 ```html
 <ol type="a">
   <li>第一项</li>
   <li>第二项</li>
 </ol>
-
 
 <ul>
   <li>第1项</li>
@@ -91,7 +103,11 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 
 <dl>
   <dt>Java</dt>
-  <dd>Java 是一门面向对象编程语言，是静态编译型语言，具有平台独立性，支持多线程、动态绑定、反射、注解、异常处理、数据库访问、JMX 等特性。</dd>
+  <dd>
+    Java
+    是一门面向对象编程语言，是静态编译型语言，具有平台独立性，支持多线程、动态绑定、反射、注解、异常处理、数据库访问、JMX
+    等特性。
+  </dd>
   <dt>Go</dt>
   <dd>Go 语言是 Google 开发的一种静态强类型、编译型、并发型的编程语言。</dd>
   <dt>Python</dt>
@@ -99,6 +115,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
   <dd>Python 还有很多优秀的第三方库，可以帮助你快速开发应用。</dd>
 </dl>
 ```
+
 **实现效果：**
 
 <ol type="a">
@@ -126,7 +143,9 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 - 定义列表（dl）：dl 元素用于描述一个术语的定义。
 
 ### 5. 表格 <Badge type="danger" text="使用频率低" />
+
 **table属性用CSS写**
+
 ```html
 <table>
   <thead>
@@ -150,7 +169,9 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 </table>
 
 <table>
-  <caption>2025年装机清单</caption>
+  <caption>
+    2025年装机清单
+  </caption>
   <tr>
     <th>配件名称</th>
     <th>型号</th>
@@ -165,6 +186,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
   </tr>
 </table>
 ```
+
 **实现效果：**
 
 <table>
@@ -217,11 +239,14 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 - rowgroup：用于对表格的行进行分组。
 
 ### 6. 框架和嵌入代码
+
 ```html
 <div>我是内容</div>
 <iframe src="https://www.bilibili.com" width="300" height="300"></iframe>
 ```
+
 **实现效果：**
+
 <div>我是内容</div>
 <iframe width="1000" height="500" src="//player.bilibili.com/player.html?isOutside=true&aid=115841794442308&bvid=BV1z2i4BYEPL&cid=35206138484&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
 
@@ -237,6 +262,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 :::
 
 ### 其他标签
+
 - header：用于定义文档的**头部**区域。
 - nav：用于定义**导航链接**。
 - article：用于定义文档的独立内容块。
@@ -245,25 +271,24 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 - aside：用于定义页面的侧边栏。
 - footer：用于定义文档的尾部区域。
 
-
 ## 表单
 
 ```html
 <form>
   <label for="name">Name:</label>
-  <input type="text" id="name" name="name" required>
+  <input type="text" id="name" name="name" required />
   <label for="email">Email:</label>
-  <input type="email" id="email" name="email" required>
+  <input type="email" id="email" name="email" required />
   <label for="message">Message:</label>
   <textarea id="message" name="message" required></textarea>
-  <input type="submit" value="Submit">
+  <input type="submit" value="Submit" />
 </form>
 
 <form action="/login" method="post">
-    <label>电子邮件：<input name="username" type="email" required></label>
-    <label>密码：<input name="password" type="password" required></label>
-    <button type="submit">提交</button>
-    <reset type="reset">重置</reset>
+  <label>电子邮件：<input name="username" type="email" required /></label>
+  <label>密码：<input name="password" type="password" required /></label>
+  <button type="submit">提交</button>
+  <reset type="reset">重置</reset>
 </form>
 ```
 
@@ -276,12 +301,11 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
   - required：用于设置输入框为必填项。
   - **type**：用于设置输入框的类型。
 
-
 ### 1.日期选择 <Badge type="tip" text="了解即可" />
 
 ```html
 <form>
-    <input type="date">
+  <input type="date" />
 </form>
 ```
 
@@ -289,7 +313,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 
 ```html
 <form>
-    <input type="number" min="1" max="10" step="2">
+  <input type="number" min="1" max="10" step="2" />
 </form>
 ```
 
@@ -297,18 +321,18 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 
 ```html
 <form>
-    <div>选择性别：</div>
-    <input type="radio" name="gender" value="male" checked> 男
-    <input type="radio" name="gender" value="female"> 女
-    <input type="submit">
+  <div>选择性别：</div>
+  <input type="radio" name="gender" value="male" checked /> 男
+  <input type="radio" name="gender" value="female" /> 女
+  <input type="submit" />
 </form>
 
 <form>
-    <div>选择兴趣：</div>
-    <input type="checkbox" name="interest" value="reading"> 阅读
-    <input type="checkbox" name="interest" value="swimming"> 游泳
-    <input type="checkbox" name="interest" value="hiking"> 滑雪
-    <input type="submit">
+  <div>选择兴趣：</div>
+  <input type="checkbox" name="interest" value="reading" /> 阅读
+  <input type="checkbox" name="interest" value="swimming" /> 游泳
+  <input type="checkbox" name="interest" value="hiking" /> 滑雪
+  <input type="submit" />
 </form>
 ```
 
@@ -320,14 +344,14 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 
 ```html
 <form>
-    <label for="cars">选择汽车：</label>
-    <select id="cars" name="cars">
-        <option value="volvo">Volvo</option>
-        <option value="saab">Saab</option>
-        <option value="mercedes">Mercedes</option>
-        <option value="audi">Audi</option>
-    </select>
-    <input type="submit">
+  <label for="cars">选择汽车：</label>
+  <select id="cars" name="cars">
+    <option value="volvo">Volvo</option>
+    <option value="saab">Saab</option>
+    <option value="mercedes">Mercedes</option>
+    <option value="audi">Audi</option>
+  </select>
+  <input type="submit" />
 </form>
 ```
 
@@ -338,14 +362,13 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 - size：用于设置下拉列表展示几个内容
 - selected：用于设置默认值。
 
-
 ### 5.文本域
 
 ```html
 <form>
-    <label for="comment">评论：</label>
-    <textarea id="comment" name="comment" rows="5" cols="30"></textarea>
-    <input type="submit">
+  <label for="comment">评论：</label>
+  <textarea id="comment" name="comment" rows="5" cols="30"></textarea>
+  <input type="submit" />
 </form>
 ```
 
@@ -353,7 +376,6 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 - rows：用于设置文本域的行数。
 - cols：用于设置文本域的列数。
 - placeholder maxlength min max 等属性与 input 标签相同。
-
 
 ## HTML矢量图
 
@@ -391,11 +413,11 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 ### 2.map
 
 ```html
-<img src="map.png" usemap="#map" alt="Map of the world">
+<img src="map.png" usemap="#map" alt="Map of the world" />
 
 <map name="map">
-  <area shape="rect" coords="10,10,50,50" href="https://www.google.com">
-  <area shape="circle" coords="100,100,50" href="https://www.bing.com">
+  <area shape="rect" coords="10,10,50,50" href="https://www.google.com" />
+  <area shape="circle" coords="100,100,50" href="https://www.bing.com" />
 </map>
 ```
 
@@ -409,7 +431,8 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 
 ### 3.无障碍 WAI-ARIA
 
-尽量使用语义化标签和属性，并添加 aria-* 属性来提供额外的上下文信息。
+尽量使用语义化标签和属性，并添加 aria-\* 属性来提供额外的上下文信息。
+
 ```html
 <button aria-label="Close">X</button>
 <div role="button" aria-label="Close">X</div>
