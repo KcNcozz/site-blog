@@ -4,10 +4,11 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "加菲猫的博客",
   lastUpdated: true,
+  head: [["link", { rel: "icon", href: "/site-blog/favicon.ico" }]],
 
-  description: "我是一只猫",
+  description: "记录自己的学习过程",
   base: "/site-blog/",
-  outDir: "docs",
+  outDir: "docs", // 修改构建输出目录
   themeConfig: {
     search: {
       provider: "local",

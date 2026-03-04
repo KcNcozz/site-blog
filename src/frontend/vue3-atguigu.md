@@ -2,17 +2,13 @@
 
 > 本文源自尚硅谷Vue教程
 
-## 1.1.【源码的升级】
+## 升级
 
 - 使用`Proxy`代替`defineProperty`实现响应式。
-
 - 重写虚拟`DOM`的实现和`Tree-Shaking`。
-
-## 1.2. 【拥抱TypeScript】
-
 - `Vue3`可以更好的支持`TypeScript`。
 
-## 1.3. 【新的特性】
+## 新特性
 
 1. `Composition API`（组合`API`）：
    - `setup`
@@ -37,46 +33,7 @@
 
 # 2. 创建Vue3工程
 
-## 2.1. 【基于 vue-cli 创建】
-
-点击查看[官方文档](https://cli.vuejs.org/zh/guide/creating-a-project.html#vue-create)
-
-> 备注：目前`vue-cli`已处于维护模式，官方推荐基于 `Vite` 创建项目。
-
-```powershell
-## 查看@vue/cli版本，确保@vue/cli版本在4.5.0以上
-vue --version
-
-## 安装或者升级你的@vue/cli
-npm install -g @vue/cli
-
-## 执行创建命令
-vue create vue_test
-
-##  随后选择3.x
-##  Choose a version of Vue.js that you want to start the project with (Use arrow keys)
-##  > 3.x
-##    2.x
-
-## 启动
-cd vue_test
-npm run serve
-```
-
----
-
-## 2.2. 【基于 vite 创建】(推荐)
-
-`vite` 是新一代前端构建工具，官网地址：[https://vitejs.cn](https://vitejs.cn/)，`vite`的优势如下：
-
-- 轻量快速的热重载（`HMR`），能实现极速的服务启动。
-- 对 `TypeScript`、`JSX`、`CSS` 等支持开箱即用。
-- 真正的按需编译，不再等待整个应用编译完成。
-- `webpack`构建 与 `vite`构建对比图如下：
-
-<img src="/assert/assets-heima/1683167182037-71c78210-8217-4e7d-9a83-e463035efbbe.png" alt="webpack构建" title="webpack构建" style="zoom:20%;box-shadow:0 0 10px black" /> <img src="/assert/assets-heima/1683167204081-582dc237-72bc-499e-9589-2cdfd452e62f.png" alt="vite构建" title="vite构建" style="zoom: 20%;box-shadow:0 0 10px black" />
-
-- 具体操作如下（点击查看[官方文档](https://cn.vuejs.org/guide/quick-start.html#creating-a-vue-application)）
+## 2.1 基于 vite 创建
 
 ```powershell
 ## 1.创建命令
@@ -128,80 +85,44 @@ export default {
 </style>
 ```
 
-总结：
+::: danger 总结
 
 - `Vite` 项目中，`index.html` 是项目的入口文件，在项目最外层。
-- 加载`index.html`后，`Vite` 解析 `<script type="module" src="xxx">` 指向的`JavaScript`。
-- `Vue3`**中是通过 **`createApp` 函数创建一个应用实例。
+- 加载`index.html`后，`Vite` 解析 `<script type="module" src="xxx">` 指向的`mian.ts`。
+- `Vue3`中是通过 `createApp` 函数创建一个应用实例。
+  :::
 
-## 2.3. 【一个简单的效果】
+```typescript
+import { createApp } from "vue"; // 创建应用
 
-`Vue3`向下兼容`Vue2`语法，且`Vue3`中的模板中可以没有根标签
+import App from "./App.vue"; // 根组件
 
-```vue
-<template>
-  <div class="person">
-    <h2>姓名：{{ name }}</h2>
-    <h2>年龄：{{ age }}</h2>
-    <button @click="changeName">修改名字</button>
-    <button @click="changeAge">年龄+1</button>
-    <button @click="showTel">点我查看联系方式</button>
-  </div>
-</template>
-
-<script lang="ts">
-export default {
-  name: "App",
-  data() {
-    return {
-      name: "张三",
-      age: 18,
-      tel: "13888888888",
-    };
-  },
-  methods: {
-    changeName() {
-      this.name = "zhang-san";
-    },
-    changeAge() {
-      this.age += 1;
-    },
-    showTel() {
-      alert(this.tel);
-    },
-  },
-};
-</script>
+createApp(App).mount("#app"); // 把根组件挂载在id为app的容器（容器在index.html）
 ```
+
+## 2.2 一个简单的效果
+
+vue文件里面的三种标签：
+
+- 模板
+- 脚本
+- 样式
 
 # 3. Vue3核心语法
 
-## 3.1. 【OptionsAPI 与 CompositionAPI】
+## 3.1 OptionsAPI 与 CompositionAPI
 
-- `Vue2`的`API`设计是`Options`（配置）风格的。
-- `Vue3`的`API`设计是`Composition`（组合）风格的。
-
-### Options API 的弊端
-
-`Options`类型的 `API`，数据、方法、计算属性等，是分散在：`data`、`methods`、`computed`中的，若想新增或者修改一个需求，就需要分别修改：`data`、`methods`、`computed`，不便于维护和复用。
+- `Options`和`Composition`
 
 <img src="/assert/assets-heima/1696662197101-55d2b251-f6e5-47f4-b3f1-d8531bbf9279.gif" alt="1.gif" style="zoom:70%;border-radius:20px" /><img src="/assert/assets-heima/1696662200734-1bad8249-d7a2-423e-a3c3-ab4c110628be.gif" alt="2.gif" style="zoom:70%;border-radius:20px" />
-
-### Composition API 的优势
-
-可以用函数的方式，更加优雅的组织代码，让相关功能的代码更加有序的组织在一起。
 
 <img src="/assert/assets-heima/1696662249851-db6403a1-acb5-481a-88e0-e1e34d2ef53a.gif" alt="3.gif" style="height:300px;border-radius:10px"  /> <img src="/assert/assets-heima/1696662256560-7239b9f9-a770-43c1-9386-6cc12ef1e9c0.gif" alt="4.gif" style="height:300px;border-radius:10px"  />
 
 > 说明：以上四张动图原创作者：大帅老猿
 
-## 3.2. 【拉开序幕的 setup】
+## 3.2 setup
 
 ### setup 概述
-
-`setup`是`Vue3`中一个新的配置项，值是一个函数，它是 `Composition API` **“表演的舞台**_**”**_，组件中所用到的：数据、方法、计算属性、监视......等等，均配置在`setup`中。
-
-特点如下：
 
 - `setup`函数返回的对象中的内容，可直接在模板中使用。
 - `setup`中访问`this`是`undefined`。
@@ -240,7 +161,7 @@ export default {
       alert(tel);
     }
 
-    // 返回一个对象，对象中的内容，模板中可以直接使用
+    // 把数据交出去
     return { name, age, tel, changeName, changeAge, showTel };
   },
 };
@@ -258,11 +179,12 @@ setup(){
 }
 ```
 
-### setup 与 Options API 的关系
+::: info setup 与 Options API 的关系（面试）
 
 - `Vue2` 的配置（`data`、`methos`......）中**可以访问到** `setup`中的属性、方法。
 - 但在`setup`中**不能访问到**`Vue2`的配置（`data`、`methos`......）。
 - 如果与`Vue2`冲突，则`setup`优先。
+  :::
 
 ### setup 语法糖
 
@@ -308,32 +230,48 @@ function showTel() {
 </script>
 ```
 
-扩展：上述代码，还需要编写一个不写`setup`的`script`标签，去指定组件名字，比较麻烦，我们可以借助`vite`中的插件简化
+> 这样写如何定义组件名？
 
-1. 第一步：`npm i vite-plugin-vue-setup-extend -D`
-2. 第二步：`vite.config.ts`
+vue3.3版本之后自带defineOptions，可以在setup内直接使用defineOptions(){}命名，无需插件
 
-```jsx
-import { defineConfig } from "vite";
-import VueSetupExtend from "vite-plugin-vue-setup-extend";
+## 3.3 ref 对比 reactive
 
-export default defineConfig({
-  plugins: [VueSetupExtend()],
-});
-```
+::: info 宏观方面
 
-3. 第三步：`<script setup lang="ts" name="Person">`
+> 1. `ref`用来定义：**基本类型数据**、**对象类型数据**（底层仍为`reactive`）；
+> 2. `reactive`用来定义：**对象类型数据**。
 
-## 3.3. 【ref 创建：基本类型的响应式数据】
+:::
 
-- **作用：**定义响应式变量。
-- **语法：**`let xxx = ref(初始值)`。
-- **返回值：**一个`RefImpl`的实例对象，简称`ref对象`或`ref`，`ref`对象的`value`**属性是响应式的**。
+- 区别：
+
+> 1. `ref`创建的变量必须使用`.value`（可以使用`volar`插件自动添加`.value`）。
+>
+>    <img src="/assert/assets-heima/自动补充value.png" alt="自动补充value" style="zoom:50%;border-radius:20px" />
+>
+> 2. `reactive`重新分配一个新对象，会**失去**响应式（可以使用`Object.assign`去整体替换）。
+
+- 使用原则：
+  > 1. 若需要一个基本类型的响应式数据，必须使用`ref`。
+  > 2. 若需要一个响应式对象，层级不深，`ref`、`reactive`都可以。
+  > 3. 若需要一个响应式对象，且层级较深，推荐使用`reactive`。（实际情况都是`ref`）
+
+## 3.4 ref 和 reactive （响应式）
+
+::: info ref
+
+- **语法：** `let xxx = ref(初始值)`。
+- **返回值：** 一个`RefImpl`的实例对象，简称`ref对象`或`ref`，`ref`对象的`value`**属性是响应式的**。
 - **注意点：**
   - `JS`中操作数据需要：`xxx.value`，但模板中不需要`.value`，直接使用即可。
   - 对于`let name = ref('张三')`来说，`name`不是响应式的，`name.value`是响应式的。
+- `ref`接收的数据可以是：**基本类型**、**对象类型**。
+- 若`ref`接收的是对象类型，内部其实也是调用了`reactive`函数。
+
+:::
 
 ```vue
+<!-- ref的使用 -->
 <template>
   <div class="person">
     <h2>姓名：{{ name }}</h2>
@@ -371,66 +309,8 @@ function showTel() {
 </script>
 ```
 
-## 3.4. 【reactive 创建：对象类型的响应式数据】
-
-- **作用：**定义一个**响应式对象**（基本类型不要用它，要用`ref`，否则报错）
-- **语法：**`let 响应式对象= reactive(源对象)`。
-- **返回值：**一个`Proxy`的实例对象，简称：响应式对象。
-- **注意点：**`reactive`定义的响应式数据是“深层次”的。
-
 ```vue
-<template>
-  <div class="person">
-    <h2>汽车信息：一台{{ car.brand }}汽车，价值{{ car.price }}万</h2>
-    <h2>游戏列表：</h2>
-    <ul>
-      <li v-for="g in games" :key="g.id">{{ g.name }}</li>
-    </ul>
-    <h2>测试：{{ obj.a.b.c.d }}</h2>
-    <button @click="changeCarPrice">修改汽车价格</button>
-    <button @click="changeFirstGame">修改第一游戏</button>
-    <button @click="test">测试</button>
-  </div>
-</template>
-
-<script lang="ts" setup name="Person">
-import { reactive } from "vue";
-
-// 数据
-let car = reactive({ brand: "奔驰", price: 100 });
-let games = reactive([
-  { id: "ahsgdyfa01", name: "英雄联盟" },
-  { id: "ahsgdyfa02", name: "王者荣耀" },
-  { id: "ahsgdyfa03", name: "原神" },
-]);
-let obj = reactive({
-  a: {
-    b: {
-      c: {
-        d: 666,
-      },
-    },
-  },
-});
-
-function changeCarPrice() {
-  car.price += 10;
-}
-function changeFirstGame() {
-  games[0].name = "流星蝴蝶剑";
-}
-function test() {
-  obj.a.b.c.d = 999;
-}
-</script>
-```
-
-## 3.5. 【ref 创建：对象类型的响应式数据】
-
-- 其实`ref`接收的数据可以是：**基本类型**、**对象类型**。
-- 若`ref`接收的是对象类型，内部其实也是调用了`reactive`函数。
-
-```vue
+<!-- ref包裹对象 -->
 <template>
   <div class="person">
     <h2>汽车信息：一台{{ car.brand }}汽车，价值{{ car.price }}万</h2>
@@ -479,31 +359,108 @@ function test() {
 </script>
 ```
 
-## 3.6. 【ref 对比 reactive】
+::: info reactive
 
-宏观角度看：
+- **作用：** 定义一个**响应式对象**（基本类型不要用它，要用`ref`，否则报错）
+- **语法：** `let 响应式对象= reactive(源对象)`。
+- **返回值：** 一个`Proxy`的实例对象，简称：响应式对象。
+- **注意点：** `reactive`定义的响应式数据是“深层次”的。
 
-> 1. `ref`用来定义：**基本类型数据**、**对象类型数据**；
-> 2. `reactive`用来定义：**对象类型数据**。
+:::
 
-- 区别：
+```vue
+<!-- reactive -->
+<template>
+  <div class="person">
+    <h2>汽车信息：一台{{ car.brand }}汽车，价值{{ car.price }}万</h2>
+    <h2>游戏列表：</h2>
+    <ul>
+      <li v-for="g in games" :key="g.id">{{ g.name }}</li>
+    </ul>
+    <h2>测试：{{ obj.a.b.c.d }}</h2>
+    <button @click="changeCarPrice">修改汽车价格</button>
+    <button @click="changeFirstGame">修改第一游戏</button>
+    <button @click="test">测试</button>
+  </div>
+</template>
 
-> 1. `ref`创建的变量必须使用`.value`（可以使用`volar`插件自动添加`.value`）。
->
->    <img src="/assert/assets-heima/自动补充value.png" alt="自动补充value" style="zoom:50%;border-radius:20px" />
->
-> 2. `reactive`重新分配一个新对象，会**失去**响应式（可以使用`Object.assign`去整体替换）。
+<script lang="ts" setup name="Person">
+import { reactive } from "vue";
 
-- 使用原则：
-  > 1. 若需要一个基本类型的响应式数据，必须使用`ref`。
-  > 2. 若需要一个响应式对象，层级不深，`ref`、`reactive`都可以。
-  > 3. 若需要一个响应式对象，且层级较深，推荐使用`reactive`。
+// 数据
+let car = reactive({ brand: "奔驰", price: 100 });
+let games = reactive([
+  { id: "ahsgdyfa01", name: "英雄联盟" },
+  { id: "ahsgdyfa02", name: "王者荣耀" },
+  { id: "ahsgdyfa03", name: "原神" },
+]);
+let obj = reactive({
+  a: {
+    b: {
+      c: {
+        d: 666,
+      },
+    },
+  },
+});
 
-## 3.7. 【toRefs 与 toRef】
+function changeCarPrice() {
+  car.price += 10;
+}
+function changeFirstGame() {
+  games[0].name = "流星蝴蝶剑";
+}
+function test() {
+  obj.a.b.c.d = 999;
+}
+</script>
+```
 
-- 作用：将一个响应式对象中的每一个属性，转换为`ref`对象。
+## 3.5 toRefs 与 toRef
+
+> 结构出来的数据不是响应式的该怎么办？
+
+```vue
+<template>
+  <div class="person">
+    <h2>姓名：{{ person.name }}</h2>
+    <h2>年龄：{{ person.age }}</h2>
+    <button @click="changeName">修改名字</button>
+    <button @click="changeAge">修改年龄</button>
+  </div>
+</template>
+
+<script lang="ts" setup name="Person">
+import { ref, reactive} from "vue";
+
+// 数据
+let person = reactive({ name: "张三", age: 18, gender: "男" });
+
+let { name, age } = person; // 此时name gender取出来后不是响应式的了
+/*
+相当于
+let name = person.name;
+let age = person.age;
+*/
+
+// 方法
+function changeName() {
+  name.value += "~";
+}
+function changeAge() {
+  age.value += 1;
+}
+<script lang="ts" setup name="Person">
+```
+
+::: info toRef
+
+- 作用：将一个`响应式对象`中的每一个属性，转换为`ref`对象。
 - 备注：`toRefs`与`toRef`功能一致，但`toRefs`可以批量转换。
-- 语法如下：
+
+:::
+
+作用示例：
 
 ```vue
 <template>
@@ -542,9 +499,37 @@ function changeGender() {
 </script>
 ```
 
-## 3.8. 【computed】
+## 3.6 computed 计算属性
 
-作用：根据已有数据计算出新数据（和`Vue2`中的`computed`作用一致）。
+::: warning 补充知识
+
+单向绑定(`v-bind`)：只能从数据源到页面，不能从页面到数据源。 `v-model` (双向绑定)
+
+```javascript
+// 例1
+<h2 a="1+1" :b="1+1" c="x" :d="x">测试</h2>
+
+let x = 9;
+console.log(a, b, c, d); // "1+1" 2 "x" 9
+
+// 例2
+// 不绑定（没有冒号） 则只是把personList这个字符串赋值给Persons
+<Person a="haha" Persons="personList"/> //
+//绑定（有冒号） 则是把personList这个列表内容绑定给Persons
+<Person a="haha" :Persons="personList"/>
+
+let personList = reactive<Persons>([
+  {id: '123123', name: 'zhangsan', age: 18},
+  {id: '123345', name: 'lisin', age: 1},
+  {id: '123321', name: 'wangwu', age: 20},
+])
+```
+
+:::
+
+> 需求：给出姓和名，输出全名并且姓和名首字母大写
+
+计算属性作用：根据已有数据计算出新数据（和`Vue2`中的`computed`作用一致）。
 
 <img src="/assert/assets-heima/computed.gif" style="zoom:20%;" />
 
@@ -553,6 +538,8 @@ function changeGender() {
   <div class="person">
     姓：<input type="text" v-model="firstName" /> <br />
     名：<input type="text" v-model="lastName" /> <br />
+    <!-- 在此处两者不使用计算属性两者效果一致 -->
+    <!-- 全名：<span>{{ firstName }}{{ lastName }}</span> <br /> -->
     全名：<span>{{ fullName }}</span> <br />
     <button @click="changeFullName">全名改为：li-si</button>
   </div>
@@ -577,6 +564,7 @@ let fullName = computed({
   },
   // 修改
   set(val) {
+    // 参数为修改的值
     console.log("有人修改了fullName", val);
     firstName.value = val.split("-")[0];
     lastName.value = val.split("-")[1];
@@ -589,20 +577,31 @@ function changeFullName() {
 </script>
 ```
 
-## 3.9.【watch】
+- 计算属性有缓存
+- 方法没有缓存
+- 返回值是一个`ComputedRefImpl`
+
+## 3.7 watch 监视
+
+> 需求：当年龄达到一个数值时发出提醒
 
 - 作用：监视数据的变化（和`Vue2`中的`watch`作用一致）
-- 特点：`Vue3`中的`watch`只能监视以下**四种数据**：
-  > 1. `ref`定义的数据。
-  > 2. `reactive`定义的数据。
-  > 3. 函数返回一个值（`getter`函数）。
-  > 4. 一个包含上述内容的数组。
+- 特点：`Vue3`中的`watch`只能监视**四种数据**
+
+::: info 四种数据
+
+1. `ref`定义的数据。
+2. `reactive`定义的数据。
+3. 函数返回一个值（`getter`函数）。
+4. 一个包含上述内容的数组。
+
+:::
 
 我们在`Vue3`中使用`watch`的时候，通常会遇到以下几种情况：
 
-### \* 情况一
+### 3.7.1 情况一
 
-监视`ref`定义的【基本类型】数据：直接写数据名即可，监视的是其`value`值的改变。
+监视`ref`定义的**基本类型**数据：直接写数据名即可，监视的是其`value`值的改变。
 
 ```vue
 <template>
@@ -623,6 +622,8 @@ function changeSum() {
 }
 // 监视，情况一：监视【ref】定义的【基本类型】数据
 const stopWatch = watch(sum, (newValue, oldValue) => {
+  // 不需要.value
+  // watch的返回值是一个箭头函数
   console.log("sum变化了", newValue, oldValue);
   if (newValue >= 10) {
     stopWatch();
@@ -631,14 +632,16 @@ const stopWatch = watch(sum, (newValue, oldValue) => {
 </script>
 ```
 
-### \* 情况二
+### 3.7.2 情况二
 
 监视`ref`定义的【对象类型】数据：直接写数据名，监视的是对象的【地址值】，若想监视对象内部的数据，要手动开启深度监视。
 
 > 注意：
 >
-> - 若修改的是`ref`定义的对象中的属性，`newValue` 和 `oldValue` 都是新值，因为它们是同一个对象。
-> - 若修改整个`ref`定义的对象，`newValue` 是新值， `oldValue` 是旧值，因为不是同一个对象了。
+> - 若修改的是`ref`定义的**对象中的属性**，`newValue` 和 `oldValue` 都是新值，因为它们是同一个对象。
+> - 若修改**整个**`ref`定义的对象，`newValue` 是新值， `oldValue` 是旧值，因为不是同一个对象了。
+
+其实就是看地址是否发生变化了，地址变化了就不是同一个值
 
 ```vue
 <template>
@@ -685,9 +688,15 @@ watch(
 </script>
 ```
 
-### \* 情况三
+### 3.7.3 情况三
 
-监视`reactive`定义的【对象类型】数据，且默认开启了深度监视。
+::: danger 注意
+
+Vue3.5+版本，reactive数据的类型，可以精确控制监视层级了，也就是说deep可以是数值类型，默认true，等价于最大嵌套层级数
+
+:::
+
+监视`reactive`定义的【对象类型】数据，且**默认开启了深度监视**。
 
 ```vue
 <template>
@@ -737,17 +746,18 @@ watch(person, (newValue, oldValue) => {
   console.log("person变化了", newValue, oldValue);
 });
 watch(obj, (newValue, oldValue) => {
+  // 地址没变
   console.log("Obj变化了", newValue, oldValue);
 });
 </script>
 ```
 
-### \* 情况四
+### 3.7.4 情况四
 
 监视`ref`或`reactive`定义的【对象类型】数据中的**某个属性**，注意点如下：
 
 1. 若该属性值**不是**【对象类型】，需要写成函数形式。
-2. 若该属性值是**依然**是【对象类型】，可直接编，也可写成函数，建议写成函数。
+2. 若该属性值是**依然** 是【对象类型】，可直接编，也可写成函数，建议写成函数。
 
 结论：监视的要是对象里的属性，那么最好写函数式，注意点：若是对象监视的是地址值，需要关注对象内部，需要手动开启深度监视。
 
