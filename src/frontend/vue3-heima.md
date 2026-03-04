@@ -1,14 +1,3 @@
-## Vue3生命周期
-
-- setup：创建
-- onBeforeMount：挂载前
-- onMounted：挂载完成
-- onBeforeUpdate：更新前
-- onUpdated：更新完成
-- onBeforeUnmount：卸载前
-- onUnmount：卸载完成
-- .....
-
 ## 自定义hooks
 
 > Hooks的目的？
