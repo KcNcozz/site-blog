@@ -1,35 +1,12 @@
-# 1. Vue3 快速上手
+# 1. Vue3 知识总结
 
-> 本文源自尚硅谷Vue教程
+官方文档：https://cn.vuejs.org/
 
-## 升级
+## 1. 升级点
 
 - 使用`Proxy`代替`defineProperty`实现响应式。
 - 重写虚拟`DOM`的实现和`Tree-Shaking`。
 - `Vue3`可以更好的支持`TypeScript`。
-
-## 新特性
-
-1. `Composition API`（组合`API`）：
-   - `setup`
-   - `ref`与`reactive`
-   - `computed`与`watch`
-
-     ......
-
-2. 新的内置组件：
-   - `Fragment`
-   - `Teleport`
-   - `Suspense`
-
-     ......
-
-3. 其他改变：
-   - 新的生命周期钩子
-   - `data` 选项应始终被声明为一个函数
-   - 移除`keyCode`支持作为` v-on` 的修饰符
-
-     ......
 
 # 2. 创建Vue3工程
 
@@ -256,7 +233,7 @@ vue3.3版本之后自带defineOptions，可以在setup内直接使用defineOptio
   > 2. 若需要一个响应式对象，层级不深，`ref`、`reactive`都可以。
   > 3. 若需要一个响应式对象，且层级较深，推荐使用`reactive`。（实际情况都是`ref`）
 
-## 3.4 ref 和 reactive （响应式）
+## 3.4 ref 和 reactive 响应式
 
 ::: info ref
 
@@ -761,7 +738,7 @@ watch(obj, (newValue, oldValue) => {
 
 结论：监视的要是对象里的属性，那么最好写函数式，注意点：若是对象监视的是地址值，需要关注对象内部，需要手动开启深度监视。
 
-```vue
+```vue{45-47,51,55}
 <template>
   <div class="person">
     <h1>情况四：监视【ref】或【reactive】定义的【对象类型】数据中的某个属性</h1>
@@ -806,9 +783,9 @@ function changeCar() {
 }
 
 // 监视，情况四：监视响应式对象中的某个属性，且该属性是基本类型的，要写成函数式
-/* watch(()=> person.name,(newValue,oldValue)=>{
-    console.log('person.name变化了',newValue,oldValue)
-  }) */
+watch(()=> person.name,(newValue,oldValue)=>{
+  console.log('person.name变化了',newValue,oldValue)
+})
 
 // 监视，情况四：监视响应式对象中的某个属性，且该属性是对象类型的，可以直接写，也能写函数，更推荐写函数
 watch(
@@ -821,11 +798,11 @@ watch(
 </script>
 ```
 
-### \* 情况五
+### 3.7.5 情况五
 
 监视上述的多个数据
 
-```vue
+```vue{46-51}
 <template>
   <div class="person">
     <h1>情况五：监视上述的多个数据</h1>
@@ -880,79 +857,83 @@ watch(
 </script>
 ```
 
-## 3.10. 【watchEffect】
+## 3.8 watchEffect 监视
 
-- 官网：立即运行一个函数，同时响应式地追踪其依赖，并在依赖更改时重新执行该函数。
+官网：立即运行一个函数，同时响应式地追踪其依赖，并在依赖更改时重新执行该函数。
 
-- `watch`对比`watchEffect`
+:::warning `watch`对比`watchEffect`
 
-  > 1. 都能监听响应式数据的变化，不同的是监听数据变化的方式不同
-  > 2. `watch`：要明确指出监视的数据
-  > 3. `watchEffect`：不用明确指出监视的数据（函数中用到哪些属性，那就监视哪些属性）。
+1. 都能监听响应式数据的变化，不同的是监听数据变化的方式不同
+2. `watch`：要**明确指出**监视的数据
+3. `watchEffect`：不用明确指出监视的数据（函数中用到哪些属性，那就监视哪些属性）。
 
-- 示例代码：
+:::
 
-  ```vue
-  <template>
-    <div class="person">
-      <h1>需求：水温达到50℃，或水位达到20cm，则联系服务器</h1>
-      <h2 id="demo">水温：{{ temp }}</h2>
-      <h2>水位：{{ height }}</h2>
-      <button @click="changePrice">水温+1</button>
-      <button @click="changeSum">水位+10</button>
-    </div>
-  </template>
+示例代码：
 
-  <script lang="ts" setup name="Person">
-  import { ref, watch, watchEffect } from "vue";
-  // 数据
-  let temp = ref(0);
-  let height = ref(0);
+```vue{36-47}
+<template>
+  <div class="person">
+    <h1>需求：水温达到50℃，或水位达到20cm，则联系服务器</h1>
+    <h2 id="demo">水温：{{ temp }}</h2>
+    <h2>水位：{{ height }}</h2>
+    <button @click="changePrice">水温+1</button>
+    <button @click="changeSum">水位+10</button>
+  </div>
+</template>
 
-  // 方法
-  function changePrice() {
-    temp.value += 10;
+<script lang="ts" setup name="Person">
+import { ref, watch, watchEffect } from "vue";
+// 数据
+let temp = ref(0);
+let height = ref(0);
+
+// 方法
+function changePrice() {
+  temp.value += 10;
+}
+function changeSum() {
+  height.value += 1;
+}
+
+// 用watch实现，需要明确的指出要监视：temp、height
+watch([temp, height], (value) => {
+  // 从value中获取最新的temp值、height值
+  const [newTemp, newHeight] = value;
+  // 室温达到50℃，或水位达到20cm，立刻联系服务器
+  if (newTemp >= 50 || newHeight >= 20) {
+    console.log("联系服务器");
   }
-  function changeSum() {
-    height.value += 1;
+});
+
+// 用watchEffect实现，不用
+const stopWtach = watchEffect(() => {
+  // 室温达到50℃，或水位达到20cm，立刻联系服务器
+  if (temp.value >= 50 || height.value >= 20) {
+    console.log(document.getElementById("demo")?.innerText);
+    console.log("联系服务器");
   }
+  // 水温达到100，或水位达到50，取消监视
+  if (temp.value === 100 || height.value === 50) {
+    console.log("清理了");
+    stopWtach();
+  }
+});
+</script>
+```
 
-  // 用watch实现，需要明确的指出要监视：temp、height
-  watch([temp, height], (value) => {
-    // 从value中获取最新的temp值、height值
-    const [newTemp, newHeight] = value;
-    // 室温达到50℃，或水位达到20cm，立刻联系服务器
-    if (newTemp >= 50 || newHeight >= 20) {
-      console.log("联系服务器");
-    }
-  });
+## 3.9 标签的 ref 属性
 
-  // 用watchEffect实现，不用
-  const stopWtach = watchEffect(() => {
-    // 室温达到50℃，或水位达到20cm，立刻联系服务器
-    if (temp.value >= 50 || height.value >= 20) {
-      console.log(document.getElementById("demo")?.innerText);
-      console.log("联系服务器");
-    }
-    // 水温达到100，或水位达到50，取消监视
-    if (temp.value === 100 || height.value === 50) {
-      console.log("清理了");
-      stopWtach();
-    }
-  });
-  </script>
-  ```
+> 情况：App.vue和Person.vue里面都有一个`id="title"`的标签，当使用id调用的时候（比如JS获取节点），此时会发生冲突。
 
-## 3.11. 【标签的 ref 属性】
+作用：用于注册模板引用。（给节点打标识）
 
-作用：用于注册模板引用。
-
-> - 用在普通`DOM`标签上，获取的是`DOM`节点。
-> - 用在组件标签上，获取的是组件实例对象。
+- 用在普通`DOM`标签上，获取的是`DOM`节点。
+- 用在组件标签上，获取的是**组件实例对象**。
 
 用在普通`DOM`标签上：
 
-```vue
+```vue{3-5,14-16}
 <template>
   <div class="person">
     <h1 ref="title1">尚硅谷</h1>
@@ -990,7 +971,7 @@ function showLog() {
 
 用在组件标签上：
 
-```vue
+```vue{3,11,23,24,27}
 <!-- 父组件App.vue -->
 <template>
   <Person ref="ren" />
@@ -1015,164 +996,307 @@ import { ref, defineExpose } from "vue";
 // 数据
 let name = ref("张三");
 let age = ref(18);
-/****************************/
-/****************************/
+
 // 使用defineExpose将组件中的数据交给外部
 defineExpose({ name, age });
 </script>
 ```
 
-## 3.12. 【props】
+:::info 局部样式
 
-> ```js
-> // 定义一个接口，限制每个Person对象的格式
-> export interface PersonInter {
->  id:string,
->  name:string,
->     age:number
->    }
->
-> // 定义一个自定义类型Persons
-> export type Persons = Array<PersonInter>
-> ```
->
-> `App.vue`中代码：
->
-> ```vue
-> <template>
->   <Person :list="persons" />
-> </template>
->
-> <script lang="ts" setup name="App">
-> import Person from "./components/Person.vue";
-> import { reactive } from "vue";
-> import { type Persons } from "./types";
->
-> let persons = reactive<Persons>([
->   { id: "e98219e12", name: "张三", age: 18 },
->   { id: "e98219e13", name: "李四", age: 19 },
->   { id: "e98219e14", name: "王五", age: 20 },
-> ]);
-> </script>
-> ```
->
-> `Person.vue`中代码：
->
-> ```Vue
-> <template>
-> <div class="person">
->  <ul>
->      <li v-for="item in list" :key="item.id">
->         {{item.name}}--{{item.age}}
->       </li>
->     </ul>
->    </div>
->    </template>
->
-> <script lang="ts" setup name="Person">
-> import {defineProps} from 'vue'
-> import {type PersonInter} from '@/types'
->
->   // 第一种写法：仅接收
-> // const props = defineProps(['list'])
->
->   // 第二种写法：接收+限制类型
-> // defineProps<{list:Persons}>()
->
->   // 第三种写法：接收+限制类型+指定默认值+限制必要性
-> let props = withDefaults(defineProps<{list?:Persons}>(),{
->      list:()=>[{id:'asdasg01',name:'小猪佩奇',age:18}]
->   })
->    console.log(props)
->   </script>
-> ```
+使用scoped关键字，意为只在当前文件生效
 
-## 3.13. 【生命周期】
+```html
+<style scoped>
+  ....
+</style>
+```
 
-- 概念：`Vue`组件实例在创建时要经历一系列的初始化步骤，在此过程中`Vue`会在合适的时机，调用特定的函数，从而让开发者有机会在特定阶段运行自己的代码，这些特定的函数统称为：生命周期钩子
+:::
 
-- 规律：
+## 3.10 回顾ts
 
-  > 生命周期整体分为四个阶段，分别是：**创建、挂载、更新、销毁**，每个阶段都有两个钩子，一前一后。
+```typescript{3,12,16}
+//index.ts
+// 定义一个接口
+export interface PersonInter {
+  id:string,
+  name:string,
+  age:number
+}
 
-- `Vue2`的生命周期
+export let a:number = 1
 
-  > 创建阶段：`beforeCreate`、`created`
-  >
-  > 挂载阶段：`beforeMount`、`mounted`
-  >
-  > 更新阶段：`beforeUpdate`、`updated`
-  >
-  > 销毁阶段：`beforeDestroy`、`destroyed`
+// 自定义类型
+export type Persons =Array<PersonInter>
 
-- `Vue3`的生命周期
+//Person.vue
+...
+import { a, type PersonInter, type Persons } from '@/types' // 加type表示他是一个约束，而不是一个具体值
+let person:PersonInter ={id: '1', name:'aaa', age:18}
 
-  > 创建阶段：`setup`
-  >
-  > 挂载阶段：`onBeforeMount`、`onMounted`
-  >
-  > 更新阶段：`onBeforeUpdate`、`onUpdated`
-  >
-  > 卸载阶段：`onBeforeUnmount`、`onUnmounted`
+// 第一种写法
+let person:Array<PersonInter> = [
+  {id: '1', name:'aaa', age:18},
+  {id: '2', name:'bbb', age:18},
+  {id: '3', name:'ccc', age:18}
+]
+
+// 第二种写法
+let person:PersonInter[] = [
+  {id: '1', name:'aaa', age:18},
+  {id: '2', name:'bbb', age:18},
+  {id: '3', name:'ccc', age:18}
+]
+// 第三种写法
+let person:Persons = [
+  {id: '1', name:'aaa', age:18},
+  {id: '2', name:'bbb', age:18},
+  {id: '3', name:'ccc', age:18}
+]
+```
+
+## 3.11 props 组件通信
+
+::: danger 再次回顾
+
+单向绑定(`v-bind`)：只能从数据源到页面，不能从页面到数据源，简写为`:`。 `v-model` (双向绑定)
+
+```javascript
+// 例1
+<h2 a="1+1" :b="1+1" c="x" :d="x">测试</h2>
+
+let x = 9;
+console.log(a, b, c, d); // "1+1" 2 "x" 9
+
+// 例2
+// 不绑定（没有冒号） 则只是把personList这个字符串赋值给Persons
+<Person a="haha" Persons="personList"/> //
+//绑定（有冒号） 则是把personList这个列表内容绑定给Persons
+<Person a="haha" :Persons="personList"/>
+
+let personList = reactive<Persons>([
+  {id: '123123', name: 'zhangsan', age: 18},
+  {id: '123345', name: 'lisin', age: 1},
+  {id: '123321', name: 'wangwu', age: 20},
+])
+```
+
+:::
+
+```js
+// index.ts
+// 定义一个接口，限制每个Person对象的格式
+export interface PersonInter {
+  id:string,
+  name:string,
+  age:number
+}
+
+// 定义一个自定义类型Persons
+export type Persons = Array<PersonInter>
+```
+
+在`App.vue`中代码：
+
+```vue
+<template>
+  <!-- // 绑定persons到list 加`:`表示绑定 不加则视为`"persons"`字符串-->
+  <Person :list="persons" />
+</template>
+
+<script lang="ts" setup name="App">
+import Person from "./components/Person.vue";
+import { reactive } from "vue";
+import { type Persons } from "./types";
+
+// reactive直接传泛型
+let persons = reactive<Persons>([
+  { id: "e98219e12", name: "张三", age: 18 },
+  { id: "e98219e13", name: "李四", age: 19 },
+  { id: "e98219e14", name: "王五", age: 20 },
+]);
+</script>
+```
+
+`Person.vue`中代码：
+
+```Vue{16,19,22-24}
+<template>
+<div class="person">
+<ul>
+    <li v-for="item in list" :key="item.id">
+       {{item.name}}--{{item.age}}
+     </li>
+   </ul>
+  </div>
+  </template>
+
+<script lang="ts" setup name="Person">
+import { defineProps } from 'vue'
+import {type PersonInter} from '@/types'
+
+// 第一种写法：仅接收
+const props = defineProps(['list'])
+
+ // 第二种写法：接收+限制类型
+defineProps<{list:Persons}>()
+
+// 第三种写法：接收+限制类型+指定默认值+限制必要性
+let props = withDefaults(defineProps<{list?:Persons}>(),{
+    list:()=>[{id:'asdasg01',name:'小猪佩奇',age:18}]
+ })
+// 提示：Vue 3.5已经弃用withDefaults，可以直接解构赋值，看官方文档
+// 提示：Vue 3.5已经弃用withDefaults，可以直接解构赋值，看官方文档
+// 提示：Vue 3.5已经弃用withDefaults，可以直接解构赋值，看官方文档
+  console.log(props)
+</script>
+```
+
+:::warning v-for的使用
+
+```html
+<div class="person">
+  <ul>
+    <li v-for="item in list" :key="item.id">
+      <!-- list是数据源（也可以是遍历次数） -->
+      <!-- item为数据源中每一项（可随意写名称）， -->
+      <!-- key唯一标识 -->
+      <!-- 后端有唯一值先用唯一值，没有再用index -->
+      {{item.name}}--{{item.age}}
+    </li>
+  </ul>
+</div>
+```
+
+:::
+
+## 3.12 vue3生命周期
+
+:::info `v-if`和`v-show`的区别
+
+- `v-if`不展示，则删除结构
+- `v-show`不展示，隐藏结构`display: none`
+  :::
+
+- 概念：`Vue`组件实例在创建时要经历一系列的初始化步骤，在此过程中`Vue`会在合适的时机，调用特定的函数，从而让开发者有机会在特定阶段运行自己的代码，这些特定的函数统称为：**生命周期钩子函数**
+
+- 规律：生命周期整体分为四个阶段，分别是：**创建、挂载、更新、销毁**，每个阶段都有两个钩子，一前一后。
+
+:::info `Vue2`的生命周期：
+创建阶段：`beforeCreate`、`created`  
+挂载阶段：`beforeMount`、`mounted`  
+更新阶段：`beforeUpdate`、`update`  
+销毁阶段：`beforeDestroy`、`destroyed`
+:::
+
+:::info `Vue3`的生命周期：
+创建阶段：`setup`  
+挂载阶段：`onBeforeMount`、`onMounted`  
+更新阶段：`onBeforeUpdate`、`onUpdated`  
+卸载阶段：`onBeforeUnmount`、`onUnmounted`
+:::
 
 - 常用的钩子：`onMounted`(挂载完毕)、`onUpdated`(更新完毕)、`onBeforeUnmount`(卸载之前)
 
 - 示例代码：
 
-  ```vue
-  <template>
-    <div class="person">
-      <h2>当前求和为：{{ sum }}</h2>
-      <button @click="changeSum">点我sum+1</button>
-    </div>
-  </template>
+```vue{30}
+<template>
+  <div class="person">
+    <h2>当前求和为：{{ sum }}</h2>
+    <button @click="changeSum">点我sum+1</button>
+  </div>
+</template>
 
-  <!-- vue3写法 -->
-  <script lang="ts" setup name="Person">
-  import {
-    ref,
-    onBeforeMount,
-    onMounted,
-    onBeforeUpdate,
-    onUpdated,
-    onBeforeUnmount,
-    onUnmounted,
-  } from "vue";
+<!-- vue3写法 -->
+<script lang="ts" setup name="Person">
+import {
+  ref,
+  onBeforeMount,
+  onMounted,
+  onBeforeUpdate,
+  onUpdated,
+  onBeforeUnmount,
+  onUnmounted,
+} from "vue";
 
-  // 数据
-  let sum = ref(0);
-  // 方法
-  function changeSum() {
-    sum.value += 1;
-  }
-  console.log("setup");
-  // 生命周期钩子
-  onBeforeMount(() => {
-    console.log("挂载之前");
-  });
-  onMounted(() => {
-    console.log("挂载完毕");
-  });
-  onBeforeUpdate(() => {
-    console.log("更新之前");
-  });
-  onUpdated(() => {
-    console.log("更新完毕");
-  });
-  onBeforeUnmount(() => {
-    console.log("卸载之前");
-  });
-  onUnmounted(() => {
-    console.log("卸载完毕");
-  });
-  </script>
-  ```
+// 数据
+let sum = ref(0);
+// 方法
+function changeSum() {
+  sum.value += 1;
+}
+// setup
+console.log("setup");
+// 生命周期钩子
+onBeforeMount(() => {
+  console.log("挂载之前");
+  // 挂载前不是调用onBeforeMount，而是调用onBeforeMount指定的那个函数
+});
+onMounted(() => {
+  console.log("挂载完毕");
+});
+onBeforeUpdate(() => {
+  console.log("更新之前");
+});
+onUpdated(() => {
+  console.log("更新完毕");
+});
+onBeforeUnmount(() => {
+  console.log("卸载之前");
+});
+onUnmounted(() => {
+  console.log("卸载完毕");
+});
+</script>
+```
 
-## 3.14. 【自定义hooks】
+## 3.13 自定义hooks
 
-- 什么是`hook`？—— 本质是一个函数，把`setup`函数中使用的`Composition API`进行了封装，类似于`vue2.x`中的`mixin`。
+> 什么是`hook`？有什么用
+
+本质是一个函数，把`setup`函数中使用的`Composition API`进行了封装，类似于`vue2.x`中的`mixin`。让一个功能的数据和方法放在一起方便维护。
 
 - 自定义`hook`的优势：复用代码, 让`setup`中的逻辑更清楚易懂。
+
+:::warning axios的基本使用
+
+```typescript
+// 方法一
+async function getDog() {
+  try {
+    // 发请求
+    let { data } = await axios.get(
+      "https://dog.ceo/api/breed/pembroke/images/random",
+    );
+    // 维护数据
+    dogList.push(data.message);
+  } catch (error) {
+    // 处理错误
+    const err = <AxiosError>error;
+    console.log(err.message);
+  }
+}
+
+// 方法二
+function getDog() {
+  // 发请求
+  let { data } = axios.get("https://dog.ceo/api/breed/pembroke/images/random").then(
+    response => {
+      // 维护数据
+      dogList.push(data.message);
+    }
+    error => {
+      // 处理错误
+    const err = <AxiosError>error;
+    console.log(err.message);
+    }
+   )
+}
+```
+
+:::
 
 示例代码：
 
@@ -1270,105 +1394,106 @@ defineExpose({ name, age });
 
 # 4. 路由
 
-## 4.1. 【对路由的理解】
+> 为什么需要路由？
 
-<img src="/assert/assets-heima/image-20231018144351536.png" alt="image-20231018144351536" style="zoom:20%;border-radius:40px" />
+实现SPA（single page web application 单页面应用）
 
-## 4.2. 【基本切换效果】
+官方文档：https://router.vuejs.org/zh/
 
-- `Vue3`中要使用`vue-router`的最新版本，目前是`4`版本。
+## 4.1 安装vue-router
 
-- 路由配置文件代码如下：
+```powershell
+npm i vue-router
+```
 
-  ```js
-  import { createRouter, createWebHistory } from "vue-router";
-  import Home from "@/pages/Home.vue";
-  import News from "@/pages/News.vue";
-  import About from "@/pages/About.vue";
+## 4.2 路由基本切换效果
 
-  const router = createRouter({
-    history: createWebHistory(),
-    routes: [
-      {
-        path: "/home",
-        component: Home,
-      },
-      {
-        path: "/about",
-        component: About,
-      },
-    ],
-  });
-  export default router;
-  ```
+路由配置文件代码如下：
 
-* `main.ts`代码如下：
+```ts{2,8,20}
+// router/index.ts
+import { createRouter, createWebHistory } from "vue-router";
+import Home from "@/pages/Home.vue";
+import News from "@/pages/News.vue";
+import About from "@/pages/About.vue";
 
-  ```js
-  import router from "./router/index";
-  app.use(router);
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: "/home",
+      component: Home,
+    },
+    {
+      path: "/about",
+      component: About,
+    },
+  ],
+});
+export default router;
+```
 
-  app.mount("#app");
-  ```
+`main.ts`代码如下：
 
-- `App.vue`代码如下
+```js
+import router from "./router/index";
+app.use(router);
+app.mount("#app");
+```
 
-  ```vue
-  <template>
-    <div class="app">
-      <h2 class="title">Vue路由测试</h2>
-      <!-- 导航区 -->
-      <div class="navigate">
-        <RouterLink to="/home" active-class="active">首页</RouterLink>
-        <RouterLink to="/news" active-class="active">新闻</RouterLink>
-        <RouterLink to="/about" active-class="active">关于</RouterLink>
-      </div>
-      <!-- 展示区 -->
-      <div class="main-content">
-        <RouterView></RouterView>
-      </div>
+`App.vue`代码如下：
+
+```vue{6,12}
+<template>
+  <div class="app">
+    <h2 class="title">Vue路由测试</h2>
+    <!-- 导航区 -->
+    <div class="navigate">
+      <RouterLink to="/home" active-class="active">首页</RouterLink>
+      <RouterLink to="/news" active-class="active">新闻</RouterLink>
+      <RouterLink to="/about" active-class="active">关于</RouterLink>
     </div>
-  </template>
+    <!-- 展示区 -->
+    <div class="main-content">
+      <RouterView></RouterView>
+    </div>
+  </div>
+</template>
 
-  <script lang="ts" setup name="App">
-  import { RouterLink, RouterView } from "vue-router";
-  </script>
-  ```
+<script lang="ts" setup name="App">
+import { RouterLink, RouterView } from "vue-router";
+</script>
+```
 
-## 4.3. 【两个注意点】
+1. 路由组件通常存放在`pages` 或 `views`文件夹，一般组件通常存放在`components`文件夹。
+2. 通过点击导航，视觉效果上“消失” 了的路由组件，默认是被**卸载**掉的，需要的时候再去**挂载**。
 
-> 1. 路由组件通常存放在`pages` 或 `views`文件夹，一般组件通常存放在`components`文件夹。
-> 2. 通过点击导航，视觉效果上“消失” 了的路由组件，默认是被**卸载**掉的，需要的时候再去**挂载**。
-
-## 4.4.【路由器工作模式】
+## 4.3 路由器工作模式
 
 1. `history`模式
 
-   > 优点：`URL`更加美观，不带有`#`，更接近传统的网站`URL`。
-   >
-   > 缺点：后期项目上线，需要服务端配合处理路径问题，否则刷新会有`404`错误。
-   >
-   > ```js
-   > const router = createRouter({
-   >   history: createWebHistory(), //history模式
-   >   /******/
-   > });
-   > ```
+- 优点：`URL`更加美观，不带有`#`，更接近传统的网站`URL`。
+- 缺点：后期项目上线，需要服务端配合处理路径问题，否则刷新会有`404`错误。
+
+```js
+const router = createRouter({
+  history: createWebHistory(), //history模式   /******/
+});
+```
 
 2. `hash`模式
 
-   > 优点：兼容性更好，因为不需要服务器端处理路径。
-   >
-   > 缺点：`URL`带有`#`不太美观，且在`SEO`优化方面相对较差。
-   >
-   > ```js
-   > const router = createRouter({
-   >   history: createWebHashHistory(), //hash模式
-   >   /******/
-   > });
-   > ```
+- 优点：兼容性更好，因为不需要服务器端处理路径。
+- 缺点：`URL`带有`#`不太美观，且在`SEO`优化方面相对较差。
 
-## 4.5. 【to的两种写法】
+```js
+const router = createRouter({
+  history: createWebHashHistory(), //hash模式
+  /******/
+});
+```
+
+## 4.4 to的两种写法
 
 ```vue
 <!-- 第一种：to的字符串写法 -->
@@ -1378,9 +1503,9 @@ defineExpose({ name, age });
 <router-link active-class="active" :to="{ path: '/home' }">Home</router-link>
 ```
 
-## 4.6. 【命名路由】
+## 4.5 命名路由
 
-作用：可以简化路由跳转及传参（后面就讲）。
+> 作用：可以简化路由跳转及传参。
 
 给路由规则命名：
 
@@ -1404,52 +1529,54 @@ routes: [
 ];
 ```
 
-跳转路由：
-
 ```vue
-<!--简化前：需要写完整的路径（to的字符串写法） -->
-<router-link to="/news/detail">跳转</router-link>
+<!-- 对于to的写法 -->
+<!-- 第一种：to的字符串写法（路径跳转） -->
+<router-link active-class="active" to="/home">主页</router-link>
 
-<!--简化后：直接通过名字跳转（to的对象写法配合name属性） -->
-<router-link :to="{ name: 'guanyu' }">跳转</router-link>
+<!-- 第二种：to的对象写法（路径跳转） -->
+<router-link active-class="active" :to="{ path: '/home' }">Home</router-link>
+
+<!-- to的对象写法（名字跳转） -->
+<router-link active-class="active" :to="{ name: 'zhuye' }">Home</router-link>
 ```
 
-## 4.7. 【嵌套路由】
+## 4.6 嵌套路由
 
 1. 编写`News`的子路由：`Detail.vue`
 
 2. 配置路由规则，使用`children`配置项：
 
-   ```ts
-   const router = createRouter({
-     history: createWebHistory(),
-     routes: [
-       {
-         name: "zhuye",
-         path: "/home",
-         component: Home,
-       },
-       {
-         name: "xinwen",
-         path: "/news",
-         component: News,
-         children: [
-           {
-             name: "xiang",
-             path: "detail",
-             component: Detail,
-           },
-         ],
-       },
-       {
-         name: "guanyu",
-         path: "/about",
-         component: About,
-       },
-     ],
-   });
-   export default router;
-   ```
+```ts
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      name: "zhuye",
+      path: "/home",
+      component: Home,
+    },
+    {
+      name: "xinwen",
+      path: "/news",
+      component: News,
+      children: [
+        {
+          name: "xiang",
+          path: "detail", // 不需要写'/'
+          component: Detail,
+        },
+      ],
+    },
+    {
+      name: "guanyu",
+      path: "/about",
+      component: About,
+    },
+  ],
+});
+export default router;
+```
 
 3. 跳转路由（记得要加完整路径）：
 
@@ -1461,61 +1588,62 @@ routes: [
 
 4. 记得去`Home`组件中预留一个`<router-view>`
 
-   ```vue
-   <template>
-     <div class="news">
-       <nav class="news-list">
-         <RouterLink
-           v-for="news in newsList"
-           :key="news.id"
-           :to="{ path: '/news/detail' }"
-         >
-           {{ news.name }}
-         </RouterLink>
-       </nav>
-       <div class="news-detail">
-         <RouterView />
-       </div>
-     </div>
-   </template>
-   ```
+```vue
+<template>
+  <div class="news">
+    <nav class="news-list">
+      <RouterLink
+        v-for="news in newsList"
+        :key="news.id"
+        :to="{ path: '/news/detail' }"
+      >
+        {{ news.name }}
+      </RouterLink>
+    </nav>
+    <div class="news-detail">
+      <RouterView />
+    </div>
+  </div>
+</template>
+```
 
-## 4.8. 【路由传参】
+## 4.7 路由传参
 
-### query参数
+### query参数（路径后面加?）
 
 1.  传递参数
 
-    ```vue
-    <!-- 跳转并携带query参数（to的字符串写法） -->
-    <router-link to="/news/detail?a=1&b=2&content=欢迎你">
+```vue
+<!-- 跳转并携带query参数（to的字符串写法） -->
+<router-link to="/news/detail?a=1&b=2&content=欢迎你">
     	跳转
     </router-link>
+<!-- 传了a b content三个参数 -->
 
-    <!-- 跳转并携带query参数（to的对象写法） -->
-    <RouterLink
-      :to="{
-        //name:'xiang', //用name也可以跳转
-        path: '/news/detail',
-        query: {
-          id: news.id,
-          title: news.title,
-          content: news.content,
-        },
-      }"
-    >
+<!-- 跳转并携带query参数（to的对象写法） -->
+<RouterLink
+  :to="{
+    //name:'xiang', //用name也可以跳转
+    path: '/news/detail',
+    query: {
+      id: news.id,
+      title: news.title,
+      content: news.content,
+    },
+  }"
+>
       {{news.title}}
     </RouterLink>
-    ```
+```
 
 2.  接收参数：
 
-    ```js
-    import { useRoute } from "vue-router";
-    const route = useRoute();
-    // 打印query参数
-    console.log(route.query);
-    ```
+```js
+import { useRoute } from "vue-router";
+const route = useRoute();
+// 打印query参数
+console.log(route.query);
+```
 
 ### params参数
 
@@ -2027,7 +2155,7 @@ const emitter = mitt();
   setTimeout(() => {
     // 清理事件
     emitter.all.clear()
-  }, 3000); 
+  }, 3000);
 */
 
 // 创建并暴露mitt
@@ -2428,18 +2556,20 @@ defineProps(["a", "b", "c", "d", "x", "y", "updateA"]);
 
 2. 用法：
 
-   ```js
-   const original = reactive({ ... });
-   const readOnlyCopy = readonly(original);
-   ```
+```javascript
+ const original = reactive({ ... });
+ const readOnlyCopy = readonly(original);
+```
 
 3. 特点：
-   - 对象的所有嵌套属性都将变为只读。
-   - 任何尝试修改这个对象的操作都会被阻止（在开发模式下，还会在控制台中发出警告）。
+
+- 对象的所有嵌套属性都将变为只读。
+- 任何尝试修改这个对象的操作都会被阻止（在开发模式下，还会在控制台中发出警告）。
 
 4. 应用场景：
-   - 创建不可变的状态快照。
-   - 保护全局状态或配置不被修改。
+
+- 创建不可变的状态快照。
+- 保护全局状态或配置不被修改。
 
 ### **`shallowReadonly`**
 
@@ -2615,3 +2745,7 @@ const Child = defineAsyncComponent(() => import("./Child.vue"));
 - 移除了`$children` 实例 `propert`。
 
   ......
+
+```
+
+```

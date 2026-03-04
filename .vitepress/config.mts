@@ -5,6 +5,12 @@ export default defineConfig({
   title: "加菲猫的博客",
   lastUpdated: true,
   head: [["link", { rel: "icon", href: "/site-blog/favicon.ico" }]],
+  markdown: {
+    lineNumbers: true,
+    image: {
+      lazyLoading: true, // 默认禁用；设置为 true 可为所有图片启用懒加载。
+    },
+  },
 
   description: "记录自己的学习过程",
   base: "/site-blog/",
