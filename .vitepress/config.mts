@@ -70,7 +70,7 @@ export default defineConfig({
             link: "/src/frontend/typescript.md",
           },
           {
-            text: "Vue3",
+            text: "Vue3-尚硅谷",
             link: "/src/frontend/vue3-atguigu.md",
           },
           {
