@@ -6,11 +6,11 @@
 
 - 重写虚拟`DOM`的实现和`Tree-Shaking`。
 
-## 1.3. 【拥抱TypeScript】
+## 1.2. 【拥抱TypeScript】
 
 - `Vue3`可以更好的支持`TypeScript`。
 
-## 1.4. 【新的特性】
+## 1.3. 【新的特性】
 
 1. `Composition API`（组合`API`）：
    - `setup`
