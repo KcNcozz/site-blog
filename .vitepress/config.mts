@@ -80,10 +80,6 @@ export default defineConfig({
             text: "Vue3-尚硅谷",
             link: "/src/frontend/vue3-atguigu.md",
           },
-          {
-            text: "Vue3-黑马教程",
-            link: "/src/frontend/vue3-heima.md",
-          },
         ],
       },
       {
