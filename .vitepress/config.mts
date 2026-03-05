@@ -77,8 +77,8 @@ export default defineConfig({
             link: "/src/frontend/typescript.md",
           },
           {
-            text: "Vue3-尚硅谷",
-            link: "/src/frontend/vue3-atguigu.md",
+            text: "Vue3",
+            link: "/src/frontend/vue3.md",
           },
         ],
       },
