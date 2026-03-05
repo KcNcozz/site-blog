@@ -1487,7 +1487,7 @@ const router = createRouter({
 });
 ```
 
-## 4.4 to的两种写法
+## 4.4 to的两种写法（重点）
 
 ```vue
 <!-- 第一种：to的字符串写法 -->
@@ -1574,11 +1574,11 @@ export default router;
 
 3. 跳转路由（记得要加完整路径）：
 
-   ```vue
-   <router-link to="/news/detail">xxxx</router-link>
-   <!-- 或 -->
-   <router-link :to="{ path: '/news/detail' }">xxxx</router-link>
-   ```
+```vue
+<router-link to="/news/detail">xxxx</router-link>
+<!-- 或 -->
+<router-link :to="{ path: '/news/detail' }">xxxx</router-link>
+```
 
 4. 记得去`Home`组件中预留一个`<router-view>`
 
@@ -1601,23 +1601,25 @@ export default router;
 </template>
 ```
 
-## 4.7 路由传参
+## 4.7 路由传参 query参数（路径后面加?）
 
-### query参数（路径后面加?）
+:::warning 路由组件传参
+这里讲的都是路由组件传参，一般组件可以直接在组件上面传
+:::
 
 1.  传递参数
 
 ```vue
 <!-- 跳转并携带query参数（to的字符串写法） -->
-<router-link to="/news/detail?a=1&b=2&content=欢迎你">
+<router-link :to="`/news/detail?id=${news.id}&${news.title}&${news.content}`"> 
     	跳转
     </router-link>
-<!-- 传了a b content三个参数 -->
+<!-- 传了id title content三个参数 -->
 
 <!-- 跳转并携带query参数（to的对象写法） -->
 <RouterLink
   :to="{
-    //name:'xiang', //用name也可以跳转
+    // name:'xiang', // 用name也可以跳转
     path: '/news/detail',
     query: {
       id: news.id,
@@ -1639,47 +1641,51 @@ const route = useRoute();
 console.log(route.query);
 ```
 
-### params参数
+## 4.8 路由传参 params参数（需要在路由配置占位）
 
-1.  传递参数
+:::danger 注意点
 
-    ```vue
-    <!-- 跳转并携带params参数（to的字符串写法） -->
-    <RouterLink
-      :to="`/news/detail/001/新闻001/内容001`"
-    >{{news.title}}</RouterLink>
+1. 需要在路由配置占位（占位用什么名字 拿值的时候就写什么名字）
+2. 传递`params`参数时，若使用`to`的对象写法，必须使用`name`配置项，不能用`path`。
+3. 不能传对象和数组
 
-    <!-- 跳转并携带params参数（to的对象写法） -->
-    <RouterLink
-      :to="{
-        name: 'xiang', //用name跳转
-        params: {
-          id: news.id,
-          title: news.title,
-          content: news.title,
-        },
-      }"
-    >
+:::
+
+3. 传递参数
+
+```vue
+<!-- 跳转并携带params参数（to的字符串写法） -->
+<RouterLink :to="`/news/detail/001/新闻001/内容001`">{{news.title}}</RouterLink>
+
+<!-- 跳转并携带params参数（to的对象写法） -->
+<RouterLink
+  :to="{
+    name: 'xiang', //用name跳转
+    params: {
+      id: news.id,
+      title: news.title,
+      content: news.title,
+    },
+  }"
+>
       {{news.title}}
     </RouterLink>
-    ```
+```
 
-2.  接收参数：
+2. 接收参数：
 
-    ```js
-    import { useRoute } from "vue-router";
-    const route = useRoute();
-    // 打印params参数
-    console.log(route.params);
-    ```
+```js
+import { useRoute } from "vue-router";
+const route = useRoute();
+// 打印params参数
+console.log(route.params);
+```
 
-> 备注1：传递`params`参数时，若使用`to`的对象写法，必须使用`name`配置项，不能用`path`。
->
-> 备注2：传递`params`参数时，需要提前在规则中占位。
+## 4.9 路由规则的props配置
 
-## 4.9. 【路由的props配置】
+> 在路由规则(index.ts)当中配置
 
-作用：让路由组件更方便的收到参数（可以将路由参数作为`props`传给组件）
+作用：让路由组件**更方便**的收到参数（可以将路由参数作为`props`传给组件）
 
 ```js
 {
@@ -1687,69 +1693,80 @@ console.log(route.query);
 	path:'detail/:id/:title/:content',
 	component:Detail,
 
-  // props的对象写法，作用：把对象中的每一组key-value作为props传给Detail组件
-  // props:{a:1,b:2,c:3},
+  // 1. props的布尔值写法
+  // 作用：把收到了每一组params参数，作为props传给Detail组件
+  props:true
 
-  // props的布尔值写法，作用：把收到了每一组params参数，作为props传给Detail组件
-  // props:true
-
-  // props的函数写法，作用：把返回的对象中每一组key-value作为props传给Detail组件
+  // 2. props的函数写法
+  // 作用：把返回的对象中每一组key-value作为props传给Detail组件
   props(route){
     return route.query
   }
+
+  // 3. props的对象写法 query params都可以使用（用的少）
+  // 作用：把对象中的每一组key-value作为props传给Detail组件
+  props:{a:1,b:2,c:3}
 }
 ```
 
-## 4.10. 【 replace属性】
+## 4.10 replace属性
 
-1. 作用：控制路由跳转时操作浏览器历史记录的模式。
+作用：控制路由跳转时操作浏览器历史记录的模式。
 
-2. 浏览器的历史记录有两种写入方式：分别为`push`和`replace`：
-   - `push`是追加历史记录（默认值）。
-   - `replace`是替换当前记录。
+浏览器的历史记录有两种写入方式：分别为`push`和`replace`：
 
-3. 开启`replace`模式：
+- `push`是追加历史记录（默认）。
+- `replace`是替换当前记录。
 
-   ```vue
-   <RouterLink replace .......>News</RouterLink>
-   ```
+开启`replace`模式：
 
-## 4.11. 【编程式导航】
+```vue
+<RouterLink replace .......>News</RouterLink>
+```
+
+## 4.11 编程式导航
+
+> 需求：看三秒钟首页，立刻跳转到新的页面
+
+编程式路由导航：脱离routerlink实现跳转
 
 路由组件的两个重要的属性：`$route`和`$router`变成了两个`hooks`
 
-```js
-import { useRoute, useRouter } from "vue-router";
+```js{1,3,6}
+import { useRouter } from "vue-router";
 
-const route = useRoute();
 const router = useRouter();
-
-console.log(route.query);
-console.log(route.parmas);
-console.log(router.push);
-console.log(router.replace);
+...
+function showNewsDetails() {
+  router.push({
+  name:'xiang',
+  query:{
+    id:news.id,
+    title:news.title,
+    content:news.content
+    }
+  })
+}
 ```
 
-## 4.12. 【重定向】
+## 4.12 重定向
 
-1. 作用：将特定的路径，重新定向到已有路由。
+作用：将特定的路径，重新定向到已有路由。
 
-2. 具体编码：
-
-   ```js
-   {
-       path:'/',
-       redirect:'/about'
-   }
-   ```
+```javascript
+{
+  path:'/',
+  redirect:'/about'
+}
+```
 
 # 5. pinia
 
-## 5.1【准备一个效果】
+## 5.1 准备一个效果
 
 <img src="/assert/assets-heima/pinia_example.gif" alt="pinia_example" style="zoom:30%;border:3px solid" />
 
-## 5.2【搭建 pinia 环境】
+## 5.2 搭建 pinia 环境
 
 第一步：`npm install pinia`
 
@@ -1776,7 +1793,7 @@ app.mount("#app");
 
 <img src="https://cdn.nlark.com/yuque/0/2023/png/35780599/1684309952481-c67f67f9-d1a3-4d69-8bd6-2b381e003f31.png" style="zoom:80%;border:1px solid black;border-radius:10px" />
 
-## 5.3【存储+读取数据】
+## 5.3 存储+读取数据
 
 1. `Store`是一个保存：**状态**、**业务逻辑** 的实体，每个组件都可以**读取**、**写入**它。
 
