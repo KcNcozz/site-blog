@@ -13,7 +13,7 @@ export default defineConfig({
   },
 
   description: "记录自己的学习过程",
-  base: "/site-blog/",
+  // base: "/site-blog/",
   outDir: "docs", // 修改构建输出目录
   themeConfig: {
     search: {
