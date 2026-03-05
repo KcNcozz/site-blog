@@ -8,8 +8,8 @@ const clearFolder = () => {
   }
 };
 
-const gitCommander = (commad) => {
-  execSync(`git ${commad}`);
+const gitCommander = (command) => {
+  execSync(`git ${command}`);
 };
 function build() {
   clearFolder();
