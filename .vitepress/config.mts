@@ -80,21 +80,29 @@ export default defineConfig({
             text: "Vue3",
             link: "/src/frontend/vue3.md",
           },
+          {
+            text: "Vue3-review",
+            link: "/src/frontend/Vue3-review.md",
+          },
+          {
+            text: "nodejs",
+            link: "/src/frontend/nodejs.md",
+          },
         ],
       },
       {
         text: "后端",
         items: [
-          {
-            text: "Java",
-            items: [
-              { text: "JavaSE", link: "/src/backend/Java/JavaSE.md" },
-              { text: "JavaWeb", link: "/src/backend/Java/JavaWeb.md" },
-              { text: "SpringSSM", link: "/src/backend/Java/SpringSSM.md" },
-              { text: "Springboot", link: "/src/backend/Java/Springboot.md" },
-              { text: "SpringCloud", link: "/src/backend/Java/SpringCloud.md" },
-            ],
-          },
+          // {
+          //   text: "Java",
+          //   items: [
+          //     { text: "JavaSE", link: "/src/backend/Java/JavaSE.md" },
+          //     { text: "JavaWeb", link: "/src/backend/Java/JavaWeb.md" },
+          //     { text: "SpringSSM", link: "/src/backend/Java/SpringSSM.md" },
+          //     { text: "Springboot", link: "/src/backend/Java/Springboot.md" },
+          //     { text: "SpringCloud", link: "/src/backend/Java/SpringCloud.md" },
+          //   ],
+          // },
           {
             text: "中间件",
             items: [{ text: "Docker", link: "/src/backend/中间件/docker.md" }],

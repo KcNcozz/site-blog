@@ -1,5 +1,19 @@
 # JavaScript
 
+## 不熟悉的点
+
+### JS模块导入导出
+
+:::danger 对比表格
+| 场景 | 导出写法（在 `a.js`） | 导入写法（在其他文件） | 备注 |
+|---|---|---|---|
+| 具名导出变量、函数 | `export const x = 1;` `export function add(a,b){}` | `import { x, add } from './a.js';` | 需用 `{}`，名称要对应 |
+| 具名导入重命名 | `export const x = 1;` | `import { x as foo } from './a.js';` | 解决重名或语义优化 |
+| 默认导出 | `export default function() {};` | `import anyName from './a.js';` | 不用 `{}`，名字可自定义 |
+| 默认 + 具名同时导出 | `export default A; export const x = 1;` | `import A, { x } from './a.js';` | 默认导入写前面 |
+| 命名空间整体导入 | `export const x=1; export const y=2;` | `import * as mod from './a.js';` | 用 `mod.x`、`mod.y` 访问 |
+:::
+
 ## 快速入门
 
 ### 1. 引入

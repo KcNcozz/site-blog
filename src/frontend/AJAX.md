@@ -288,3 +288,28 @@ myAxios({
     document.querySelector(".my-p").innerHTML = error.message;
   });
 ```
+
+## Axios 二次封装
+
+```javascript
+import axios from "axios";
+
+const service = axios.create({
+  baseURL: "http://xxx:8080",
+});
+
+// 请求拦截器
+service.interceptors.request.use((config) => {
+  return config;
+});
+
+// 响应拦截器
+service.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+```
