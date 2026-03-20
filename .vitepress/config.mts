@@ -119,8 +119,8 @@ export default defineConfig({
       {
         text: "剪辑",
         items: [
-          { text: "剪映", link: "/src/jianji/剪映.md" },
-          { text: "达芬奇", link: "/src/jianji/达芬奇.md" },
+          // { text: "剪映", link: "/src/jianji/剪映.md" },
+          // { text: "达芬奇", link: "/src/jianji/达芬奇.md" },
           { text: "测试页面", link: "/src/jianji/测试页面.md" },
         ],
       },
@@ -129,7 +129,7 @@ export default defineConfig({
         items: [
           {
             text: "一些需要记录的东西",
-            link: "/src/other/装机注意事项.md",
+            // link: "/src/other/装机注意事项.md",
             items: [
               { text: "装机注意事项", link: "/src/other/装机注意事项.md" },
               { text: "电影清单", link: "/src/other/电影清单.md" },
