@@ -65,7 +65,7 @@ export default defineConfig({
           },
           {
             text: "Vue3-review",
-            link: "/src/frontend/Vue3-review.md",
+            link: "/src/frontend/vue3-review.md",
           },
           {
             text: "nodejs",
