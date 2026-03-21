@@ -2105,3 +2105,751 @@ export default defineConfig({
 ```
 
 # Pinia
+
+## 46. Pinia安装
+
+- 安装 pinia：`npm install pinia`
+- 引入
+
+```ts
+// main.ts
+import { createApp } from "vue";
+import App from "./App.vue";
+import { createPinia } from "pinia";
+
+const store = createPinia();
+let app = createApp(App);
+
+app.use(store);
+
+app.mount("#app");
+```
+
+## 47. Pinia使用 初始化仓库Store
+
+1. 新建一个文件夹Store
+2. 新建文件[name].ts
+3. 定义仓库Store
+4. 存储是使用定义的defineStore()，并且它需要一个唯一的名称，作为第一个参数传递
+
+```ts
+import { defineStore } from "pinia";
+import { Names } from "./store-namespce";
+
+export const useTestStore = defineStore(Names.Test, {
+  state: () => {
+    return {
+      name: "test",
+      current: 1,
+    };
+  },
+});
+
+// 写这种也行
+export const useTestStore = defineStore(Names.Test, {
+  state: () => ({ name: "test", current: 1 }),
+});
+
+import { defineStore } from "pinia";
+import { Names } from "./store-namespce";
+
+// getters和actions的用法
+export const useTestStore = defineStore(Names.Test, {
+  state: () => {
+    return {
+      current: 1,
+    };
+  },
+  //类似于computed 可以帮我们去修饰我们的值
+  getters: {},
+  //可以操作异步 和 同步提交state
+  actions: {},
+});
+```
+
+## 48. State
+
+就是修改仓库中数据的方法
+
+1. State 是允许直接修改值的 例如current++
+
+```vue {14-16}
+<template>
+  <div>
+    <button @click="Add">+</button>
+    <div>
+      {{ Test.current }}
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useTestStore } from "./store";
+const Test = useTestStore();
+// 直接修改
+const Add = () => {
+  Test.current++;
+};
+</script>
+
+<style></style>
+```
+
+2. 批量修改State的值
+
+```vue {18-21}
+<template>
+  <div>
+    <button @click="Add">+</button>
+    <div>
+      {{ Test.current }}
+    </div>
+    <div>
+      {{ Test.age }}
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useTestStore } from "./store";
+const Test = useTestStore();
+const Add = () => {
+  // $patch
+  Test.$patch({
+    current: 200,
+    age: 300,
+  });
+};
+</script>
+
+<style></style>
+```
+
+3. 批量修改函数形式
+
+```vue {16-22}
+<template>
+  <div>
+    <button @click="Add">+</button>
+    <div>
+      {{ Test.current }}
+    </div>
+    <div>
+      {{ Test.age }}
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useTestStore } from "./store";
+const Test = useTestStore();
+// 函数形式可以处理逻辑 推荐使用
+const Add = () => {
+  // state是store中的数据
+  Test.$patch((state) => {
+    state.current++;
+    state.age = 40;
+  });
+};
+</script>
+
+<style></style>
+```
+
+4. 通过原始对象修改整个实例
+
+```vue
+<template>
+  <div>
+    <button @click="Add">+</button>
+    <div>
+      {{ Test.current }}
+    </div>
+    <div>
+      {{ Test.age }}
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useTestStore } from "./store";
+const Test = useTestStore();
+// 缺点 必须修改整个对象
+const Add = () => {
+  Test.$state = {
+    current: 10,
+    age: 30,
+  };
+};
+</script>
+
+<style></style>
+```
+
+5. 通过actions修改
+
+```ts
+// store.ts
+import { defineStore } from "pinia";
+import { Names } from "./store-naspace";
+export const useTestStore = defineStore(Names.TEST, {
+  state: () => {
+    return {
+      current: 1,
+      age: 30,
+    };
+  },
+
+  // 逻辑处理
+  actions: {
+    setCurrent() {
+      this.current++;
+    },
+  },
+});
+```
+
+在state中返回的对象，会自动挂载到这个store实例身上，可以在getters和actions通过访问this来获取和改变状态。
+
+```vue
+<template>
+  <div>
+    <button @click="Add">+</button>
+    <div>
+      {{ Test.current }}
+    </div>
+    <div>
+      {{ Test.age }}
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useTestStore } from "./store";
+const Test = useTestStore();
+const Add = () => {
+  Test.setCurrent();
+};
+</script>
+
+<style></style>
+```
+
+## 49. 解构store
+
+在Pinia直接解构是会失去响应性的。解决方法：可以使用`storeToRefs`。
+
+```ts
+const Test = useTestStore();
+
+const { current, name } = Test; // 解构
+const { current, name } = storeToRefs(Test); // 解决方案
+
+console.log(current, name);
+```
+
+## 50. actions getters
+
+- Actions 支持同步异步
+- 同步 直接调用即可
+- 异步 可以结合async await 修饰
+
+```ts
+type User = {
+  name: string;
+  age: number;
+};
+
+let result: User = {
+  name: "张三",
+  age: 18,
+};
+
+const Login = (): Promise<User> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        name: "张三",
+        age: 18,
+      });
+    });
+  });
+};
+
+export const useTestStore = defineStore(Names.Test, {
+  state: () => {
+    return {
+      user: <User>{},
+      name: "test",
+    };
+  },
+  //类似于computed 可以帮我们去修饰我们的值
+  getters: {
+    newName(): string {
+      return this.name + `${this.getUserAge}`;
+    },
+    getUserAge(): number {
+      return this.user.age;
+    },
+  },
+  //可以操作异步 和 同步提交state
+  actions: {
+    // 同步
+    setUser() {
+      this.user = result;
+    },
+    // 异步 演示
+    async setUser() {
+      const result = await Login();
+      this.user = result;
+
+      // 相互调用
+      this.setName("aaaa");
+    },
+
+    setName(name: string) {
+      this.name = name;
+    },
+  },
+});
+```
+
+## 61. Pinia API
+
+1. `$reset` 重置store到初始状态
+2. `$subscribe` 只要有state 的变化就会走这个函数
+
+```ts
+Test.$subscribe((args, state) => {
+  console.log(args, state);
+});
+```
+
+3. `$onAction` 只要有actions被调用就会走这个函数
+
+## 62. Pinia 插件
+
+pinia 和 vuex 都有一个通病 页面刷新状态会丢失，可以写一个pinia插件缓存他的值。
+
+```ts
+const __piniaKey = "__PINIAKEY__";
+//定义兜底变量
+
+type Options = {
+  key?: string;
+};
+// 定义入参类型
+
+// 将数据存在本地
+const setStorage = (key: string, value: any): void => {
+  localStorage.setItem(key, JSON.stringify(value));
+};
+
+// 存缓存中读取
+const getStorage = (key: string) => {
+  return localStorage.getItem(key)
+    ? JSON.parse(localStorage.getItem(key) as string)
+    : {};
+};
+
+// 利用函数柯里化接受用户入参
+// 柯里化就是 将一个多参数的函数转化为单参数的函数
+const piniaPlugin = (options: Options) => {
+  // 将函数返回给pinia  让pinia  调用 注入 context
+  return (context: PiniaPluginContext) => {
+    const { store } = context;
+
+    const data = getStorage(`${options?.key ?? __piniaKey}-${store.$id}`);
+
+    store.$subscribe(() => {
+      setStorage(
+        `${options?.key ?? __piniaKey}-${store.$id}`,
+        toRaw(store.$state),
+      );
+    });
+
+    // 返回值覆盖pinia 原始值
+    return {
+      ...data,
+    };
+  };
+};
+
+// 初始化pinia
+const pinia = createPinia();
+
+// 注册pinia 插件
+pinia.use(
+  piniaPlugin({
+    key: "pinia",
+  }),
+);
+```
+
+# Vue-router
+
+## 63. 入门
+
+1. 安装vue-router：`npm install vue-router@4`
+
+2. 在src目录下面新建router文件夹，然后在文件夹下面新建index.ts
+
+```ts
+//引入路由对象
+import {
+  createRouter,
+  createWebHistory,
+  createWebHashHistory,
+  createMemoryHistory,
+  RouteRecordRaw,
+} from "vue-router";
+
+//路由数组的类型 RouteRecordRaw
+// 定义一些路由
+// 每个路由都需要映射到一个组件。
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: "/", // 路径
+    component: () => import("../components/a.vue"), // 组件
+  },
+  {
+    path: "/register",
+    component: () => import("../components/b.vue"),
+  },
+];
+
+const router = createRouter({
+  history: createWebHistory(), // 创建一个webHistory路由
+  routes, // 路由
+});
+
+//导出router
+export default router;
+```
+
+`router-view`: 将显示与url对应的组件。
+`router-link`: 使用一个自定义组件`router-link`来创建链接这使得VueRouter可以在不重新加载页面的情况下更改URL，处理URL的生成以及编码。类似一个a标签，但是不同的是，router-link会改变url，但是不会重新加载页面。
+
+## 64. 路由模式
+
+```ts
+import {
+  createRouter,
+  createWebHistory, // 基于h5 history实现
+  createWebHashHistory, // 默认 会带#
+  createMemoryHistory, // 一般用于服务器端渲染
+  RouteRecordRaw,
+} from "vue-router";
+```
+
+## 65. 命名路由 编程式导航
+
+### 命名路由
+
+除了path之外，你还可以为任何路由提供name。这有以下优点：
+
+1. 没有硬编码的 URL
+2. params 的自动编码/解码。
+3. 防止你在 url 中出现打字错误。
+4. 绕过路径排序（如显示一个）
+
+```ts
+// router/index.ts
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: "/",
+    name: "Login",
+    component: () => import("../components/login.vue"),
+  },
+  {
+    path: "/reg",
+    name: "Reg",
+    component: () => import("../components/reg.vue"),
+  },
+];
+```
+
+```html
+<h1>1111</h1>
+<div>
+  <!-- router-link跳转方式需要改变 变为对象并且有对应name -->
+  <router-link :to="{name:'Login'}">Login</router-link>
+  <router-link style="margin-left:10px" :to="{name:'Reg'}">Reg</router-link>
+</div>
+<hr />
+```
+
+### 编程式导航
+
+本身也是跳转的一种方式，但是需要调用js方法。在组件中编写逻辑。
+
+1. 字符串模式
+
+```ts
+import { useRouter } from "vue-router";
+const router = useRouter();
+
+const toPage = (url: string) => {
+  router.push(url); // 传入url
+};
+```
+
+2. 对象模式
+
+```ts
+import { useRouter } from "vue-router";
+const router = useRouter();
+
+const toPage = (url: string) => {
+  router.push({
+    path: url,
+  });
+};
+```
+
+3. 命名式路由模式
+
+```ts
+import { useRouter } from "vue-router";
+const router = useRouter();
+
+const toPage = (name: string) => {
+  router.push({
+    name: name,
+  });
+};
+```
+
+## 66. 历史记录
+
+```vue
+<!-- 加上replace属性 可以实现跳转后不添加历史记录 -->
+<router-link replace to="/">Login</router-link>
+<router-link replace style="margin-left:10px" to="/reg">Reg</router-link>
+```
+
+若是编程式跳转，则使用`router.replace()`方法替代`router.push()`方法即可。
+
+### 横跨历史
+
+```vue
+<button @click="next">前进</button>
+<button @click="prev">后退</button>
+```
+
+```ts
+const next = () => {
+  //前进 数量不限于1
+  router.go(1);
+};
+
+const prev = () => {
+  //后退
+  router.back();
+};
+```
+
+## 67. 路由传参
+
+### Query路由传参
+
+编程式导航 使用router push 或者 replace 的时候 改为对象形式新增query 必须传入一个对象
+
+```ts
+// 传递参数
+const toDetail = (item: Item) => {
+  router.push({
+    path: "/reg",
+    query: item, // 传参 query只能接收对象
+  });
+};
+
+
+// 传递后
+<div>品牌：{{ route.query?.name }}</div>
+<div>价格：{{ route.query?.price }}</div>
+<div>ID：{{ route.query?.id }}</div>
+
+
+// 接收参数
+import { useRoute } from "vue-router";
+// 用useRoute而不是useRouter
+const route = useRoute();
+```
+
+### Params路由传参
+
+编程式导航 使用router push 或者 replace 的时候 改为对象形式并且只能使用name，path无效，然后传入params
+
+```ts
+const toDetail = (item: Item) => {
+  router.push({
+    name: "Reg",
+    params: item,
+  });
+};
+```
+
+### 动态路由传参
+
+很多时候，我们需要将给定匹配模式的路由映射到同一个组件。例如，我们可能有一个User组件，它应该对所有用户进行渲染，但用户ID不同。在 VueRouter中，我们可以在路径中使用一个动态字段来实现，我们称之为路径参数
+
+路径参数 用冒号`:`表示。当一个路由被匹配时，它的params的值将在每个组件
+
+```ts
+// 传递
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: "/",
+    name: "Login",
+    component: () => import("../components/login.vue"),
+  },
+  {
+    path: "/reg/:id", // 动态路由参数
+    name: "Reg",
+    component: () => import("../components/reg.vue"),
+  },
+];
+
+// 引入
+const toDetail = (item: Item) => {
+  router.push({
+    name: "Reg",
+    params: {
+      id: item.id, // 接收
+    },
+  });
+};
+```
+
+两种传参区别：
+
+1. query 传参配置的是 path，而 params 传参配置的是name，在 params中配置 path 无效
+2. query 在路由配置不需要设置参数，而 params 必须设置
+3. query 传递的参数会显示在地址栏中
+4. params传参刷新会无效，但是 query 会保存传递过来的值，刷新不变 ;
+5. 路由配置
+
+## 68. 嵌套路由
+
+```ts
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: "/user",
+    component: () => import("../components/footer.vue"),
+    children: [
+      {
+        path: "", // 默认子路由 没有/
+        name: "Login",
+        component: () => import("../components/login.vue"),
+      },
+      {
+        path: "reg",
+        name: "Reg",
+        component: () => import("../components/reg.vue"),
+      },
+    ],
+  },
+];
+```
+
+注意：不要忘记写`router-view`，加父路由前缀。
+
+## 69. 命名视图
+
+命名视图可以在同一级（同一个组件）中展示更多的路由视图，而不是嵌套显示。 命名视图可以让一个组件中具有多个路由渲染出口，这对于一些特定的布局组件非常有用。 命名视图的概念非常类 似于“具名插槽”，并且视图的默认名称也是`default`。
+
+```ts
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: "/",
+    components: {
+      default: () => import("../components/layout/menu.vue"),
+      header: () => import("../components/layout/header.vue"),
+      content: () => import("../components/layout/content.vue"),
+    },
+  },
+];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+export default router;
+```
+
+```html
+<div>
+  <router-view></router-view>
+  <router-view name="header"></router-view>
+  <router-view name="content"></router-view>
+</div>
+```
+
+## 70. 重定向 别名
+
+### 重定向 redirect
+
+```ts
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: "/",
+    component: () => import("../components/root.vue"),
+    // redirect: "/user1", // 重定向 字符串形式
+    // redirect: { path: "/user1" }, // 重定向 对象形式
+    redirect: (to) => { // 重定向 函数形式
+        return {
+            path: '/user1',
+            query: to.query // 可以传参
+        }
+
+    children: [
+      {
+        path: "/user1",
+        components: {
+          default: () => import("../components/A.vue"),
+        },
+      },
+      {
+        path: "/user2",
+        components: {
+          bbb: () => import("../components/B.vue"),
+          ccc: () => import("../components/C.vue"),
+        },
+      },
+    ],
+  },
+];
+```
+
+### 别名
+
+```ts
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: "/",
+    component: () => import("../components/root.vue"),
+    alias: ["/root", "/root2", "/root3"], // 添加别名 访问 /root  /root2  /root3  都会跳转到 /
+    children: [
+      {
+        path: "user1",
+        components: {
+          default: () => import("../components/A.vue"),
+        },
+      },
+      {
+        path: "user2",
+        components: {
+          bbb: () => import("../components/B.vue"),
+          ccc: () => import("../components/C.vue"),
+        },
+      },
+    ],
+  },
+];
+```
+
+## 71. 导航守卫
