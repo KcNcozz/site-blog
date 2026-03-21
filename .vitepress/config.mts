@@ -96,6 +96,7 @@ export default defineConfig({
         text: "小知识",
         items: [
           { text: "Git", link: "/src/web/git.md" },
+          { text: "EventLoop", link: "/src/web/EventLoop.md" },
           { text: "小知识总结", link: "/src/web/小知识总结.md" },
         ],
       },
