@@ -2853,3 +2853,52 @@ const routes: Array<RouteRecordRaw> = [
 ```
 
 ## 71. 导航守卫
+
+## 72. 路由元信息
+
+## 73. 路由过渡动效
+
+## 74. 滚动行为
+
+## 75. 动态路由
+
+# PM2
+
+PM2 is a Production Process Manager for Node.js applications with a built-in Load Balancer.
+
+## 76. 安装PM2
+
+- 安装命令：`npm i pm2 -g`
+
+## 77. PM2基本命令
+
+1.  使用`pm2 -v`查看安装是否成功
+2.  使用`pm2 start index.js`启动`index.js`（Express）文件
+3.  使用`pm2 log`查看日志
+4.  使用`pm2 list`查看表格
+5.  使用`pm2 stop 0`停止编号为0的服务
+6.  使用`pm2 restart 0`重启编号为0的服务
+7.  使用`pm2 delete 0`删除编号为0的服务
+8.  使用`pm2 start index.js --watch`启动`index.js`（Express）文件 可以实时监听文件变化
+9.  使用`pm2 start index.js --watch i max`启动`index.js`（Express）文件 可以使用多余的线程做负载（max可以为数字）
+10. 使用`pm2 start index.js --watch -n aaa`启动`index.js`（Express）文件 自定义名字
+
+## 78. 服务器后台
+
+尝试配置一个服务器
+
+# Linux
+
+## 79. Linux基本使用
+
+## 80. Linux基本使用
+
+## 81. Linux基本使用
+
+## 82. Linux基本使用
+
+## 83. Linux基本使用
+
+# 网络安全
+
+## 79. canvas

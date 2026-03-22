@@ -48,7 +48,7 @@ object：object类型只能是引用类型，不能是原始类型。
 6. 和自定义类型 `type` 的区别 [type](#_12-类型推断和类型别名)
 
 ```typescript
-inferface Person extends B {
+interface Person extends B {
     name: string;
     age?: number; // 可选属性
     readonly id: number; // 只读属性
@@ -88,32 +88,38 @@ const fn: Function = function (name: string) {
 
 ```typescript
 // 定义数组的方式(2种)
-let arr: number[] = [1,2,3]
-let arr: Array<number> = [1,2,3]
+let arr: number[] = [1, 2, 3];
+let arr: Array<number> = [1, 2, 3];
 
 // 定义对象数组
-inferface A {
-    name: string;
-    age?: number;
+interface A {
+  name: string;
+  age?: number;
 }
 
-let arr: A[] = [{name: '张三'}, {name: '111'}]
+let arr: A[] = [{ name: "张三" }, { name: "111" }];
 
 // 定义二维数组(2种)
-let arr: number[][] = [[1,2,3], [4,5,6]]
-let arr: Array<Array<number>> = [[1,2,3], [4,5,6]]
+let arr: number[][] = [
+  [1, 2, 3],
+  [4, 5, 6],
+];
+let arr: Array<Array<number>> = [
+  [1, 2, 3],
+  [4, 5, 6],
+];
 
 // 多种类型的数组
-let arr: any[] = [1, '2', true, {}]
-let arr: [number, string] = [1, '2']
-let arr: (string | number)[] = [1, '2', 3]
+let arr: any[] = [1, "2", true, {}];
+let arr: [number, string] = [1, "2"];
+let arr: (string | number)[] = [1, "2", 3];
 
 // 数组在函数中的用法
 function fn(...args: number[]) {
-    console.log(arguements)
-    let a: IArguments = arguments // 定义伪数组
+  console.log(arguements);
+  let a: IArguments = arguments; // 定义伪数组
 }
-fn(1,2,3)
+fn(1, 2, 3);
 ```
 
 ## 5. 函数类型
@@ -139,7 +145,7 @@ function add(a: number = 10, a?: number): number {
     return a + b
 }
 // 3. 如何定义参数类型是对象的函数
-inferface A {
+interface A {
     name: string;
     age: number;
 }
@@ -220,12 +226,12 @@ function getSmallPet(pet: Pet) {
 }
 
 // 交叉类型
-inferface People {
+interface People {
     name: string;
     age: number;
 }
 
-inferface Man {
+interface Man {
     sex: number;
 }
 
@@ -248,10 +254,10 @@ let fn = function (a: number | string): void {
 fn('1231231231312')
 
 // 2.
-inferface A {
+interface A {
     run: string;
 }
-inferface B {
+interface B {
     buy: string;
 }
 
@@ -359,11 +365,11 @@ setInterval(rain, 50);
 
 ```typescript
 // 1. class基本用法 继承 约束类型
-inferface Options {
+interface Options {
     el: string | HTMLElement;
 }
 
-inferface VueCls {
+interface VueCls {
     options: Options;
     init(): void;
 }
@@ -401,7 +407,7 @@ const vue = new Vue({
 })
 
 // 实现虚拟dom
-inferface Vnode {
+interface Vnode {
     tag: string; // 标签名
     text?: string; // 文本
     children?: Vnode[];
@@ -592,7 +598,7 @@ type a = number[] | string;
 interface B {
 
 }
-inferface A extends B {
+interface A extends B {
     name: string | number;
 }
 
@@ -1992,3 +1998,73 @@ tpye ReverArr<T extends any[]> = T extends [infer Fisrt, ...infer Rest] ? [...Re
 ```
 
 ## 34. 插件编写
+
+略
+
+## 35. keyof关键字
+
+`keyof` 的作用就一句话：
+
+> **取出一个类型的所有键，组成联合类型**
+
+### 基本用法
+
+```ts
+type Person = {
+  name: string;
+  age: number;
+  email: string;
+};
+
+type Keys = keyof Person;
+// type Keys = "name" | "age" | "email"
+```
+
+### 几种常见情况
+
+**对象类型**
+
+```ts
+type T = { a: number; b: string; c: boolean };
+type K = keyof T; // "a" | "b" | "c"
+```
+
+**数组/内置类型**
+
+```ts
+type K = keyof [];
+// "length" | "push" | "pop" | "map" | ...（数组的所有方法和属性）
+
+type K = keyof string;
+// "length" | "charAt" | "split" | ...
+```
+
+**配合泛型使用（重要）**
+
+```ts
+// 限制 key 必须是 obj 的合法键
+function get<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+const person = { name: "张三", age: 18 };
+get(person, "name"); // OK
+get(person, "xxx"); // 报错，"xxx" 不是合法的键
+```
+
+### 和映射类型结合
+
+```ts
+// keyof 提供遍历的键
+type Readonly<T> = {
+  readonly [K in keyof T]: T[K];
+};
+```
+
+### 简单理解
+
+```
+keyof Type  →  "key1" | "key2" | "key3"
+```
+
+把类型的所有键名变成联合类型，仅此而已。
