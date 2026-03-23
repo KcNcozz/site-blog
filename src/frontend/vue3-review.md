@@ -1437,7 +1437,7 @@ const red = ref({
 </style>
 ```
 
-### 34. \*\*vue3集成Tailwindcss
+### 34. \*\*vue3集成Tailwindcss 4
 
 使用方法：
 
@@ -1456,7 +1456,7 @@ export default defineConfig({
 
 4. 导入 Tailwind CSS：在你的 CSS 文件中添加一个`@import`导入 Tailwind CSS 的语句。`@import "tailwindcss";`
 
-5. 使用 Prettier 进行班级排序
+5. 可以使用 Prettier 进行班级排序
 
 ## 35. nextTick EventLoop
 
