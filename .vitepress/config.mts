@@ -128,7 +128,7 @@ export default defineConfig({
               { text: "电影清单", link: "/src/other/电影清单.md" },
             ],
           },
-          { text: "2026年的碎碎念", link: "/src/other/2026年的碎碎念.md" },
+          { text: "2026年学习日志", link: "/src/other/2026年的碎碎念.md" },
         ],
       },
     ],

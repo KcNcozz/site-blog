@@ -14,6 +14,228 @@
 | 命名空间整体导入 | `export const x=1; export const y=2;` | `import * as mod from './a.js';` | 用 `mod.x`、`mod.y` 访问 |
 :::
 
+### 字符串方法 & 数组方法 重点总结
+
+---
+
+**一、字符串方法**
+
+1. 查找 / 判断
+
+```js
+const str = "Hello World";
+
+str.indexOf("World"); // 6，找不到返回 -1
+str.includes("Hello"); // true
+str.startsWith("Hello"); // true
+str.endsWith("World"); // true
+```
+
+2. 截取
+
+```js
+const str = "Hello World";
+
+str.slice(0, 5); // "Hello"，支持负数
+str.slice(-5); // "World"
+str.substring(0, 5); // "Hello"，不支持负数
+```
+
+3. 替换
+
+```js
+const str = "Hello World";
+
+str.replace("World", "JS"); // "Hello JS"，只替换第一个
+str.replaceAll("l", "L"); // "HeLLo WorLd"，替换全部
+str.replace(/World/g, "JS"); // 用正则替换全部
+```
+
+4. 大小写
+
+```js
+"hello".toUpperCase(); // "HELLO"
+"HELLO".toLowerCase(); // "hello"
+```
+
+5. 去空格
+
+```js
+"  hello  ".trim(); // "hello"，去两端
+"  hello  ".trimStart(); // "hello  "，去左
+"  hello  ".trimEnd(); // "  hello"，去右
+```
+
+6. 分割 / 拼接
+
+```js
+"a,b,c".split(","); // ["a", "b", "c"]
+"hello".split(""); // ["h", "e", "l", "l", "o"]
+"hello".split("", 3); // ["h", "e", "l"]，限制数量
+
+"Hello" + " " + "World"; // "Hello World"
+"Hello".concat(" ", "World"); // "Hello World"
+```
+
+7. 填充 / 重复
+
+```js
+"5".padStart(3, "0"); // "005"，常用于补零
+"5".padEnd(3, "0"); // "500"
+"ha".repeat(3); // "hahaha"
+```
+
+8. 字符编码
+
+```js
+"A".charCodeAt(0); // 65
+String.fromCharCode(65); // "A"
+```
+
+---
+
+**二、数组方法**
+
+1. 增 / 删
+
+```js
+const arr = [1, 2, 3];
+
+arr.push(4); // 末尾添加，返回新长度  → [1, 2, 3, 4]
+arr.pop(); // 删除末尾，返回被删元素 → [1, 2, 3]
+arr.unshift(0); // 开头添加，返回新长度  → [0, 1, 2, 3]
+arr.shift(); // 删除开头，返回被删元素 → [1, 2, 3]
+
+// splice：万能增删改
+arr.splice(1, 1); // 从index 1 删除 1 个 → [1, 3]
+arr.splice(1, 0, 9, 8); // 从index 1 插入 9, 8 → [1, 9, 8, 2, 3]
+arr.splice(1, 1, 99); // 从index 1 替换 1 个 → [1, 99, 3]
+```
+
+2. 查找
+
+```js
+const arr = [1, 2, 3, 4, 5];
+
+arr.indexOf(3); // 2，找不到返回 -1
+arr.includes(3); // true
+arr.find((x) => x > 3); // 4，返回第一个满足条件的元素
+arr.findIndex((x) => x > 3); // 3，返回第一个满足条件的索引
+```
+
+3. 遍历（重点）
+
+```js
+const arr = [1, 2, 3];
+
+// forEach：遍历，无返回值
+arr.forEach((item, index) => {
+  console.log(index, item);
+});
+
+// map：遍历并返回新数组 ⭐
+arr.map((x) => x * 2); // [2, 4, 6]
+
+// filter：过滤，返回满足条件的元素 ⭐
+arr.filter((x) => x > 1); // [2, 3]
+
+// reduce：累加/归并 ⭐
+arr.reduce((acc, cur) => acc + cur, 0); // 6
+//          累加值  当前值     初始值
+```
+
+4. reduce 详解
+
+```js
+const arr = [1, 2, 3, 4, 5];
+
+// 求和
+arr.reduce((acc, cur) => acc + cur, 0); // 15
+
+// 求最大值
+arr.reduce((acc, cur) => Math.max(acc, cur), -Infinity); // 5
+
+// 数组转对象
+const users = [
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
+];
+users
+  .reduce((acc, cur) => {
+    acc[cur.id] = cur.name;
+    return acc;
+  }, {})
+  [
+    // { 1: "Alice", 2: "Bob" }
+
+    // 数组扁平化
+    ([1, 2], [3, 4])
+  ].reduce((acc, cur) => acc.concat(cur), []);
+// [1, 2, 3, 4]
+```
+
+5. 排序 / 反转
+
+```js
+const arr = [3, 1, 4, 1, 5]
+
+arr.sort((a, b) => a - b)   // 升序 [1, 1, 3, 4, 5]
+arr.sort((a, b) => b - a)   // 降序 [5, 4, 3, 1, 1]
+arr.reverse()               // 反转 [5, 1, 4, 1, 3]
+
+// 注意：sort 和 reverse 会修改原数组
+// 不想修改原数组：
+[...arr].sort((a, b) => a - b)
+```
+
+6. 截取 / 合并
+
+```js
+const arr = [1, 2, 3, 4, 5]
+
+arr.slice(1, 3)             // [2, 3]，不修改原数组
+arr.slice(-2)               // [4, 5]
+
+[1, 2].concat([3, 4])       // [1, 2, 3, 4]
+[1, 2, ...[3, 4]]           // [1, 2, 3, 4]，更常用
+```
+
+7. 扁平化
+
+```js
+[1, [2, [3]]]
+  .flat() // [1, 2, [3]]，默认展开一层
+  [(1, [2, [3]])].flat(2) // [1, 2, 3]，展开两层
+  [(1, [2, [3]])].flat(Infinity); // [1, 2, 3]，完全展开
+```
+
+8. 判断
+
+```js
+const arr = [1, 2, 3];
+
+arr.every((x) => x > 0); // true，所有元素满足条件
+arr.some((x) => x > 2); // true，至少一个满足条件
+Array.isArray(arr); // true，判断是否为数组
+```
+
+---
+
+**三、对比速查**
+
+| 方法              | 修改原数组 | 返回值            |
+| ----------------- | ---------- | ----------------- |
+| `push / pop`      | ✅         | 新长度 / 被删元素 |
+| `shift / unshift` | ✅         | 被删元素 / 新长度 |
+| `splice`          | ✅         | 被删元素数组      |
+| `sort / reverse`  | ✅         | 原数组            |
+| `map`             | ❌         | 新数组            |
+| `filter`          | ❌         | 新数组            |
+| `reduce`          | ❌         | 累计结果          |
+| `slice`           | ❌         | 新数组            |
+| `concat`          | ❌         | 新数组            |
+| `flat`            | ❌         | 新数组            |
+
 ## 快速入门
 
 ### 1. 引入
