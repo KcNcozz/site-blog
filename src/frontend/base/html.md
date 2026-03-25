@@ -8,9 +8,100 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 
 ## 常用标签
 
-::: danger 小知识
-块级元素会排斥其他元素 自动让后面的元素另起一行
-:::
+HTML5 语义化标签：HTML5 引入了语义化的标签，如 `<header>`、`<footer>`、`<nav>`、`<article>`、`<section>` 等，这些标签可以更好的描述网页的内容和结构，让网页更易读、更易维护。
+
+### 核心区别总结
+
+| 特性                  | 块级元素               | 行内元素                       |
+| --------------------- | ---------------------- | ------------------------------ |
+| 是否独占一行          | 是                     | 否，与其他元素共行             |
+| 默认宽度              | 撑满父容器 100%        | 由内容决定                     |
+| 可设置 width/height   | 是                     | 否（替换元素除外）             |
+| 可设置 margin/padding | 上下左右均可           | 只有左右生效（上下不影响布局） |
+| 可包含的内容          | 可包含块级和行内元素   | 只能包含行内元素（`<a>` 除外） |
+| 典型代表              | `<div>`, `<p>`, `<h1>` | `<span>`, `<a>`, `<img>`       |
+
+---
+
+### 块级元素 (Block-level Elements)
+
+| 标签            | 描述                    |
+| --------------- | ----------------------- |
+| `<div>`         | 通用块级容器            |
+| `<p>`           | 段落                    |
+| `<h1>` ~ `<h6>` | 标题（1-6级）           |
+| `<ul>`          | 无序列表                |
+| `<ol>`          | 有序列表                |
+| `<li>`          | 列表项                  |
+| `<table>`       | 表格                    |
+| `<thead>`       | 表格头部                |
+| `<tbody>`       | 表格主体                |
+| `<tfoot>`       | 表格尾部                |
+| `<tr>`          | 表格行                  |
+| `<form>`        | 表单                    |
+| `<fieldset>`    | 表单字段集合            |
+| `<header>`      | 页眉（HTML5）           |
+| `<footer>`      | 页脚（HTML5）           |
+| `<main>`        | 主内容区（HTML5）       |
+| `<section>`     | 区块（HTML5）           |
+| `<article>`     | 文章（HTML5）           |
+| `<aside>`       | 侧边栏（HTML5）         |
+| `<nav>`         | 导航（HTML5）           |
+| `<figure>`      | 图文块（HTML5）         |
+| `<figcaption>`  | 图文说明（HTML5）       |
+| `<blockquote>`  | 块级引用                |
+| `<pre>`         | 预格式化文本            |
+| `<hr>`          | 水平分隔线              |
+| `<address>`     | 联系地址信息            |
+| `<details>`     | 可折叠详情块（HTML5）   |
+| `<summary>`     | details 的摘要（HTML5） |
+| `<dialog>`      | 对话框（HTML5）         |
+
+---
+
+### 行内元素 (Inline Elements)
+
+| 标签         | 描述                 |
+| ------------ | -------------------- |
+| `<span>`     | 通用行内容器         |
+| `<a>`        | 超链接               |
+| `<strong>`   | 加粗（语义：重要）   |
+| `<b>`        | 加粗（无语义）       |
+| `<em>`       | 斜体（语义：强调）   |
+| `<i>`        | 斜体（无语义）       |
+| `<u>`        | 下划线               |
+| `<s>`        | 删除线（过时内容）   |
+| `<del>`      | 删除文本（语义）     |
+| `<ins>`      | 插入文本（语义）     |
+| `<code>`     | 行内代码             |
+| `<kbd>`      | 键盘输入             |
+| `<samp>`     | 程序输出示例         |
+| `<var>`      | 变量                 |
+| `<abbr>`     | 缩写                 |
+| `<cite>`     | 引用来源             |
+| `<q>`        | 行内引用             |
+| `<mark>`     | 高亮标记（HTML5）    |
+| `<small>`    | 小号文字             |
+| `<sub>`      | 下标                 |
+| `<sup>`      | 上标                 |
+| `<time>`     | 时间（HTML5）        |
+| `<label>`    | 表单标签             |
+| `<input>`    | 输入框               |
+| `<button>`   | 按钮                 |
+| `<select>`   | 下拉选择框           |
+| `<textarea>` | 多行文本框           |
+| `<img>`      | 图片（行内替换元素） |
+| `<br>`       | 换行                 |
+| `<map>`      | 图像映射             |
+| `<script>`   | 脚本（行内/外部）    |
+
+---
+
+### 特殊说明
+
+- **行内块元素 (`inline-block`)**：如 `<img>`、`<input>`、`<button>`，表现为行内但可设置宽高。
+- 可通过 CSS `display` 属性随时切换：`display: block` / `display: inline` / `display: inline-block`。
+- HTML5 重新定义了内容模型（Content Model），用"流式内容"、"短语内容"等概念替代了传统的块/行内划分，但实际开发中块/行内的概念仍广泛使用。
 
 ### 1. 图片 <Badge type="tip" text="单标签 行内块元素" />
 
@@ -56,10 +147,10 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 
 这是一个超链接 <a href="https://www.jetbrains.com/webstorm/" target="_blank" rel="noopener noreferrer">WebStorm</a> 结束
 
-这是一个超链接<a href="https://www.jetbrains.com/webstorm/">
-<img src="/assert/网页修复.svg" alt="这是一个图片链接" width="100" height="100"/>
+这是一个图片超链接<a href="https://www.jetbrains.com/webstorm/" style="display: inline-block;">
+<img src="/assert/网页修复.svg" alt="这是一个图片链接" width="100px" height="100px"/>
 </a>
-结束
+点击图片即可跳转
 
 ::: info 注意
 可以设置href属性为#，这样可以实现页面的滚动。
@@ -215,6 +306,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
 
 <table>
   <caption>2021年装机清单</caption>
+<tbody>
   <tr>
     <th>名称</th>
     <th>型号</th>
@@ -226,7 +318,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/HTML
   <tr>
     <td>显卡</td>
     <td>RTX5090</td>
-  </tr>
+  </tr></tbody>
 </table>
 
 - 表格（table）：用于呈现数据。

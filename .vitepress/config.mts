@@ -50,6 +50,10 @@ export default defineConfig({
                 text: "JavaScript",
                 link: "/src/frontend/base/javascript.md",
               },
+              {
+                text: "TailwindCSS",
+                link: "/src/frontend/base/tailwindcss4.md",
+              },
             ],
           },
           {
