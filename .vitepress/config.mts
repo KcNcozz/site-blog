@@ -4,7 +4,7 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "加菲猫的博客",
   lastUpdated: true,
-  head: [["link", { rel: "icon", href: "/site-blog/favicon.ico" }]], // 修改图标
+  head: [["link", { rel: "icon", href: "favicon.ico" }]], // 修改图标
   markdown: {
     lineNumbers: true,
     image: {
@@ -16,7 +16,7 @@ export default defineConfig({
   base: "/site-blog/",
   outDir: "docs", // 修改构建输出目录
   themeConfig: {
-    logo: "/public/logo.png", // 修改logo
+    logo: "logo.png", // 修改logo
     search: {
       provider: "local",
     },
