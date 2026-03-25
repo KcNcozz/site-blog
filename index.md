@@ -3,13 +3,13 @@
 layout: home
 
 hero:
-  name: "加菲猫的博客"
+  name: "加菲猫的知识库"
   text: "一个用于记录学习过程的小站"
   tagline:
     学习 生活 创作 记录
     # 添加主页的图片
   image:
-    src: https://vitepress.dev/vitepress-logo-large.svg
+    src: /public/vitepress-logo-large.svg
     alt: "加菲猫的博客"
   actions:
     - theme: brand

@@ -4,7 +4,7 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "加菲猫的博客",
   lastUpdated: true,
-  head: [["link", { rel: "icon", href: "/site-blog/favicon.ico" }]],
+  head: [["link", { rel: "icon", href: "/site-blog/favicon.ico" }]], // 修改图标
   markdown: {
     lineNumbers: true,
     image: {
@@ -16,9 +16,11 @@ export default defineConfig({
   base: "/site-blog/",
   outDir: "docs", // 修改构建输出目录
   themeConfig: {
+    logo: "/public/logo.png", // 修改logo
     search: {
       provider: "local",
     },
+    siteTitle: "加菲猫",
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: "主页", link: "/" },
@@ -123,7 +125,10 @@ export default defineConfig({
         ],
       },
     ],
-
+    footer: {
+      message: "Released under the MIT License.",
+      copyright: "Copyright © 2016-present xiaoaitongxue",
+    },
     socialLinks: [{ icon: "github", link: "https://github.com/KcNcozz" }],
   },
 });

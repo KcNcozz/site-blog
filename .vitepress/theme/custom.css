@@ -1,0 +1,14 @@
+/* .vitepress/theme/custom.css */
+
+:root {
+  --vp-c-brand-1: #38bdf8;
+  --vp-c-brand-2: #7dd3fc;
+}
+
+/* 首页大标题 */
+.VPHero .name {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8, #bae6fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
