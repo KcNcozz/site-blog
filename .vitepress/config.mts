@@ -24,7 +24,10 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: "主页", link: "/" },
-      { text: "前端", link: "/src/frontend/base/html.md" },
+      {
+        text: "知识库",
+        items: [{ text: "前端", link: "/src/frontend/base/html.md" }],
+      },
       { text: "随记", link: "/src/other/2026年的碎碎念.md" },
     ],
 
@@ -127,7 +130,7 @@ export default defineConfig({
     ],
     footer: {
       message: "Released under the MIT License.",
-      copyright: "Copyright © 2016-present xiaoaitongxue",
+      copyright: "Copyright © 2026-present Xiaoai Student",
     },
     socialLinks: [{ icon: "github", link: "https://github.com/KcNcozz" }],
   },

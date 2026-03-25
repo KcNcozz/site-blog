@@ -21,9 +21,9 @@ hero:
 
 features:
   - title: 学习笔记
-    details: 记录学习前端的心路历程，总结学习心得
+    details: 记录学习新技术的过程，总结学习笔记
   - title: 剪辑知识
-    details: 一些简单的剪辑要点摘录
-  - title: 碎碎念
+    details: 摘录一些剪辑相关的知识
+  - title: 学习日志
     details: 不知道该怎么说的日常吐槽
 ---
