@@ -9,7 +9,7 @@ export default defineConfig({
         open: true, // 构建完自动打开浏览器
         gzipSize: true, // 显示 gzip 后的体积
         brotliSize: true, // 显示 brotli 压缩后的体积
-        filename: "docs/stats.html", // 报告文件保存位置
+        filename: "stats.html", // 报告文件保存位置
       }),
     ], // 打包分析
   },
@@ -118,6 +118,8 @@ export default defineConfig({
           { text: "Git", link: "/src/web/git.md" },
           { text: "EventLoop", link: "/src/web/EventLoop.md" },
           { text: "小知识总结", link: "/src/web/小知识总结.md" },
+          { text: "RBAC", link: "/src/web/RBAC权限控制.md" },
+          // { text: "正则表达式", link: "/src/web/正则表达式.md" },
         ],
       },
       {
