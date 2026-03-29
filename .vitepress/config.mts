@@ -1,7 +1,18 @@
 import { defineConfig } from "vitepress";
+import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  vite: {
+    plugins: [
+      visualizer({
+        open: true, // 构建完自动打开浏览器
+        gzipSize: true, // 显示 gzip 后的体积
+        brotliSize: true, // 显示 brotli 压缩后的体积
+        filename: "docs/stats.html", // 报告文件保存位置
+      }),
+    ], // 打包分析
+  },
   title: "加菲猫的博客",
   lastUpdated: true,
   head: [["link", { rel: "icon", href: "favicon.ico" }]], // 修改图标
