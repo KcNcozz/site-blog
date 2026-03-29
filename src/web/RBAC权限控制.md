@@ -428,3 +428,370 @@ JS 逻辑中用 can() 动态判断是否执行某操作
 ```
 
 这四层防护（Store → 路由 → 指令 → 组合式函数）覆盖了从页面到按钮的全部权限控制场景。
+
+## 路由守卫 + 动态路由
+
+### 路由守卫 (Navigation Guards)
+
+**用途：控制路由导航的行为**，在路由跳转前/后执行逻辑。
+
+1. 全局守卫
+
+```js
+const router = createRouter({ ... })
+
+// 全局前置守卫（最常用）
+router.beforeEach((to, from, next) => {
+  const isLoggedIn = localStorage.getItem('token')
+
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    next('/login')  // 未登录则重定向
+  } else {
+    next()          // 放行
+  }
+})
+
+// 全局后置守卫
+router.afterEach((to, from) => {
+  document.title = to.meta.title || '默认标题'
+})
+```
+
+2. 路由独享守卫
+
+```js
+const routes = [
+  {
+    path: "/admin",
+    component: Admin,
+    beforeEnter: (to, from, next) => {
+      if (!isAdmin()) next("/403");
+      else next();
+    },
+  },
+];
+```
+
+3. 组件内守卫
+
+```js
+// 在 .vue 组件内
+export default {
+  beforeRouteEnter(to, from, next) {
+    // 组件实例还未创建
+    next((vm) => {
+      /* 通过 vm 访问实例 */
+    });
+  },
+  beforeRouteUpdate(to, from) {
+    // 当前路由改变但组件被复用时
+    this.fetchData(to.params.id);
+  },
+  beforeRouteLeave(to, from) {
+    // 离开当前路由前
+    if (this.hasUnsavedChanges) return false;
+  },
+};
+```
+
+---
+
+### 动态路由 (Dynamic Routes)
+
+**用途：在运行时动态添加/删除路由**，常用于权限系统按需加载路由。
+
+### 动态路由参数（路径参数）
+
+```js
+// :id 是动态参数
+const routes = [
+  { path: "/user/:id", component: UserDetail },
+  { path: "/article/:category/:id", component: Article },
+];
+
+// 组件中获取参数
+import { useRoute } from "vue-router";
+const route = useRoute();
+console.log(route.params.id);
+```
+
+- 动态添加路由（addRoute）
+
+```js
+// 登录后根据权限动态添加路由
+async function setupRoutesByRole(role) {
+  if (role === "admin") {
+    router.addRoute({
+      path: "/admin",
+      component: () => import("./views/Admin.vue"),
+    });
+    router.addRoute({
+      path: "/stats",
+      component: () => import("./views/Stats.vue"),
+    });
+  }
+}
+
+// 删除路由
+router.removeRoute("routeName");
+```
+
+---
+
+### 两者结合使用（典型权限方案）
+
+```js
+// 1. 路由守卫拦截所有导航
+router.beforeEach(async (to, from, next) => {
+  const token = localStorage.getItem("token");
+  if (!token && to.path !== "/login") {
+    return next("/login");
+  }
+
+  // 2. 动态路由：已登录但路由未初始化
+  if (token && !store.state.routesLoaded) {
+    const userRole = await fetchUserRole();
+
+    // 根据角色动态添加路由
+    const accessRoutes = generateRoutesByRole(userRole);
+    accessRoutes.forEach((route) => router.addRoute(route));
+
+    store.state.routesLoaded = true;
+
+    // 重新导航，确保新路由生效
+    return next({ ...to, replace: true });
+  }
+
+  next();
+});
+```
+
+---
+
+## 核心区别总结
+
+| 维度         | 路由守卫                     | 动态路由                   |
+| ------------ | ---------------------------- | -------------------------- |
+| **本质**     | 导航拦截器/钩子函数          | 路由表的动态增删           |
+| **解决问题** | 控制"能不能跳转"             | 控制"有没有这条路由"       |
+| **执行时机** | 每次路由跳转时触发           | 程序运行中按需调用         |
+| **典型场景** | 登录验证、权限检查、页面标题 | 按角色加载菜单、懒加载路由 |
+| **核心 API** | `beforeEach` / `afterEach`   | `addRoute` / `removeRoute` |
+
+## 实例
+
+### 核心思路
+
+```
+用户登录 → 获取角色/权限 → 动态路由生成可访问菜单 → 路由守卫拦截非法访问
+```
+
+### 完整实现方案
+
+1. 定义路由表（按权限分类）
+
+```js
+// router/routes.js
+
+// 所有人都能访问的基础路由
+export const constantRoutes = [
+  { path: "/login", component: () => import("@/views/Login.vue") },
+  { path: "/403", component: () => import("@/views/403.vue") },
+  { path: "/", component: () => import("@/views/Home.vue") },
+];
+
+// 需要权限才能访问的路由（带 meta.roles 标识）
+export const asyncRoutes = [
+  {
+    path: "/admin",
+    component: () => import("@/views/Admin.vue"),
+    meta: { roles: ["admin"] },
+  },
+  {
+    path: "/editor",
+    component: () => import("@/views/Editor.vue"),
+    meta: { roles: ["admin", "editor"] },
+  },
+  {
+    path: "/user",
+    component: () => import("@/views/User.vue"),
+    meta: { roles: ["admin", "editor", "viewer"] },
+  },
+];
+```
+
+---
+
+2. 权限过滤工具函数
+
+```js
+// utils/permission.js
+
+/**
+ * 根据用户角色过滤路由
+ * @param {Array} routes - 待过滤的路由
+ * @param {String} role  - 用户角色
+ */
+export function filterRoutesByRole(routes, role) {
+  return routes.filter((route) => {
+    // 没有配置 roles，所有人可访问
+    if (!route.meta?.roles) return true;
+
+    // 检查用户角色是否在允许列表中
+    return route.meta.roles.includes(role);
+  });
+}
+```
+
+---
+
+3. Pinia 权限 Store
+
+```js
+// stores/permission.js
+import { defineStore } from "pinia";
+import { asyncRoutes, constantRoutes } from "@/router/routes";
+import { filterRoutesByRole } from "@/utils/permission";
+import router from "@/router";
+
+export const usePermissionStore = defineStore("permission", {
+  state: () => ({
+    accessRoutes: [], // 当前用户可访问的路由
+    isRoutesLoaded: false,
+  }),
+
+  actions: {
+    async generateRoutes(role) {
+      // 1. 根据角色过滤路由
+      const accessRoutes = filterRoutesByRole(asyncRoutes, role);
+
+      // 2. 动态添加到路由器
+      accessRoutes.forEach((route) => router.addRoute(route));
+
+      // 3. 保存到 store（用于生成侧边栏菜单）
+      this.accessRoutes = [...constantRoutes, ...accessRoutes];
+      this.isRoutesLoaded = true;
+    },
+
+    resetRoutes() {
+      // 退出登录时清除动态路由
+      this.accessRoutes = [];
+      this.isRoutesLoaded = false;
+    },
+  },
+});
+```
+
+---
+
+4. 路由守卫（整个 RBAC 的入口）
+
+```js
+// router/guard.js
+import router from "@/router";
+import { usePermissionStore } from "@/stores/permission";
+import { useUserStore } from "@/stores/user";
+
+const WHITE_LIST = ["/login", "/403"];
+
+router.beforeEach(async (to, from, next) => {
+  const userStore = useUserStore();
+  const permissionStore = usePermissionStore();
+  const token = userStore.token;
+
+  // ① 未登录
+  if (!token) {
+    return WHITE_LIST.includes(to.path) ? next() : next("/login");
+  }
+
+  // ② 已登录，访问登录页 → 直接去首页
+  if (to.path === "/login") {
+    return next("/");
+  }
+
+  // ③ 已登录，路由已加载 → 正常放行
+  if (permissionStore.isRoutesLoaded) {
+    return next();
+  }
+
+  // ④ 已登录，首次进入，动态加载路由
+  try {
+    // 获取用户信息（包含角色）
+    await userStore.fetchUserInfo();
+
+    // 根据角色生成并注册动态路由
+    await permissionStore.generateRoutes(userStore.role);
+
+    // 重新导航（确保动态路由生效）
+    next({ ...to, replace: true });
+  } catch (error) {
+    // token 失效等异常，清空登录状态
+    userStore.logout();
+    next("/login");
+  }
+});
+```
+
+---
+
+5. 侧边栏菜单（动态路由驱动）
+
+```vue
+<!-- components/Sidebar.vue -->
+<template>
+  <nav>
+    <router-link v-for="route in menuRoutes" :key="route.path" :to="route.path">
+      {{ route.meta.title }}
+    </router-link>
+  </nav>
+</template>
+
+<script setup>
+import { computed } from "vue";
+import { usePermissionStore } from "@/stores/permission";
+
+const permissionStore = usePermissionStore();
+
+// 过滤掉不需要展示在菜单中的路由
+const menuRoutes = computed(() =>
+  permissionStore.accessRoutes.filter((r) => !r.meta?.hidden),
+);
+</script>
+```
+
+---
+
+## 整体流程图
+
+```
+用户登录
+   ↓
+路由守卫 beforeEach 拦截
+   ↓
+有 Token？
+  ├── 否 → 跳转 /login
+  └── 是 ↓
+      路由已加载？
+        ├── 是 → 直接 next()
+        └── 否 ↓
+            fetchUserInfo() 获取角色
+               ↓
+            filterRoutesByRole() 过滤路由
+               ↓
+            addRoute() 注册动态路由
+               ↓
+            next({ ...to, replace: true }) 重新导航
+               ↓
+            侧边栏根据 accessRoutes 渲染菜单
+```
+
+---
+
+### 总结
+
+| 职责                  | 使用技术                   |
+| --------------------- | -------------------------- |
+| 拦截未登录/未授权访问 | 路由守卫 `beforeEach`      |
+| 按角色分配可访问页面  | 动态路由 `addRoute`        |
+| 动态生成侧边栏菜单    | 动态路由 + Pinia store     |
+| 退出时清除权限        | `removeRoute` + store 重置 |
