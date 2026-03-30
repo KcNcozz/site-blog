@@ -139,6 +139,7 @@ export default defineConfig({
             items: [
               { text: "装机注意事项", link: "/src/other/装机注意事项.md" },
               { text: "电影清单", link: "/src/other/电影清单.md" },
+              { text: "简单记录一下工作流程", link: "/src/other/工作流程.md" },
             ],
           },
           { text: "2026年学习日志", link: "/src/other/2026年的碎碎念.md" },
