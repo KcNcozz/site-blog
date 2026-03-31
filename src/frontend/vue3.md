@@ -2145,7 +2145,7 @@ export const useTalkStore = defineStore("talk", () => {
 概述：`props`是使用频率最高的一种通信方式，常用与 ：**父 ↔ 子**。
 
 - 若 **父传子**：属性值是**非函数**。
-- 若 **子传父**：属性值是**函数**。
+- 若 **子传父**：属性值是**函数**。 (不建议使用，建议用`emit`)
 - 尽量不要出现父传孙
 
 父组件：
@@ -2196,7 +2196,11 @@ defineProps(["car", "getToy"]);
 ## 6.2 通信方式-自定义事件 emit
 
 :::info 补充
-`$event`是事件对象，包含事件发生时的一些信息（DOM）
+`$event`是是什么？
+
+- 对于原生事件，`$event`就是原生事件对象，包含事件发生时的一些信息（DOM）,可以`.target`获取事件源。
+- 对于自定义事件，`$event`就是触发事件时，所传递的数据，不可以`.target`。
+
 :::
 
 1. 概述：自定义事件常用于：**子 => 父**。
@@ -2213,6 +2217,8 @@ defineProps(["car", "getToy"]);
 
 ```vue
 <!--在父组件中，给子组件绑定自定义事件：-->
+<!-- 为子组件绑定的是send-toy -->
+<!-- 当事件触发时，会调用saveToy方法 -->
 <Child @send-toy="saveToy" />
 ...
 <script>
@@ -2226,11 +2232,21 @@ function saveToy(value:string) {
 
 ```vue
 <!--子组件-->
-<button @click="emit('send-toy', oty)">测试</button>
+<!-- 调用的是 emit('send-toy'),使用 emit('send-toy') 触发send-toy事件 -->
+<!-- 这里会把toy作为参数传递绑定的事件 -->
+<button @click="emit('send-toy', toy)">测试</button>
 <!-- 子组件中，触发事件：  -->
 <script>
 let toy = ref("奥特曼");
+// 声明的是send-toy事件
 const emit = defineEmits(["send-toy"]);
+
+// 3.3+：另一种更简洁的语法
+// 声明的是send-toy事件
+const emit = defineEmits<{
+  send-toy:[value: string] // 具名元组语法
+   // 事件名: [参数名: 参数类型]
+}>()
 </script>
 ```
 
@@ -2306,7 +2322,7 @@ function sendToy() {
 
 **注意这个重要的内置关系，总线依赖着这个内置关系**
 
-## 6.4 通信方式-v-model
+## 6.4 通信方式-v-model （组件库大量使用）
 
 1. 概述：实现 **父↔子** 之间相互通信。
 2. 前序知识 —— `v-model`的本质
@@ -2316,21 +2332,23 @@ function sendToy() {
 <!-- v-model用在html标签上是双向绑定 -->
 <input type="text" v-model="userName" />
 
-<!-- html标签上v-model的本质 -->
+<!-- html标签上v-model的本质（底层实现） -->
 <!-- <input type="text" :value="username" @input:"username = (<HTMLInputElement>$event.target).value"> -->
 ```
 
-3. 组件标签上的`v-model`的本质：`:moldeValue` ＋ `update:modelValue`事件。
+3. 组件标签上的`v-model`的本质：`:moldeValue` ＋ `update:modelValue`事件。(props + emit的组合)
 
 ```vue
-<!-- 组件标签上使用v-model指令 -->
+<!-- 如何实现在组件标签上使用v-model指令 -->
 <AtguiguInput v-model="userName" />
 
 <!-- 组件标签上v-model的本质 -->
+<!-- 相当于v-bind:modelValue="userName" 单向绑定 传递modelValue -->
+<!-- @update:modelValue="userName = $event" 自定义事件 update:modelValue为事件名 -->
 <AtguiguInput :modelValue="userName" @update:modelValue="userName = $event" />
 ```
 
-`AtguiguInput.vue`中：
+`AtguiguInput.vue`中：(vue3.4+改为了`defineModel`)
 
 ```vue
 <template>
@@ -2346,9 +2364,9 @@ function sendToy() {
 </template>
 
 <script setup lang="ts" name="AtguiguInput">
-// 接收props
+// 接收props 父传子
 defineProps(["modelValue"]);
-// 声明事件
+// 声明事件 子传父
 const emit = defineEmits(["update:model-value"]);
 </script>
 ```
