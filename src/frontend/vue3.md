@@ -93,9 +93,7 @@ vue文件里面的三种标签：
 - 脚本
 - 样式
 
-# 模板语法 Vue指令
-
-# 3. Vue3核心语法
+# 3. Vue3核心语法 模板语法 Vue指令
 
 模板语法：`{{ }}`  
 vue指令：`v-`
@@ -1175,6 +1173,10 @@ let props = withDefaults(defineProps<{list?:Persons}>(),{
 // 提示：Vue 3.5已经弃用withDefaults，可以直接解构赋值，看官方文档
 // 提示：Vue 3.5已经弃用withDefaults，可以直接解构赋值，看官方文档
 // 提示：Vue 3.5已经弃用withDefaults，可以直接解构赋值，看官方文档
+
+// Vue 3.5 第四种写法： 直接解构赋值 接收+限制类型+指定默认值+限制必要性
+let { list = [{ id: 'asdasg01', name: '小猪佩奇', age: 18 }] } = defineProps<{list?:Persons}>()
+
   console.log(props)
 </script>
 ```
@@ -1922,7 +1924,7 @@ const talkStore = useTalkStore();
 </script>
 ```
 
-## 5.3修改数据(三种方式)
+## 5.3 修改数据(三种方式)
 
 1. 第一种修改方式，直接修改（直接改）
 
@@ -2138,7 +2140,7 @@ export const useTalkStore = defineStore("talk", () => {
 
 <img src="/assert/assets-heima/image-20231119185900990.png" alt="image-20231119185900990" style="zoom:60%;" />
 
-## 6.1 props
+## 6.1 通信方式-props
 
 概述：`props`是使用频率最高的一种通信方式，常用与 ：**父 ↔ 子**。
 
@@ -2191,7 +2193,7 @@ defineProps(["car", "getToy"]);
 </script>
 ```
 
-## 6.2 自定义事件
+## 6.2 通信方式-自定义事件 emit
 
 :::info 补充
 `$event`是事件对象，包含事件发生时的一些信息（DOM）
@@ -2232,7 +2234,7 @@ const emit = defineEmits(["send-toy"]);
 </script>
 ```
 
-## 6.3 mitt
+## 6.3 通信方式-mitt （用得少）
 
 概述：与消息订阅与发布（`pubsub`）功能类似，可以实现任意组件间通信。
 
@@ -2304,7 +2306,7 @@ function sendToy() {
 
 **注意这个重要的内置关系，总线依赖着这个内置关系**
 
-## 6.4 v-model
+## 6.4 通信方式-v-model
 
 1. 概述：实现 **父↔子** 之间相互通信。
 2. 前序知识 —— `v-model`的本质
@@ -2395,7 +2397,7 @@ const emit = defineEmits(["update:abc"]);
 
 :::
 
-## 6.5 $attrs 祖传孙
+## 6.5 通信方式-$attrs 祖传孙（用得少）
 
 > 所有父组件传了，但是没有声明接收的数据都在`$attrs`。
 
@@ -2473,7 +2475,7 @@ defineProps(["a", "b", "c", "d", "x", "y", "updateA"]);
 </script>
 ```
 
-## 6.6 $refs（父→子）、$parent（子→父）
+## 6.6 通信方式-$refs（父→子）、$parent（子→父） （用得少）
 
 1. 概述：
    - `$refs`用于 ：**父→子。**
@@ -2490,7 +2492,7 @@ defineProps(["a", "b", "c", "d", "x", "y", "updateA"]);
 - `$parent`包含当前组件的父组件实例对象
 - 如果拿不到数据记得使用宏函数`defineExpose`进行暴露数据
 
-## 6.7 provide、inject 祖孙通信 且父不参与
+## 6.7 通信方式-provide、inject 祖孙通信 且父不参与 （常用）
 
 1. 概述：实现**祖孙组件**通信（不打扰父组件）
 2. 具体使用：
@@ -2557,7 +2559,7 @@ let car = inject("car");
 </script>
 ```
 
-## 6.8 pinia
+## 6.8 通信方式-pinia
 
 参考之前`pinia`笔记
 
