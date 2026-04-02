@@ -6,10 +6,10 @@ export default defineConfig({
   vite: {
     plugins: [
       visualizer({
-        open: true, // 构建完自动打开浏览器
-        gzipSize: true, // 显示 gzip 后的体积
-        brotliSize: true, // 显示 brotli 压缩后的体积
-        filename: "stats.html", // 报告文件保存位置
+        // open: true, // 构建完自动打开浏览器
+        // gzipSize: true, // 显示 gzip 后的体积
+        // brotliSize: true, // 显示 brotli 压缩后的体积
+        // filename: "stats.html", // 报告文件保存位置
       }),
     ], // 打包分析
   },
