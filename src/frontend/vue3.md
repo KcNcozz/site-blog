@@ -1849,6 +1849,29 @@ export const useCountStore = defineStore("count", {
 });
 ```
 
+你可以认为 state 是 store 的数据 (data)，getters 是 store 的计算属性 (computed)，而 actions 则是方法 (methods)。
+
+也可以使用Setup Store的写法:
+
+```ts
+export const useCounterStore = defineStore("counter", () => {
+  const count = ref(0);
+  const name = ref("Eduardo");
+  const doubleCount = computed(() => count.value * 2);
+  function increment() {
+    count.value++;
+  }
+
+  return { count, name, doubleCount, increment };
+});
+```
+
+在 Setup Store 中：
+
+- ref() 就是 state 属性
+- computed() 就是 getters
+- function() 就是 actions
+
 4. 具体编码：`src/store/talk.ts`
 
 ```js
