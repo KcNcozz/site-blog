@@ -119,6 +119,7 @@ export default defineConfig({
           { text: "EventLoop", link: "/src/web/EventLoop.md" },
           { text: "小知识总结", link: "/src/web/小知识总结.md" },
           { text: "RBAC", link: "/src/web/RBAC权限控制.md" },
+          { text: "JWT", link: "/src/web/JWT.md" },
           // { text: "正则表达式", link: "/src/web/正则表达式.md" },
         ],
       },
