@@ -34,119 +34,154 @@ export default defineConfig({
     siteTitle: "加菲猫",
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: "主页", link: "/" },
       {
-        text: "知识库",
-        items: [{ text: "前端", link: "/src/frontend/base/html.md" }],
+        text: "主页",
+        link: "/",
       },
-      { text: "随记", link: "/src/other/2026年的碎碎念.md" },
-    ],
-
-    sidebar: [
       {
         text: "前端",
-        items: [
-          {
-            text: "前端三件套",
-            items: [
-              {
-                text: "HTML",
-                link: "/src/frontend/base/html.md",
-              },
-              {
-                text: "CSS",
-                link: "/src/frontend/base/css.md",
-              },
-              {
-                text: "JavaScript",
-                link: "/src/frontend/base/javascript.md",
-              },
-              {
-                text: "TailwindCSS",
-                link: "/src/frontend/base/tailwindcss4.md",
-              },
-            ],
-          },
-          {
-            text: "AJAX",
-            link: "/src/frontend/ajax.md",
-          },
-          {
-            text: "Vite",
-            link: "/src/frontend/vite.md",
-          },
-          {
-            text: "TypeScript",
-            link: "/src/frontend/typescript.md",
-          },
-          {
-            text: "Vue3",
-            link: "/src/frontend/vue3.md",
-          },
-          {
-            text: "Vue3-review",
-            link: "/src/frontend/vue3-review.md",
-          },
-          {
-            text: "nodejs",
-            link: "/src/frontend/nodejs.md",
-          },
-        ],
+        link: "/src/frontend/base/html.md",
       },
       {
         text: "后端",
-        items: [
-          // {
-          //   text: "Java",
-          //   items: [
-          //     { text: "JavaSE", link: "/src/backend/Java/JavaSE.md" },
-          //     { text: "JavaWeb", link: "/src/backend/Java/JavaWeb.md" },
-          //     { text: "SpringSSM", link: "/src/backend/Java/SpringSSM.md" },
-          //     { text: "Springboot", link: "/src/backend/Java/Springboot.md" },
-          //     { text: "SpringCloud", link: "/src/backend/Java/SpringCloud.md" },
-          //   ],
-          // },
-          {
-            text: "中间件",
-            items: [{ text: "Docker", link: "/src/backend/中间件/docker.md" }],
-          },
-        ],
+        link: "/src/backend/中间件/docker.md",
       },
       {
         text: "小知识",
-        items: [
-          { text: "Git", link: "/src/web/git.md" },
-          { text: "EventLoop", link: "/src/web/EventLoop.md" },
-          { text: "小知识总结", link: "/src/web/小知识总结.md" },
-          { text: "RBAC", link: "/src/web/RBAC权限控制.md" },
-          { text: "JWT", link: "/src/web/JWT.md" },
-          // { text: "正则表达式", link: "/src/web/正则表达式.md" },
-        ],
+        link: "/src/web/git.md",
       },
       {
-        text: "剪辑",
+        text: "随便记录",
         items: [
-          // { text: "剪映", link: "/src/jianji/剪映.md" },
-          // { text: "达芬奇", link: "/src/jianji/达芬奇.md" },
-          { text: "测试页面", link: "/src/jianji/测试页面.md" },
-        ],
-      },
-      {
-        text: "碎碎念",
-        items: [
-          {
-            text: "一些需要记录的东西",
-            // link: "/src/other/装机注意事项.md",
-            items: [
-              { text: "装机注意事项", link: "/src/other/装机注意事项.md" },
-              { text: "电影清单", link: "/src/other/电影清单.md" },
-              { text: "简单记录一下工作流程", link: "/src/other/工作流程.md" },
-            ],
-          },
-          { text: "2026年学习日志", link: "/src/other/2026年的碎碎念.md" },
+          { text: "碎碎念", link: "/src/other/2026年的碎碎念.md" },
+          { text: "装机流程", link: "/src/other/装机注意事项.md" },
+          { text: "剪辑技巧", link: "/src/other/jianji/达芬奇.md" },
         ],
       },
     ],
+
+    sidebar: {
+      "/src/frontend/": [
+        {
+          text: "前端",
+          items: [
+            {
+              text: "前端三件套",
+              items: [
+                {
+                  text: "HTML",
+                  link: "/src/frontend/base/html.md",
+                },
+                {
+                  text: "CSS",
+                  link: "/src/frontend/base/css.md",
+                },
+                {
+                  text: "JavaScript",
+                  link: "/src/frontend/base/javascript.md",
+                },
+                {
+                  text: "TailwindCSS",
+                  link: "/src/frontend/base/tailwindcss4.md",
+                },
+              ],
+            },
+            {
+              text: "AJAX",
+              link: "/src/frontend/ajax.md",
+            },
+            {
+              text: "Vite",
+              link: "/src/frontend/vite.md",
+            },
+            {
+              text: "TypeScript",
+              link: "/src/frontend/typescript.md",
+            },
+            {
+              text: "Vue3",
+              link: "/src/frontend/vue3.md",
+            },
+            {
+              text: "Vue3-review",
+              link: "/src/frontend/vue3-review.md",
+            },
+            {
+              text: "nodejs",
+              link: "/src/frontend/nodejs.md",
+            },
+          ],
+        },
+      ],
+      "/src/backend/": [
+        {
+          text: "后端",
+          items: [
+            // {
+            //   text: "Java",
+            //   items: [
+            //     { text: "JavaSE", link: "/src/backend/Java/JavaSE.md" },
+            //     { text: "JavaWeb", link: "/src/backend/Java/JavaWeb.md" },
+            //     { text: "SpringSSM", link: "/src/backend/Java/SpringSSM.md" },
+            //     { text: "Springboot", link: "/src/backend/Java/Springboot.md" },
+            //     { text: "SpringCloud", link: "/src/backend/Java/SpringCloud.md" },
+            //   ],
+            // },
+            {
+              text: "中间件",
+              items: [
+                { text: "Docker", link: "/src/backend/中间件/docker.md" },
+              ],
+            },
+          ],
+        },
+      ],
+      "/src/web/": [
+        {
+          text: "小知识",
+          items: [
+            { text: "Git", link: "/src/web/git.md" },
+            { text: "EventLoop", link: "/src/web/EventLoop.md" },
+            { text: "小知识总结", link: "/src/web/小知识总结.md" },
+            { text: "RBAC", link: "/src/web/RBAC权限控制.md" },
+            { text: "JWT", link: "/src/web/JWT.md" },
+            // { text: "正则表达式", link: "/src/web/正则表达式.md" },
+          ],
+        },
+      ],
+      "/src/other/": [
+        { text: "2026年学习日志", link: "/src/other/2026年的碎碎念.md" },
+        {
+          text: "碎碎念",
+          items: [
+            {
+              text: "一些需要记录的东西",
+              // link: "/src/other/装机注意事项.md",
+              items: [
+                { text: "装机注意事项", link: "/src/other/装机注意事项.md" },
+                { text: "电影清单", link: "/src/other/电影清单.md" },
+                {
+                  text: "简单记录一下工作流程",
+                  link: "/src/other/工作流程.md",
+                },
+                {
+                  text: "配置 Go 环境",
+                  link: "/src/other/配置 Go 环境.md",
+                },
+              ],
+            },
+            {
+              text: "一些小知识",
+              items: [
+                { text: "剪映", link: "/src/other/jianji/剪映.md" },
+                { text: "达芬奇", link: "/src/other/jianji/达芬奇.md" },
+                { text: "测试页面", link: "/src/other/jianji/测试页面.md" },
+              ],
+            },
+          ],
+        },
+      ],
+    },
     footer: {
       message: "Released under the MIT License.",
       copyright: "Copyright © 2026-present Xiaoai Student",
