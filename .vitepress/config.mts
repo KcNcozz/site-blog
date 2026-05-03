@@ -40,7 +40,20 @@ export default defineConfig({
       },
       {
         text: "前端",
-        link: "/src/frontend/base/html.md",
+        items: [
+          {
+            text: "前端基础",
+            link: "/src/frontend/base/html.md",
+          },
+          {
+            text: "前端框架",
+            link: "/src/frontend/framework/vue3.md",
+          },
+          {
+            text: "前端工具",
+            link: "/src/frontend/ESLint、OXC（Oxlint）和 Prettier 说明.md",
+          },
+        ],
       },
       {
         text: "后端",
@@ -66,7 +79,7 @@ export default defineConfig({
           text: "前端",
           items: [
             {
-              text: "前端三件套",
+              text: "前端基础",
               items: [
                 {
                   text: "HTML",
@@ -81,10 +94,35 @@ export default defineConfig({
                   link: "/src/frontend/base/javascript.md",
                 },
                 {
-                  text: "TailwindCSS",
-                  link: "/src/frontend/base/tailwindcss4.md",
+                  text: "JavaScript 常用方法参考",
+                  link: "/src/frontend/base/JS方法参考手册.md",
                 },
               ],
+            },
+            {
+              text: "前端框架",
+              items: [
+                {
+                  text: "Vue3",
+                  link: "/src/frontend/framework/vue3.md",
+                },
+                {
+                  text: "Vue3-review",
+                  link: "/src/frontend/framework/vue3-review.md",
+                },
+                {
+                  text: "React19",
+                  link: "/src/frontend/framework/react.md",
+                },
+                {
+                  text: "Nextjs",
+                  link: "/src/frontend/framework/nextjs.md",
+                },
+              ],
+            },
+            {
+              text: "TailwindCSS",
+              link: "/src/frontend/base/tailwindcss4.md",
             },
             {
               text: "AJAX",
@@ -99,16 +137,21 @@ export default defineConfig({
               link: "/src/frontend/typescript.md",
             },
             {
-              text: "Vue3",
-              link: "/src/frontend/vue3.md",
-            },
-            {
-              text: "Vue3-review",
-              link: "/src/frontend/vue3-review.md",
-            },
-            {
               text: "nodejs",
               link: "/src/frontend/nodejs.md",
+            },
+          ],
+        },
+        {
+          text: "前端工具部分",
+          items: [
+            {
+              text: "ESLint、OXC（Oxlint）和 Prettier 说明",
+              link: "/src/frontend/ESLint、OXC（Oxlint）和 Prettier 说明.md",
+            },
+            {
+              text: "package.json 与前端工程化工具说明",
+              link: "/src/frontend/package.json 与前端工程化工具说明.md",
             },
           ],
         },
@@ -138,7 +181,7 @@ export default defineConfig({
       ],
       "/src/web/": [
         {
-          text: "小知识",
+          text: "小知识总结",
           items: [
             { text: "Git", link: "/src/web/git.md" },
             { text: "EventLoop", link: "/src/web/EventLoop.md" },
