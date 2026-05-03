@@ -132,7 +132,7 @@ HTML5 语义化标签：HTML5 引入了语义化的标签，如 `<header>`、`<f
 >
 
 <a href="https://www.jetbrains.com/webstorm/">
-  <img src="/assert/网页修复.svg" alt="这是一个图片链接" />
+  <img src="/assert/html-image/网页修复.svg" alt="这是一个图片链接" />
 </a>
 ```
 
@@ -148,7 +148,7 @@ HTML5 语义化标签：HTML5 引入了语义化的标签，如 `<header>`、`<f
 这是一个超链接 <a href="https://www.jetbrains.com/webstorm/" target="_blank" rel="noopener noreferrer">WebStorm</a> 结束
 
 这是一个图片超链接<a href="https://www.jetbrains.com/webstorm/" style="display: inline-block;">
-<img src="/assert/网页修复.svg" alt="这是一个图片链接" width="100px" height="100px"/>
+<img src="/assert/html-image/网页修复.svg" alt="这是一个图片链接" width="100px" height="100px"/>
 </a>
 点击图片即可跳转
 

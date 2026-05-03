@@ -25,7 +25,9 @@
 5. `'123'` `123`
 6. never
 
-unknown只能赋值给自身或者any，unknown类型无法去读属性，方法也不可以调用，因此unknown比any更安全。
+> unknown只能赋值给自身或者any，unknown类型无法去读属性，方法也不可以调用，因此unknown比any更安全。
+
+![数据类型顺序图](/assert/ts-image/数据类型顺序图.png)
 
 ## 2. Object、object、{}
 
@@ -607,7 +609,7 @@ interface A extends B {
 type num = 1 extend number ? 1 : 0;
 ```
 
-类型从上到下：![ts类型](/assert/ts.png)
+类型从上到下：![ts类型](/assert/ts-image/数据类型顺序图.png)
 
 ## 13. never
 

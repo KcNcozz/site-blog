@@ -196,7 +196,7 @@ input::placeholder {
 ### 主要属性
 
 盒子模型由内容区域、内边距、边框和外边距组成。如下图所示：
-![盒子模型](/assert/盒子模型.png)
+![盒子模型](/assert/css-image/盒子模型.png)
 
 设置盒子的一些属性：<Badge type="danger" text="仅限内块元素和行内块元素 行内元素无效" />
 
@@ -223,7 +223,7 @@ input::placeholder {
 用来控制元素外部与其他元素之间的距离 和内边距一样
 
 - 边距展示 边距从内侧内容区域开始计算
-  ![图片](/assert/边距.png)
+  ![图片](/assert/css-image/边距.png)
 - `margin: auto`: **只影响横向效果** 自动计算盒子两边距离父盒子边框的宽度，实现自动居中
   :::danger margin折叠
 
@@ -528,7 +528,7 @@ Z轴决定谁盖在谁上面
 ```
 
 实现效果如下:
-![网格区域](/assert/网格区域.png)
+![网格区域](/assert/css-image/网格区域.png)
 
 ### 弹性布局 <Badge type="danger" text="重要"/> <Badge type="danger" text="90%可用"/>
 
@@ -710,7 +710,7 @@ BFC有以下特性：
 
 ### 行内纵向对齐
 
-![对齐方式](/assert/对齐方式.png)
+![对齐方式](/assert/css-image/对齐方式.png)
 
 - 顶线：行高顶部（不是文字顶部）
 - 中线：文字中点

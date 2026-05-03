@@ -643,7 +643,7 @@ user.sayHi();           // 调用方法：大家好，我是张三
 ```
 
 > 原型链：对象实例会创建一个**proto**属性，这个属性指向对象实例的构造函数的原型对象。
-> ![原型链](./../../../assert/原型链.png)
+> ![原型链](/assert/js-image/原型链.png)
 
 ### this
 
@@ -695,7 +695,7 @@ const obj = {
 ::: warning `this`关键字的用法(第1点)
 可以把它当做Java中的this使用 `this`指向的是当前对象(使用它的人)。在JavaScript中可以改变`this`指向。
 :::
-![this](/assert/this.png)
+![this](/assert/js-image/this.png)
 
 ### 改变this指向
 
