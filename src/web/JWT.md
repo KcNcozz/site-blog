@@ -248,7 +248,7 @@ const SECRET = process.env.JWT_SECRET;
 
 `.env` 示例：
 
-```env
+```sh
 JWT_SECRET=super-long-random-string
 ```
 

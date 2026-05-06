@@ -28,7 +28,6 @@
 ### 最常用的 5 个
 
 ```
-
 1. useState → 状态管理
 2. useEffect → 副作用
 3. useCallback → 优化性能
@@ -832,7 +831,7 @@ const App: React.FC = () => {
 export default App;
 ```
 
-:::tip
+::: tip
 受控组件适用于所有表单元素，包括input、textarea、select等。但是除了input type="file" 外，其他表单元素都推荐使用受控组件。
 :::
 
@@ -951,7 +950,7 @@ npm install sass -D # 安装sass 任选其一
 npm install stylus -D # 安装stylus 任选其一
 ```
 
-:::tip
+::: tip
 在Vite中css Modules 是开箱即用的，只需要把文件名设置为`xxx.module.[css|less|sass|stylus]`，就可以使用css modules了。
 :::
 
@@ -1247,7 +1246,9 @@ console.log(a);
 
 ## React Router
 
-- 数据模式(推荐)
+路由有三种模式:
+
+- 数据模式(推荐) 类似于`vue-router`
 - 声明模式
 - 框架模式(用的较少)
 
@@ -1259,7 +1260,7 @@ pnpm add react-router #V7不在需要 react-router-dom
 
 ```ts
 // /router/index.ts
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router"; // 其中的一种
 import Home from "../pages/Home";
 import About from "../pages/About";
 
@@ -1277,14 +1278,19 @@ const router = createBrowserRouter([
 export default router;
 ```
 
+> 如何初始化? (类似于去Vue3配置`use`)
+
+在App.tsx 中初始化 (只是做初始化 没有类似于`router-view`的功能)
+
 ```tsx
 // App.tsx
 import React from "react";
-import { RouterProvider } from "react-router";
-import router from "./router";
+import { RouterProvider } from "react-router"; // 初始化方法
+import router from "./router"; // 引入路由
 const App: React.FC = () => {
   return (
     <>
+      {/* 使用RouterProvider初始化 */}
       <RouterProvider router={router} />
     </>
   );
@@ -1292,6 +1298,8 @@ const App: React.FC = () => {
 
 export default App;
 ```
+
+使用`NavLink`进行跳转:
 
 ```tsx
 // Home.tsx
@@ -1323,25 +1331,19 @@ export default About;
 
 ### 路由模式
 
-#### createBrowserRouter 推荐
+#### createBrowserRouter (推荐)
 
 **核心特点**：
 
-- 使用HTML5的history API (pushState, replaceState, popState)
+- 使用HTML5的history API (`pushState`, `replaceState` , `popState`)
 - 浏览器URL比较纯净 (/search, /about, /user/123)
-- 需要服务器端支持(nginx, apache,等)否则会刷新404
-
-**使用场景**：
-
-- 大多数现代浏览器环境
-- 需要服务器端支持
-- 需要URL美观
+- 需要`服务器端支持`(nginx, apache,等)否则会刷新404
 
 #### createHashRouter
 
 **核心特点**：
 
-- 使用URL的hash部分(#/search, #/about, #/user/123)
+- 使用URL的hash部分(`#/search`, `#/about`, `#/user`)
 - 不需要服务器端支持
 - 刷新页面不会丢失
 
@@ -1354,7 +1356,7 @@ export default About;
 
 **核心特点**：
 
-- 使用内存中的路由表
+- 使用`内存`中的路由表
 - 刷新页面会丢失状态
 - 切换页面路由不显示URL
 
@@ -1367,7 +1369,7 @@ export default About;
 
 **核心特点**：
 
-- 专为服务端渲染（SSR）设计
+- 专为`服务端渲染`（SSR）设计
 - 在服务器端匹配请求路径，生成静态 HTML
 - 需与客户端路由器（如 createBrowserRouter）配合使用
 
@@ -1378,9 +1380,49 @@ export default About;
 
 #### 如何解决刷新404问题
 
+1. 在使用`createBrowserRouter`创建路由
+2. Nginx中修改`/conf/nginx.conf` , 在`location`中添加如下代码`try_files $uri $uri/ /index.html;`
+
 ### 路由
 
 #### Layout布局
+
+layout布局中菜单跳转无法使用`NavLink`进行跳转, 因此需要使用编程式导航. `useNavigate`
+
+```tsx
+// 注意: 这个是写在菜单组件中的
+import { Menu as AntdMenu } from "antd";
+import { AppstoreOutlined } from "@ant-design/icons";
+import type { MenuProps } from "antd";
+import { useNavigate } from "react-router";
+export default function Menu() {
+  const navigate = useNavigate(); //编程式导航
+  const handleClick: MenuProps["onClick"] = (info) => {
+    navigate(info.key); // 点击菜单项时，导航到对应的页面
+  };
+  const menuItems = [
+    {
+      key: "/home",
+      label: "Home",
+      icon: <AppstoreOutlined />,
+    },
+    {
+      key: "/about",
+      label: "About",
+      icon: <AppstoreOutlined />,
+    },
+  ];
+  return (
+    <AntdMenu
+      onClick={handleClick}
+      style={{ height: "100vh" }}
+      items={menuItems}
+    />
+  );
+}
+```
+
+> 如何将`Menu` `Header` `Content` 进行串联
 
 #### 嵌套路由
 
@@ -1389,8 +1431,8 @@ export default About;
 **注意事项**:
 
 - 如果父路由的 path 是 `index`开始，所以访问子路由的时候需要加上父路由的path例如 `/index/home` `/index/about`
-- 子路由不需要增加/了直接写子路由的path即可
-- 子路由默认是不显示的，需要父路由通过 `Outlet` 组件来显示子路由 `outlet` 就是类似于Vue的`<router-view>`展示子路由的一个容器
+- 子路由不需要增加`/`了直接写子路由的`path`即可
+- 子路由默认是不显示的，需要父路由通过 `Outlet` 组件来显示子路由 `Outlet` 就是类似于Vue的`<router-view>`展示子路由的一个容器
 - 子路由的层级可以无限嵌套，但是要注意的是，一般实际工作中就是2-3层
 
 #### 布局路由
@@ -1442,7 +1484,7 @@ const router = createBrowserRouter([
 ]);
 ```
 
-#### 前缀路由
+#### 前缀路由 (用的少)
 
 前缀路由只设置 `path` 而不设置 `Component`，用于给一组路由添加统一的路径前缀：
 
@@ -1478,7 +1520,7 @@ const router = createBrowserRouter([
     Component: Layout,
     children: [
       {
-        path: "home/:id",
+        path: "home/:id", // 这里写什么 useParams 就获取什么
         Component: Home,
       },
       {
@@ -1489,36 +1531,1118 @@ const router = createBrowserRouter([
   },
 ]);
 
-//在组件中获取参数
+// 在组件中使用 useParams 获取参数
 import { useParams } from "react-router";
 
 function Card() {
-  let params = useParams();
+  let params = useParams(); // { id: '123' }
   console.log(params.id);
 }
 ```
 
 ### 路由传参
 
-#### Query参数
+#### 1. Query参数
+
+```sh
+#多个参数用 `&` 连接
+/about?name=xxx&age=18
+```
+
+传递后在地址栏就会有`name=xxx&age=18`, 如何接收?
+
+```ts
+import { useSearchParams } from "react-router"; // 获取路由参数
+const [searchParams, setSearchParams] = useSearchParams(); // 获取路由参数 更改路由参数
+```
+
+跳转方式:
+
+```tsx
+<NavLink  to="/about?id=123">About</NavLink> //1. NavLink 跳转
+<Link to="/about?id=123">About</Link> //2. Link 跳转
+import { useNavigate } from 'react-router'
+const navigate = useNavigate()
+navigate('/about?id=123') //3. useNavigate 跳转
+```
+
+获取参数:
+
+```tsx
+//1. 获取参数
+import { useSearchParams } from "react-router";
+const [searchParams, setSearchParams] = useSearchParams();
+console.log(searchParams.get("id")); //获取id参数
+// 也可以用set进行修改
+setSearchParams({ id: "456" });
+//2. 获取参数
+import { useLocation } from "react-router";
+const { search } = useLocation();
+console.log(search); //获取search参数 ?id=123
+```
+
+#### 2. Params参数(动态参数)
+
+```sh
+/user/:city
+```
+
+跳转方式:
+
+```tsx
+// 遵循RestFul风格
+<NavLink to="/user/123">User</NavLink> //1. NavLink 跳转
+<Link to="/user/123">User</Link> //2. Link 跳转
+import { useNavigate } from 'react-router'
+const navigate = useNavigate()
+navigate('/user/123') //3. useNavigate 跳转
+```
+
+获取参数:
+
+```tsx
+import { useParams } from "react-router"; // 获取路由参数
+const { id } = useParams();
+console.log(id); //获取id参数
+```
+
+::: warning 注意
+只可以传普通类型, 不可以传递对象
+:::
 
 #### State参数
 
-#### Params参数(动态参数)
+`state`在URL中`不显示`，但是可以传递参数:
+
+```sh
+/user
+```
+
+跳转方式:
+
+```tsx
+<Link to="/user" state={{ name: 'xxx', age: 18 }}>User</Link> //1. Link 跳转
+<NavLink to="/user" state={{ name: 'xxx', age: 18 }}>User</NavLink> //2. NavLink 跳转
+import { useNavigate } from 'react-router'
+const navigate = useNavigate()
+navigate('/user', { state: { name: 'xxx', age: 18 } }) //3. useNavigate 跳转
+```
+
+获取参数:
+
+```tsx
+import { useLocation } from "react-router";
+const { state } = useLocation();
+console.log(state); //获取state参数
+console.log(state.name); //获取name参数
+console.log(state.age); //获取age参数
+```
+
+#### 总结
+
+React Router 提供了三种参数传递方式，各有特点：
+
+1. Params 方式 (/user/:id)
+   - 适用于：传递必要的路径参数（如ID）
+   - 特点：符合 RESTful 规范，刷新不丢失
+   - 限制：只能传字符串，参数显示在URL中
+
+2. Query 方式 (/user?name=xxx&age=18)
+   - 适用于：传递可选的查询参数
+   - 特点：灵活多变，支持多参数
+   - 限制：URL可能较长，参数公开可见
+3. State 方式
+   - 适用于：传递复杂数据结构
+   - 特点：支持任意类型数据，参数不显示在URL
+   - 限制：刷新可能丢失，不利于分享
+
+选择建议：必要参数用 Params(查详情)，筛选条件用 Query(搜索 分页)，临时数据用 State(复杂数据)。
 
 ### 路由懒加载
 
-### 路由操作
+> 什么是懒加载?
+
+懒加载是一种优化技术，用于延迟加载组件，直到需要时才加载。这样可以减少初始加载时间，提高页面性能。
+
+```ts
+// 通过在路由对象中使用 lazy 属性来实现懒加载。
+import { createBrowserRouter } from 'react-router';
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms)); // 模拟异步请求
+const router = createBrowserRouter([
+    {
+        Component: Layout,
+            {
+                path: 'about',
+                lazy: async () => {
+                    await sleep(2000); // 模拟异步请求
+                    // 使用动态引入的方式 默认会进行代码分包
+                    const Component = await import('../pages/About'); // 异步导入组件
+                    console.log(Component);
+                    return {
+                        Component: Component.default,
+                    }
+                }
+            },
+         }
+      ],
+)
+```
+
+当切换到 `about` 路由时，才会进行加载
+
+::: tip
+如果配置了 `loader` 则每次都会进入`loading`状态，如果没有配置 `loader` 则只执行一次。
+:::
+
+#### 体验优化
+
+例如 `about` 是一个懒加载的组件，在切换到 `about` 路由时，展示的还是上一个路由的组件，直到懒加载的组件加载完成，才会展示新的组件，这样用户会感觉页面`卡顿`，用户体验不好。 使用[`useNavigation`](https://message163.github.io/react-docs/react/router/hooks/useNavigation.html)进行状态优化
+
+```tsx
+// src/layout/Content/index.tsx
+// 实现loading效果
+import { Outlet, useNavigation } from "react-router";
+import { Alert, Spin } from "antd";
+export default function Content() {
+  const navigation = useNavigation();
+  console.log(navigation.state);
+  const isLoading = navigation.state === "loading";
+  return (
+    <div>
+      {isLoading ? (
+        <Spin size="large" tip="loading...">
+          <Alert description="xxxxxxxxxxxxxxxx" message="加载中" type="info" />
+        </Spin>
+      ) : (
+        <Outlet />
+      )}
+    </div>
+  );
+}
+```
+
+### \*路由高级操作
 
 路由的操作是由两个部分组成的:
 
 - `loader`
 - `action`
 
-在平时工作中大部分都是在做`增刪查改(CRUD)`的操作，所以一个界面的接口过多之后就会使逻辑臃肿复杂，难以维护，所以需要使用路由的高级操作来优化代码。
+在平时工作中大部分都是在做`增刪查改(CRUD)`的操作，所以一个界面的接口过多之后就会使逻辑臃肿复杂，难以维护，所以需要使用路由的高级操作来`优化代码`。
+
+#### loader
+
+::: tip
+只有GET请求才会触发loader，所以适合用来获取数据
+:::
+
+[useLoaderData](https://message163.github.io/react-docs/react/router/hooks/useLoaderData.html)
+
+在没有loader之前是 `RenderComponent`(渲染组件) --> `Fetch`(获取数据)-> `RenderView`(渲染视图)
+
+有了loader之后是 `loader`(通过fetch获取数据) -> `useLoaderData`(获取数据) -> `RenderComponent`(渲染组件)
+
+示例:
+
+```tsx
+//router/index.tsx
+import { createBrowserRouter } from "react-router";
+const router = createBrowserRouter([
+  {
+    path: "/",
+    Component: App,
+    loader: async () => {
+      const data = await response.json();
+      const response = await getUser(data);
+      // 获取数据 可以是调用后端接口获取数据
+      return {
+        // 一定要return出去
+        data: response.list,
+        message: "success", // 自定义的属性
+      };
+    },
+  },
+]);
+```
+
+使用useLoaderData接收数据:
+
+```tsx
+//App.tsx
+import { useLoaderData } from "react-router"; // 使用useLoaderData接收数据
+const App = () => {
+  const { data, message } = useLoaderData();
+  // 获取数据;
+  return <div>{data}</div>;
+};
+```
+
+#### action
+
+一般用于表单提交，删除，修改等操作。
+
+[useSubmit](https://message163.github.io/react-docs/react/router/hooks/useSubmit.html)
+
+[useActionData](https://message163.github.io/react-docs/react/router/hooks/useActionData.html)
+
+::: tip
+只有POST DELETE PATCH PUT等请求才会触发action，所以适合用来提交表单
+:::
+
+示例:
+
+```tsx
+//App.tsx
+import { useSubmit } from "react-router"; // 用这个hook 使onFinish提交给action
+import { Card, Form, Input, Button } from "antd";
+export default function About() {
+  // onFinish --> action --> api
+  const submit = useSubmit();
+  return (
+    <Card>
+      <Form
+        onFinish={(values) => {
+          /**
+            values 需要提交的值
+            配置项(对象) 提交方式 编码格式 默认是formData 
+           */
+          submit(values, { method: "post" }); // 提交表单
+        }}
+      >
+        <Form.Item name="name" label="姓名">
+          <Input />
+        </Form.Item>
+        <Form.Item name="age" label="年龄">
+          <Input />
+        </Form.Item>
+        <Button type="primary" htmlType="submit">
+          提交
+        </Button>
+      </Form>
+    </Card>
+  );
+}
+
+// 接收参数
+//router/index.tsx
+import { createBrowserRouter } from "react-router";
+const router = createBrowserRouter([
+  {
+    // path: '/index',
+    Component: Layout,
+    children: [
+      {
+        path: "about",
+        Component: About,
+        // 定义action 通过request
+        action: async ({ request }) => {
+          const formData = await request.formData();
+          await createUser(formData);
+          // 创建用户;
+          return {
+            data: table,
+            success: true,
+          };
+        },
+      },
+    ],
+  },
+]);
+```
+
+#### 状态变更
+
+可以配合[`useNavigation`](https://message163.github.io/react-docs/react/router/hooks/useNavigation.html)来管理表单提交的状态
+
+GET提交状态: `idle` --> `loading` --> `idle`
+
+POST提交状态: `idle` --> `submitting` --> `loading` --> `idle`
+
+可以根据这些状态来控制`disabled` `loading` 等行为
+
+```tsx
+import { useNavigation, useSubmit } from "react-router";
+const submit = useSubmit();
+const navigation = useNavigation();
+
+return (
+  <div>
+    {navigation.state === "loading" && <div>loading...</div>}
+    <button disabled={navigation.state === "submitting"}>提交</button>
+  </div>
+);
+```
 
 ### 导航
 
+#### link
+
+`Link`组件是一个用于导航到其他页面的组件，他会被渲染成一个特殊的`<a>`标签，跟传统a标签不同的是，他`不会刷新页面`，而是会通过router管理路由。
+
+示例:
+
+```tsx
+import { Link } from "react-router";
+
+export default function App() {
+  return <Link to="/index/user">user</Link>;
+}
+```
+
+参数:
+
+- `to`：要导航到的路径
+- `replace`：是否保留跳转的历史记录 保留则不写`replace`
+- `state`：要传递给目标页面的状态(携带参数) <span v-pre>`<Link to="/index/user" state={{id:1}}>`</span>
+- `relative`：相对于当前路径的导航方式 默认是 `route` 绝对路径 还有 `path` 相对路径 在数据模式下自动支持 是否加 `relative='path'` 都可以
+- `reloadDocument`：跳转页面时是否重新加载页面
+- `preventScrollReset`：跳转后是否阻止滚动位置重置
+- `viewTransition`：是否启用视图过渡
+
+#### navlink
+
+和`link`参数一模一样
+
+::: tip link和navlink的区别
+
+Navlink 会经过以下三个状态的转换，而Link不会，所以Navlink就是一个link的增强版。
+
+- `active`：激活状态(当前路由和to属性匹配)
+- `pending`：等待状态(loader有数据需要加载)
+- `transitioning`：过渡状态(通过viewTransition属性触发)
+  :::
+
+Navlink 会根据当前路由和to属性是否匹配，自动激活。react-router会为其自动添加样式:
+
+```css
+a.active {
+  color: red;
+}
+
+a.pending {
+  animate: pulse 1s infinite;
+}
+
+a.transitioning {
+  /* css transition is running */
+}
+```
+
+也可以直接用style属性来设置:
+
+```tsx
+  viewTransition
+  style={({ isActive, isPending, isTransitioning }) => {
+    return {
+      marginRight: "10px",
+      color: isActive ? "red" : "blue",
+      backgroundColor: isPending ? "yellow" : "transparent",
+    };
+  }}
+  to="/index/about"
+>
+  About
+</NavLink>
+```
+
+::: warning 注意
+
+1. `viewTransition` 需要谷歌111版本才能使用，注意兼容性
+2. `pending`只有数据模式，和框架模式才能使用，声明式路由不能使用
+   :::
+
+#### useNavigate 编程式导航
+
+`useNavigate` 是一个 `React-router` 的钩子，用于编程式导航的路由跳转。
+
+> eg: 例如倒计时结束后，自动返回跳转等, 因为这种操作属于逻辑性操作，这时候组件方式的跳转就不合适了，这时候就需要使用编程式跳转。
+
+```ts
+import { useNavigate } from "react-router";
+
+const navigate = useNavigate();
+setTimeout(() => {
+  navigate("/home", { replace: true });
+}, 1000);
+```
+
+参数:
+
+1. 第一个参数: `to` 跳转的路由 navigate(to)
+
+```tsx
+import { useNavigate } from "react-router"; // 导入useNavigate
+const navigate = useNavigate(); // 获取navigate函数
+navigate("/home"); // 跳转路由
+```
+
+2. 第二个参数: `options` 配置对象 navigate(to, options)
+   - `replace`: 跳转页面的时候，是否替换当前路由
+   - `state`: 传递数据，在跳转的页面中使用通过`useLocation`的state属性获取 `navigate('/home',{state:{name:'张三'}});`
+   - `relative`: 跳转的方式，默认是绝对路径，如果想要使用相对路径，需要设置为`relative:'path'`
+   - `preventScrollReset`: 跳转页面的时候，是否阻止滚动重置
+   - `viewTransition`: 跳转页面的时候，是否使用过渡动画 `navigate('/home',{viewTransition:true});`
+
+#### redirect
+
+`redirect` 是用于重定向，通常用于`loader`中，当`loader`返回`redirect`的时候，会自动重定向到`redirect`指定的路由。
+
+```tsx
+import { redirect } from "react-router";
+{
+  path: "/home",
+  loader: async ({request}) => {
+    const isLogin = await checkLogin();
+    if(!isLogin) return redirect('/login');
+    return {
+        data: 'home'
+    }
+  }
+}
+```
+
 ### 边界处理
 
+边界处理包含了`错误处理`，`ErrorBoundary`，`404页面` 等错误处理
+
+#### 404页面处理
+
+配置:
+
+- 使用`*`作为通配符，当路由匹配不到时，显示404页面
+- 使用`Component: NotFound`作为404页面组件
+
+```ts {17-18}
+const router = createBrowserRouter([
+  {
+    path: "/index",
+    Component: Layout,
+    children: [
+      {
+        path: "home",
+        Component: Home,
+      },
+      {
+        path: "about",
+        Component: About,
+      },
+    ],
+  },
+  {
+    path: "*", // 通配符，当路由匹配不到时，显示404页面
+    Component: NotFound, // 404页面组件
+  },
+]);
+```
+
+```tsx
+// src/pages/NotFound.tsx
+import { Link } from "react-router";
+export default function NotFound() {
+  return (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f5f5f5",
+      }}
+    >
+      <h1 style={{ fontSize: 96, color: "#1890ff", margin: 0 }}>404</h1>
+      <p style={{ fontSize: 24, color: "#888", margin: "16px 0 0 0" }}>
+        抱歉，您访问的页面不存在
+      </p>
+      <Link
+        to="/"
+        style={{
+          marginTop: 32,
+          color: "#1890ff",
+          fontSize: 18,
+          textDecoration: "underline",
+        }}
+      >
+        返回首页
+      </Link>
+    </div>
+  );
+}
+```
+
+#### ErrorBoundary
+
+`ErrorBoundary`是用于捕获路由`loader`或`action`的错误，并进行处理。如果`loader`或`action`抛出错误，会调用`ErrorBoundary`组件。
+
+```ts
+import NotFound from "../layout/404"; // 404页面组件
+import Error from "../layout/error"; // 错误处理组件
+const router = createBrowserRouter([
+  {
+    path: "/index",
+    Component: Layout,
+    children: [
+      {
+        path: "home",
+        Component: Home,
+        ErrorBoundary: Error, //如果组件抛出错误，会调用ErrorBoundary组件
+      },
+      {
+        path: "about",
+        Component: About, // 正常展示About
+        loader: async () => {
+          //throw new Response('Not Found', { status: 404, statusText: 'Not Found' }); 可以返回Response对象
+          //也可以返回json等等
+          throw {
+            message: "Not Found",
+            status: 404,
+            statusText: "Not Found",
+            data: "132131",
+          };
+        },
+        ErrorBoundary: Error, // 如果loader或action抛出错误，会调用ErrorBoundary组件
+      },
+    ],
+  },
+  {
+    path: "*",
+    Component: NotFound,
+  },
+]);
+```
+
+返回的错误信息可以通过一个hooks获取到:
+
+```tsx
+import { useRouteError } from "react-router"; // 获取错误信息
+
+export default function Error() {
+  const error = useRouteError();
+  return <div>{error.message}</div>;
+}
+```
+
 ## Zustand 状态管理
+
+1. `轻量级` Zustand 的体积非常小，只有 1kb 左右。
+2. `简单易用` Zustand 不需要像Redux，去通过`Provider`包裹组件，Zustand提供了简洁的API，能够快速上手。
+3. `易于集成` Zustand 可以轻松的与React 和 Vue 等框架集成。(Zustand也有Vue版本)
+4. `拓展性` Zustand 提供了中间件的概念，可以通过插件的方式扩展功能，例如(持久化, 异步操作, 日志记录)等。
+5. `无副作用` Zustand 推荐使用 `immer`库处理不可变性， 避免不必要的副作用。
+
+### 安装
+
+```sh
+pnpm add zustand
+```
+
+### 使用
+
+1. 创建一个store目录, 一个store.ts文件
+2. 初始化仓库 `import { create } from 'zustand'` `create`函数 返回一个回调函数 必须返回一个对象 回调函数接收两个参数`set` `get`
+3. set是一个函数 接收一个参数 参数是一个函数 函数接收一个参数 参数是state
+4. get 接收一个参数 参数是一个state
+
+```ts
+import { create } from "zustand";
+// 定义一个接口，用于描述状态管理器的状态和操作
+interface PriceStore {
+  price: number;
+  incrementPrice: () => void;
+  decrementPrice: () => void;
+  resetPrice: () => void;
+  getPrice: () => number;
+}
+// 创建一个状态管理器，使用 create 函数，传入一个函数，返回一个对象
+/**
+ *
+ * @param set 用于更新状态 是函数
+ * @param get 用于获取状态 是函数
+ * @returns 返回一个对象，对象中的方法可以用于更新状态 注意!注意!注意!返回的是一个对象
+ */
+const usePriceStore = create<PriceStore>((set, get) => ({
+  price: 0, // 初始状态
+  incrementPrice: () => set((state) => ({ price: state.price + 1 })), // 更新状态
+  decrementPrice: () => set((state) => ({ price: state.price - 1 })), // 更新状态
+  resetPrice: () => set({ price: 0 }), // 重置状态
+  getPrice: () => get().price, // 获取状态
+}));
+
+export default usePriceStore;
+```
+
+然后再页面中当成一个hook来使用
+
+### 状态处理
+
+#### 深层次状态处理
+
+```ts
+import { create } from "zustand";
+
+interface User {
+  gourd: {
+    oneChild: string;
+    twoChild: string;
+    threeChild: string;
+    fourChild: string;
+    fiveChild: string;
+    sixChild: string;
+    sevenChild: string;
+  };
+  updateGourd: () => void;
+}
+
+// 创建 store
+const useUserStore = create<User>((set) => ({
+  // 初始化葫芦娃状态
+  gourd: {
+    oneChild: "大娃",
+    twoChild: "二娃",
+    threeChild: "三娃",
+    fourChild: "四娃",
+    fiveChild: "五娃",
+    sixChild: "六娃",
+    sevenChild: "七娃",
+  },
+  // 更新方法
+  updateGourd: () =>
+    set((state) => ({
+      gourd: {
+        // ...state.gourd,  // 需要手动合并状态
+        oneChild: "大娃-超进化",
+      },
+    })),
+}));
+
+export default useUserStore;
+```
+
+::: warning
+注意：与`useState`类似, 如果不进行状态合并，其他状态会丢失。每次更新都需要手动合并状态，这在实际开发中会变得很繁琐。
+:::
+
+#### 使用 immer 中间件
+
+- 安装: `pnpm add immer`
+- 基础用法:
+
+```ts
+import { produce } from "immer";
+
+const data = {
+  user: {
+    name: "张三",
+    age: 18,
+  },
+};
+
+// 使用 produce 创建新状态
+const newData = produce(data, (draft) => {
+  draft.user.age = 20; // 直接修改 draft
+});
+
+console.log(newData, data);
+// 输出:
+// { user: { name: '张三', age: 20 } }
+// { user: { name: '张三', age: 18 } }
+```
+
+在 Zustand 中使用:
+
+```ts
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer"; // 引入 immer 中间件
+
+// 注意：使用 immer 中间件时的特殊结构
+// 闭包 接收create<User>()返回值
+const useUserStore = create<User>()(
+  immer((set) => ({
+    gourd: {
+      oneChild: "大娃",
+      twoChild: "二娃",
+      threeChild: "三娃",
+      fourChild: "四娃",
+      fiveChild: "五娃",
+      sixChild: "六娃",
+      sevenChild: "七娃",
+    },
+    updateGourd: () =>
+      set((state) => {
+        // 直接修改状态，无需手动合并
+        state.gourd.oneChild = "大娃-超进化";
+        state.gourd.twoChild = "二娃-谁来了";
+        state.gourd.threeChild = "三娃-我来了";
+      }),
+  })),
+);
+```
+
+#### immer 原理剖析
+
+`immer.js` 通过 `Proxy` 代理对象的`所有操作`，实现不可变数据的更新。当对数据进行修改时，`immer` 会创建一个被修改对象的`副本`，并在副本上进行修改，最后返回修改后的`新对象`，而原始对象保持不变。这种机制确保了数据的不可变性，同时提供了直观的修改方式。
+
+`immer` 的核心原理基于以下两个概念：
+
+1. `写时复制` (Copy-on-Write)
+   - 无修改时：直接返回原对象
+   - 有修改时：创建新对象
+
+2. `惰性代理` (Lazy Proxy)
+   - 按需创建代理
+   - 通过 Proxy 拦截操作
+   - 延迟代理创建
+
+改动第几层对象, 就拷贝到第几层:
+
+```ts
+// 简单实现
+
+/**
+ * 主要步骤:
+ * 1. 拦截读写操作，把所有的变更存在副本中 创建produce函数
+ * 2. 读取(handler)的时候判断是否存在副本中，存在则返回副本中的值，否则返回原值
+ * 3. 读取的时候如果是对象，则递归创建代理
+ * 4. 返回proxy并且变成原始对象
+ */
+type Draft<T> = {
+  -readonly [P in keyof T]: T[P];
+};
+
+function produce<T>(base: T, recipe: (draft: Draft<T>) => void): T {
+  // 用于存储修改过的对象
+  const modified: Record<string, any> = {};
+
+  const handler = {
+    get(target: any, prop: string) {
+      // 如果这个对象已经被修改过，返回修改后的对象
+      if (prop in modified) {
+        return modified[prop];
+      }
+
+      // 如果访问的是对象，则递归创建代理
+      if (typeof target[prop] === "object" && target[prop] !== null) {
+        return new Proxy(target[prop], handler);
+      }
+      return target[prop];
+    },
+    set(target: any, prop: string, value: any) {
+      // 记录修改
+      modified[prop] = value;
+      return true;
+    },
+  };
+
+  // 创建代理对象
+  const proxy = new Proxy(base, handler);
+
+  // 执行修改函数
+  recipe(proxy);
+
+  // 如果没有修改，直接返回原对象
+  if (Object.keys(modified).length === 0) {
+    return base;
+  }
+
+  // 创建新对象，只复制修改过的属性
+  return JSON.parse(JSON.stringify(proxy));
+}
+
+// 使用示例
+const state = {
+  user: {
+    name: "张三",
+    age: 25,
+  },
+};
+
+const newState = produce(state, (draft) => {
+  draft.user.name = "李四";
+  draft.user.age = 26;
+});
+
+console.log(state); // { user: { name: '张三', age: 25 } }
+console.log(newState); // { user: { name: '李四', age: 26 } }
+```
+
+### 状态简化
+
+在使用zustand时, 通过解构的方式引入状态，但是这样引入会引发一个问题，例如A组件用到了 `hobby.basketball` 状态，而B组件 没有用到 `hobby.basketball` 状态，但是更新 `hobby.basketball` 这个状态的时候，A组件和B组件都会`重新渲染`，这样就导致了不必要的重渲染，因为B组件并没有用到hobby.basketball这个状态。
+
+#### 状态选择器
+
+我们可以使用状态选择器来规避这个问题. 状态选择器可以让我们只选择我们需要的部分状态，这样就不会引发不必要的重渲染。
+
+```ts
+// 本来的写法
+const { hobby, name } = useUserStore();
+// 新写法
+const name = useUserStore((state) => state.name);
+const age = useUserStore((state) => state.age);
+const rap = useUserStore((state) => state.hobby.rap);
+const basketball = useUserStore((state) => state.hobby.basketball);
+```
+
+但是这样会出现一个新的问题: 每用到一个属性, 都要重新定义一个变量, 过于麻烦.
+
+#### useShallow
+
+::: tip
+`useShallow` 只检查顶层对象的引用是否变化，如果顶层对象的引用没有变化（即使其内部属性或子对象发生了变化，但这些变化不影响顶层对象的引用），使用 `useShallow` 的组件将不会重新渲染
+:::
+
+```ts
+import { useShallow } from "zustand/react/shallow";
+const { rap, name } = useUserStore(
+  useShallow((state) => ({
+    rap: state.hobby.rap,
+    name: state.name,
+  })),
+);
+```
+
+### 中间件
+
+zustand 的中间件是用于在状态管理过程中添加额外逻辑的工具。它们可以用于日志记录、性能监控、数据持久化、异步操作等。
+
+#### 自定义编写中间件
+
+我们实现一个简易的日志中间件，了解其中间件的实现原理, zustand的中间件是一个高阶函数
+
+```ts
+const logger = (config) => (set, get, api) =>
+  config(
+    (...args) => {
+      console.log(api);
+      console.log("before", get());
+      set(...args);
+      console.log("after", get());
+    },
+    get,
+    api,
+  );
+```
+
+参数解释：
+
+1. config (外层函数参数)
+
+- 类型：函数 (set, get, api) => StoreApi
+- 作用：原始创建 store 的配置函数，由用户传入。中间件需要包装这个函数。
+
+2. set (内层函数参数)
+
+- 类型：函数 (partialState) => void
+- 作用：原始的状态更新函数，用于修改 store 的状态。
+
+3. get (内层函数参数)
+
+- 类型：函数 () => State
+- 作用：获取当前 store 的状态值。
+
+4. api (内层函数参数)
+
+- 类型：对象 StoreApi
+- 作用：包含 store 的完整 API（如 setState, getState, subscribe, destroy 等方法）。
+
+#### devtools
+
+devtools 是 zustand 提供的一个用于调试的工具，它可以帮助我们更好地管理状态。
+
+```ts
+import { devtools } from "zustand/middleware"; // 引入 devtools 中间件 内置
+const useUserStore = create<User>()(
+  immer(
+    devtools(
+      (set) => ({
+        name: "坤坤",
+        age: 18,
+        hobby: {
+          sing: "坤式唱腔",
+          dance: "坤式舞步",
+          rap: "坤式rap",
+          basketball: "坤式篮球",
+        },
+        setHobbyRap: (rap: string) =>
+          set((state) => {
+            state.hobby.rap = rap;
+          }),
+        setHobbyBasketball: (basketball: string) =>
+          set((state) => {
+            state.hobby.basketball = basketball;
+          }),
+      }),
+      {
+        enabled: true, // 是否开启devtools
+        name: "用户信息", // 仓库名称 (唯一)
+      },
+    ),
+  ),
+);
+```
+
+#### persist
+
+persist 是 zustand 提供的一个用于`持久化`状态的工具，它可以帮助我们更好地管理状态，默认是存储在 localStorage 中，可以指定存储方式
+
+```ts
+import { persist } from "zustand/middleware";
+const useUserStore = create<User>()(
+  immer(
+    persist(
+      (set) => ({
+        name: "坤坤",
+        age: 18,
+        hobby: {
+          sing: "坤式唱腔",
+          dance: "坤式舞步",
+          rap: "坤式rap",
+          basketball: "坤式篮球",
+        },
+        setHobbyRap: (rap: string) =>
+          set((state) => {
+            state.hobby.rap = rap;
+          }),
+        setHobbyBasketball: (basketball: string) =>
+          set((state) => {
+            state.hobby.basketball = basketball;
+          }),
+      }),
+      {
+        name: "user", // 仓库名称(唯一)
+        storage: createJSONStorage(() => localStorage), // 存储方式 可选 localStorage sessionStorage IndexedDB 默认localStorage
+        partialize: (state) => ({
+          // 按需存储
+          name: state.name,
+          age: state.age,
+          hobby: state.hobby,
+        }), // 部分状态持久化
+      },
+    ),
+  ),
+);
+```
+
+清空缓存Api, 在页面中添加一个按钮，点击按钮清空缓存,在增加persist中间件之后会自动增加一个clearStorage方法,用于清空缓存。
+
+```tsx
+import useUserStore from "../../store/user";
+const App = () => {
+  const clear = () => {
+    useUserStore.persist.clearStorage();
+  };
+  return <div onClick={clear}>清空缓存</div>;
+};
+```
+
+### 订阅
+
+zustand 的 subscribe，可以订阅一个状态，当状态变化时，会触发回调函数。(类似Vue3的watch)
+
+#### 订阅一个状态
+
+只要store 的 `state` 发生变化，就会触发回调函数，另外就是这个订阅可以在`组件内部订阅`，也可以在`组件外部订阅`, 如果在组件内部订阅需要放到useEffect中, 防止重复订阅。
+
+```tsx
+const store = create((set) => ({
+  count: 0,
+}));
+// 外部订阅
+store.subscribe((state) => {
+  console.log(state.count);
+});
+// 组件内部订阅
+useEffect(() => {
+  store.subscribe((state) => {
+    console.log(state.count);
+  });
+}, []); // 空数组代表组件渲染完成后执行, 且只执行一次
+```
+
+#### 案例
+
+比如我们需要观察年龄的变化，大于等于26 就提示可以结婚了，小于26 就提示还不能结婚，如果使用选择器的写法，age每次更新都会重新渲染组件，这样就会导致组件的频繁渲染。
+
+```tsx
+const store = create((set) => ({
+  age: 0,
+}));
+//组件里面 age 每次更新都会重新渲染组件
+const { age } = useStore(
+  useShallow((state) => ({
+    age: state.age,
+  })),
+);
+```
+
+性能优化，采用订阅的模式，age 变化的时候，会调用回调函数，但是不会重新渲染组件。
+
+```tsx
+const store = create((set) => ({
+  age: 0,
+}));
+
+const [status, setStatus] = useState("单身");
+//只会更新一次组件
+useStore.subscribe((state) => {
+  if (state.age >= 26) {
+    setStatus("结婚");
+  } else {
+    setStatus("单身");
+  }
+});
+return <div>{status}</div>;
+```
+
+持续优化，目前的订阅只要是store内部任意的state发生变化，都会触发回调函数，我们希望只订阅age的变化，可以使用中间件 `subscribeWithSelector` 订阅单个状态。
+
+```tsx
+import { subscribeWithSelector } from "zustand/middleware";
+const store = create(
+  subscribeWithSelector((set) => ({
+    age: 0,
+    name: "张三",
+  })),
+);
+const [status, setStatus] = useState("单身");
+//订阅age的变化 并且组件渲染一次
+useStore.subscribe(
+  (state) => state.age,
+  (age, prevAge) => {
+    if (age >= 26) {
+      setStatus("结婚");
+    } else {
+      setStatus("单身");
+    }
+  },
+);
+```
+
+#### 补充
+
+1. `subscribe` 会返回一个取消订阅的函数，可以手动取消订阅。
+
+```tsx
+const unSubscribe = useStore.subscribe((state) => {
+  console.log(state.age);
+});
+unSubscribe(); //取消订阅
+```
+
+2. 当你使用了`subscribeWithSelector`中间件的时候会多出来第三个参数`options`
+
+- `equalityFn` 比较函数
+- `fireImmediately` 是否立即触发
+
+```tsx
+const unSubscribe = useStore.subscribe(
+  (state) => state.age,
+  (age, prevAge) => {
+    console.log(age, prevAge);
+  },
+  {
+    equalityFn: (a, b) => a === b, // 默认是浅比较，如果需要深比较，可以传入一个比较函数
+    fireImmediately: true, // 默认是false，如果需要立即触发，可以传入true
+  },
+);
+```
