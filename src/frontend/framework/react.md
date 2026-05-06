@@ -33,8 +33,50 @@
 3. useCallback → 优化性能
 4. useMemo → 优化性能
 5. useRef → DOM 引用 / 持久化值
-
 ```
+
+## React组件重新渲染时机
+
+React 组件重新渲染的主要时机包括：
+
+**状态变化**
+
+- 组件自身的 state 发生变化（通过 `useState` 或 `this.setState`）
+- 每次调用 setState 都会触发重新渲染，即使新值与旧值相同
+
+**Props 变化**
+
+- 父组件传递的 props 发生变化
+- 即使 props 的引用改变但值相同，也会触发渲染
+
+**父组件重新渲染**
+
+- 父组件重新渲染时，默认情况下所有子组件都会重新渲染
+- 即使子组件的 props 没有变化
+
+**Context 变化**
+
+- 组件使用的 Context 值发生变化
+- 所有订阅该 Context 的组件都会重新渲染
+
+**强制更新**
+
+- 类组件调用 `forceUpdate()`
+- 函数组件中可以用 `useState` 的 setter 配合随机值实现
+
+**Hooks 依赖变化**
+
+- `useReducer` 的 dispatch 被调用
+- 自定义 Hook 内部状态变化
+
+**优化渲染的方式：**
+
+- `React.memo` - 浅比较 props，避免不必要的函数组件渲染
+- `useMemo` / `useCallback` - 缓存计算结果和函数引用
+- `PureComponent` - 类组件的浅比较优化
+- `shouldComponentUpdate` - 自定义渲染判断逻辑
+
+需要注意的是，重新渲染不等于 DOM 更新。React 会通过虚拟 DOM diff 算法，只更新实际变化的部分。
 
 ## 基础知识
 
@@ -65,7 +107,7 @@
 4. SWC 原生支持 TypeScript
 5. SWC 原生支持 TypeScript
 
-## 原理
+### 原理
 
 ## Hooks
 

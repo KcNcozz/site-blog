@@ -12,10 +12,10 @@ hero:
     src: vitepress-logo-large.svg
     alt: "加菲猫的博客"
   actions:
-    - theme: brand
+    - theme: alt
       text: 简介
       link: /简介
-    - theme: alt
+    - theme: brand
       text: 知识板块
       link: /主要内容概述
 
