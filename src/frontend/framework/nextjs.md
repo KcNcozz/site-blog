@@ -2580,4 +2580,434 @@ export default function sitemap(): MetadataRoute.Sitemap {
 2. 若文件放在嵌套路由下（例如 `app/products/sitemap.ts`），则前缀会带上段路径，形如 `/products/sitemap/{id}.xml`（见 [generateSitemaps](https://nextjs.org/docs/app/api-reference/functions/generate-sitemaps) 文档中的 URL 说明）。
 3. 启用多份 `sitemap` 后，根路径一般还会提供 `/sitemap.xml` 作为 站点**地图索引（sitemap index）**，里面列出各子 sitemap 的 URL，提交给搜索引擎时通常 **优先提交这份索引**。
 
-### TDK ()
+### \*TDK
+
+TDK 是` Title`、`Description`、`Keywords` 的缩写，是 SEO（搜索引擎优化）里的**核心元**信息，也常统称为页面的元数据。
+
+在原生 HTML 里，它们大致对应 `<head>` 中的 `<title>`、`<meta name="description">`、`<meta name="keywords">` 等。使用 **App Router** 时，Next.js 通过 `export const metadata` 或 `generateMetadata` 生成上述标签，由框架写入文档头部，无需手写整段 `<head>`。
+
+#### TDK 的作用
+
+`title`: title 是页面标题，通常会出现在浏览器标签页和搜索引擎结果页（SERP）上，`**对点击率影响最大**`。建议简洁、准确，并体现当前页与站点/栏目的关系（例如与根布局的 `title.template` 搭配使用，见下文）。
+
+`description`: description 是页面摘要，常被用作 SERP 中的描述文案（搜索引擎也可能根据内容自行改写）。应用一两句话概括页面价值，**避免堆砌关键词**。
+
+`keywords`: keywords 用于概括页面主题。主流搜索引擎对 `<meta name="keywords">` 的排序权重已很低，但**规范填写**仍有利于内部归类、CMS 或后续扩展；不要为 SEO 而重复、堆砌无意义词组。
+
+#### 书写上的小建议（实践向）
+
+- **title**：不同页面应有区分度；全站共用的后缀可通过根布局的 `title.template` 统一拼接。
+- **description**：长度适中即可（常见建议约 150 字以内作参考），重点写清「这一页解决什么问题」。
+- **keywords**：用数组表达多个词即可，与页面内容一致即可。
+
+#### Next.js 中如何配置 TDK
+
+我们使用 **App Router**，一般在 `app` **目录下的根布局** `layout.tsx` 中导出 `metadata`，作为全站默认 TDK；子路由下的 `layout.tsx` / `page.tsx` 若再次导出 `metadata`，会对父级进行**覆盖或按字段合并**（例如子页面的 `title` 会覆盖继承来的默认标题，具体以 [Metadata文档](https://nextjs.org/docs/app/getting-started/metadata-and-og-images)为准）。
+
+`metadata` 为**静态对象**，适合不依赖请求参数、不依赖异步接口数据的场景。
+
+```tsx
+// app/layout.tsx
+import type { Metadata } from "next"; // 引入 Metadata 类型
+
+// 导出的名字 必须为 metadata
+export const metadata: Metadata = {
+  title: "这里是标题",
+  description: "这里是详细描述",
+  keywords: ["关键词1", "关键词2"],
+};
+```
+
+如果不想继承父组件的想自定义, 复制上述代码, 放到`/about/layout.tsx`下, 修改成想要的就行 (写了就按照子组件的, 没写的就继承父组件的)
+
+根布局里还可以用 `title.default` + `title.template`，让子页面只写短标题、全站自动带上后缀(模版 后缀)
+
+```tsx
+// app/layout.tsx
+export const metadata: Metadata = {
+  title: {
+    default: "默认标题",
+    template: "%s | 默认标题",
+  },
+  description: "默认标题描述",
+  keywords: ["关键词1", "关键词2"],
+};
+...
+```
+
+子页面写 `title: '首页'` 时，在支持模板合并的情况下，浏览器标题可呈现为 `首页 | 默认标题`。
+
+```tsx
+// app/home/page.tsx
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "首页",
+  description: "首页描述",
+  keywords: ["关键词1", "关键词2"],
+};
+
+export default function Page() {
+  return <div>首页</div>;
+}
+```
+
+#### 动态编写
+
+当标题、描述等需要依赖 **动态路由参数**、**查询参数** 或 **接口** / **数据库** 时，在对应 `page.tsx`（或 `layout.tsx`）中导出异步函数 `generateMetadata`，返回 `Metadata` 对象即可。它在服务端执行，可与页面数据使用同一套请求逻辑（注意缓存与性能，必要时配合 `fetch` 的缓存选项或数据层）。
+
+1. 必须导出一个函数
+2. 服务器组件可以使用, 客户端组件不可以使用
+
+参数说明:
+
+第一个参数 props:
+
+- `params`：动态路由段，例如 `app/posts/[id]/page.tsx` 中的 `id`。
+- `searchParams`：当前 URL 的查询参数，例如 `?id=123`。
+
+第二个参数 parent: 类型为 ResolvingMetadata，表示父级布局已解析的 metadata。await parent 后可用于拼接标题、继承 openGraph 图片等。
+
+```tsx
+// app/posts/[id]/page.tsx
+import type { Metadata, ResolvingMetadata } from "next";
+
+type Props = {
+  params: Promise<{ id: string }>; // 动态路由参数 [id]
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>; // ?a=1&b=2
+};
+
+type Paremt = Promise<ResolvingMetadata>;
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { id } = await params;
+  const resolvedParent = await parent;
+
+  const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
+  if (!res.ok) {
+    return { title: "文章未找到" };
+  }
+  const data = await res.json();
+
+  return {
+    title: `${data.title} | ${resolvedParent.title?.absolute ?? "文章"}`,
+    description: data.body.slice(0, 150),
+    keywords: [data.title],
+  };
+}
+
+export default async function PostPage({ params }: Props) {
+  const { id } = await params;
+  return <div>文章 id：{id}</div>;
+}
+```
+
+### JSON-LD
+
+JSON-LD（`JSON for Linked Data`）是一种用于表达结构化数据的 JSON 格式。它能**帮助搜索引擎**和 **AI** 更准确理解页面内容（例如商品、文章、组织、人物、活动等实体），从而提升页面在检索系统中的可理解性。
+
+在 Next.js（App Router）里，推荐在 `layout.tsx` 或 `page.tsx` 中，直接输出一个原生 `<script type="application/ld+json">` 标签来注入 JSON-LD。
+
+#### JSON-LD 的基础结构
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": "https://example.com/people/zhangsan",
+  "name": "张三",
+  "age": 25
+}
+```
+
+字段说明：
+
+- `@context`：通常使用 `https://schema.org`
+- `@type`：实体类型（如 `Product`、`Article`、`Organization`）更多类型请[查看文档](https://schema.org/docs/full.html)
+- `@id`：唯一标识符，通常是实体的URL
+- 其他字段：请根据文档填写例如Person `https://schema.org/Person` 网站是什么`type`你就把链接后面的值换成你对应的`type`即可
+
+#### 在 Next.js 中添加 JSON-LD
+
+```tsx
+// app/products/[id]/page.tsx
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const product = await getProduct(id);
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    image: product.image,
+    description: product.description,
+  };
+
+  return (
+    <section>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "@id": "https://example.com/products/123",
+            name: "这是一个博客",
+          }),
+        }}
+      />
+      <h1>{product.name}</h1>
+    </section>
+  );
+}
+```
+
+#### 为什么要做 `.replace(/</g, '\\u003c')`
+
+`JSON.stringify` 本身不会自动处理所有潜在注入风险。当结构化数据里包含不可信字符串时，建议至少将 `<` 替换为 `\u003c`，降低 XSS 注入风险。
+
+```tsx
+JSON.stringify(jsonLd).replace(/</g, "\\u003c");
+```
+
+如果团队有统一的安全序列化方案，也可以采用社区库（如 `serialize-javascript`）或公司内部安全工具。
+
+#### TypeScript 类型约束（推荐）
+
+为避免字段名拼错、类型不匹配，建议使用 `schema-dts` 做类型提示：
+
+```tsx
+import type { Product, WithContext } from "schema-dts";
+
+const jsonLd: WithContext<Product> = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: "Next.js Sticker",
+  image: "https://nextjs.org/imgs/sticker.png",
+  description: "Dynamic at the speed of static.",
+};
+```
+
+#### 常见问题
+
+1. 用 next/script 还是原生 `<script>`？
+   - JSON-LD 不是要执行的脚本代码，而是结构化数据声明。
+   - 在这个场景里，官方建议使用原生 `<script type="application/ld+json">`。
+
+2. 放在 `layout.tsx` 还是 `page.tsx`？
+   - 放在 `layout.tsx`：适合站点级、栏目级的通用结构化数据
+   - 放在 `page.tsx`：适合文章、商品详情这类强依赖当前页面数据的实体
+
+3. 如何验证配置是否有效？可使用以下工具进行校验：
+   - Google Rich Results Test：检查可用于 Google 富结果的结构化数据
+   - Schema Markup Validator：通用 Schema.org 结构校验
+
+#### 实践建议
+
+- 使用与页面真实内容一致的字段，避免“标注内容”和“页面内容”不一致
+- 动态页面优先在服务端生成 JSON-LD，保证首屏 HTML 可被爬虫读取
+- 关键实体（文章、商品、组织）优先完善，再逐步扩展更多 schema 类型
+
+### Open Graph (OG)
+
+**Open Graph** 是 Facebook（现 Meta）提出的一套页面元数据协议，通过 `<meta property="og:*">` 描述标题、描述、封面图、类型等。当链接被分享到微信、Slack、Discord、LinkedIn 等平台时，抓取方会读取这些标签来生成`卡片预览`，因此 OG 与 `SEO`（点击率、品牌呈现）和 `传播体验` 都密切相关。
+
+在 App Router 中，Next.js 通过导出 `metadata` 或 `generateMetadata` 中的 `openGraph` 字段，自动生成对应的 OG 标签，无需手写整段 `<head>`。官方说明见 [Metadata API](https://nextjs.org/docs/app/api-reference/functions/generate-metadata) 与 [Optimizing Metadata](https://nextjs.org/docs/app/building-your-application/optimizing/metadata)。
+
+#### openGraph 能配置什么
+
+在 `Metadata` 对象里的 `openGraph` 还支持视频、音频、多图、文章发布时间等。常用字段归纳如下：
+
+| **配置项**              | **典型用途**                                          |
+| ----------------------- | ----------------------------------------------------- |
+| `title` / `description` | 卡片标题与摘要（可与页面 TDK 一致或单独优化分享文案） |
+| `url`                   | 规范链接，建议与当前页可访问 URL 一致                 |
+| `siteName`              | 站点名称                                              |
+| `images`                | 预览图（可多图）；常配宽高与 alt                      |
+| `videos` / `audio`      | 富媒体预览（需绝对 URL）                              |
+| `local`                 | 语言区域，如 en_US                                    |
+| `type`                  | 资源类型，如 website；文章常用 article                |
+
+```tsx
+// app/layout.tsx 或任意 page.tsx / layout.tsx
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  openGraph: {
+    title: "Next.js",
+    description: "The React Framework for the Web",
+    url: "https://nextjs.org",
+    siteName: "Next.js",
+    images: [
+      {
+        url: "https://nextjs.org/og.png",
+        width: 800,
+        height: 600,
+      },
+      {
+        url: "https://nextjs.org/og-alt.png",
+        width: 1800,
+        height: 1600,
+        alt: "My custom alt",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+};
+```
+
+如何用代码实现:
+
+```tsx
+import type { Metadata } from "next";
+
+// 名字必须是metadata
+export const metadata: Metadata = {
+  metadataBase: new URL("https://acme.com"),
+  openGraph: {
+    title: "Acme",
+    description: "Acme is a company that makes things.",
+    type: "website",
+    url: "https://xxx.com",
+    images: "/og-image.png",
+  },
+};
+```
+
+> Open Graph 官网与 type 去哪查
+
+如果你想确认协议原文或查 `og:type` 的语义，优先看 `Open Graph` 官方站点：
+
+- 协议首页：[`ogp.me`](https://ogp.me/)
+- type 说明与扩展类型入口：[`ogp.me/#types`](https://ogp.me/#types)
+- 已定义的对象类型列表（如 `website`、`article`、`video.movie` 等）：[ogp.me/#structured](https://ogp.me/#structured)
+
+在 Next.js 项目里，`openGraph.type` 还受 Next 的 TypeScript 类型约束。你可以通过两种方式确认当前版本支持的值：
+
+- 查看 Next.js 文档中的 openGraph 字段示例与说明：[generateMetadata#opengraph](https://nextjs.org/docs/app/api-reference/functions/generate-metadata#opengraph)
+- 在编辑器里把鼠标悬停到 `Metadata['openGraph']['type']`（或跳转到 `next` 包类型定义）查看联合类型，以项目安装的 Next 版本为准。
+
+#### 动态路由：`generateMetadata` 与父级 `images`
+
+详情页等需要按参数拉数据时，使用 `generateMetadata`。第二个参数 `parent` 可拿到父布局已解析的 `metadata`，便于在子页面**追加** OG 图而不是整段覆盖，例如把当前商品图插到继承来的图片列表前面：
+
+```tsx
+import type { Metadata, ResolvingMetadata } from "next";
+
+type Props = { params: Promise<{ id: string }> };
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { id } = await params;
+  const product = await fetch(`https://api.example.com/products/${id}`).then(
+    (r) => r.json(),
+  );
+  const previousImages = (await parent).openGraph?.images || [];
+
+  return {
+    title: product.title,
+    openGraph: {
+      images: ["/some-specific-page-image.jpg", ...previousImages],
+    },
+  };
+}
+```
+
+同一数据请求在 `generateMetadata` 与页面 `Server Component` 之间会被 `memoized`，避免重复打接口（见官方 [generateMetadata](https://nextjs.org/docs/app/api-reference/functions/generate-metadata) 说明）。
+
+#### 基于文件的 OG 图（推荐场景）
+
+单独维护「导出里的图片 URL」和「仓库里的真实文件」容易不同步。对 OG 图而言，更省事的做法是使用 **基于文件的 Metadata**，例如在路由段放置 `opengraph-image.png` 或 `opengraph-image.tsx` 动态生成图，由框架生成正确 meta。详见 [opengraph-image](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/opengraph-image)。
+
+#### 基于文件的 OG 图（推荐场景）
+
+子路由若导出了自己的 `openGraph` 对象，会与父级按官方规则做`合并或覆盖`；若子段完全不设置 openGraph，则继续沿用祖先布局的配置。具体嵌套行为以 [][Metadata 字段与继承](https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadata-fields) 为准。
+
+#### 实践建议
+
+- **一图多用**：分享图尺寸需符合各平台建议（常见如 1200×630 等），并保持主体在安全区内，避免裁切后信息丢失。品牌站也可用苹果这种`方形 Logo 图`，在部分客户端里会以缩略图形式出现。
+- **与 TDK 协调**：`openGraph.title` / `openGraph.description` 可与 `metadata.title`、`metadata.description` 相同，也可为分享单独写更「点击率友好」的短文案。
+- **验证**：改完后用各平台提供的调试/预览工具（如部分平台提供的 URL 调试器）拉取一次，确认缓存更新后再对外发链接。
+
+### Web Vitals
+
+Web Vitals 是 Google 推出的一套以用户为中心的网页性能指标体系，用来衡量真实用户在加载速度、交互响应、页面稳定性三个维度的体验表现，也是 SEO 评估的重要参考项。
+
+#### LCP (Largest Contentful Paint，最大内容绘制时间)
+
+LCP 衡量的是视口内最大内容元素（通常是大图、视频封面或大段文本）完成渲染所需的时间，反映“主要内容何时可见”。
+
+- Good：`<= 2.5s`
+- Needs Improvement：`2.5s ~ 4.0s`
+- Poor：> `4.0s`
+
+#### INP（Interaction to Next Paint，交互到下一次绘制）
+
+INP 衡量用户交互（点击、输入、键盘操作）到页面下一次可见更新之间的延迟，反映整体交互流畅度。
+
+- Good：`<= 200ms`
+- Needs Improvement：`200ms ~ 500ms`
+- Poor：> `500ms`
+
+#### CLS（Cumulative Layout Shift，累积布局偏移）
+
+CLS 衡量页面在生命周期内发生的意外布局位移总量，反映视觉稳定性。比如图片未预留尺寸、异步内容插入导致页面“跳动”。
+
+- Good：`<= 0.1`
+- Needs Improvement：`0.1 ~ 0.25`
+- Poor：> `0.25`
+
+#### 如何测评
+
+可以使用 Chrome DevTools 的 Lighthouse 面板快速进行本地评估：
+
+1. 打开 DevTools，进入 Lighthouse 面板。
+2. 选择设备（移动端/桌面端）与检测类别（建议勾选 Performance 和 SEO）。
+3. 点击“分析网页加载情况”生成报告。
+4. 在报告中查看 LCP、CLS 等核心指标分数与诊断建议。
+
+#### 代码示例
+
+安装: `npm install web-vitals`
+
+下面示例展示在 Next.js 客户端中订阅 Web Vitals 指标并输出到控制台（可替换为埋点上报逻辑）：
+
+```tsx
+"use client";
+
+import { useEffect } from "react";
+import { onCLS, onFCP, onINP, onLCP, type Metric } from "web-vitals";
+
+function reportWebVital(metric: Metric) {
+  // 生产环境中建议上报到日志系统或分析平台
+  console.log("[WebVitals]", metric.name, metric.value, metric.rating);
+}
+
+export default function HomePage() {
+  useEffect(() => {
+    onCLS(reportWebVital);
+    onFCP(reportWebVital);
+    onINP(reportWebVital);
+    onLCP(reportWebVital);
+  }, []);
+
+  return (
+    <section>
+      <button type="button">点击交互</button>
+      <div>你已经进入 Home 页面</div>
+    </section>
+  );
+}
+```
+
+## ORM (Prisma)
