@@ -92,6 +92,15 @@ React 组件重新渲染的主要时机包括：
 7. 如何遍历数组 类似`v-for` `{arr.map((item, index) => return <div key={index}>{item}</div>)}`
 ```
 
+::: tip 一些要点
+
+对于`onClick`: 绑定对应的事件处理函数, 它本身是一个函数, 而不是一个函数调用. 因此不能写`onclick="setHome(false)"`, 而是需要写`onClick={() => setHome(false)}`(高阶函数形式)
+
+条件渲染 循环渲染:
+
+直接在标签内部编写逻辑块, 渲染结果会根据数据变化而变化
+:::
+
 ## babel
 
 1. 语法转换
@@ -113,7 +122,7 @@ React 组件重新渲染的主要时机包括：
 
 react中所有的Hook都需要在组件的最顶层调用
 
-### useState 状态 (vue响应式变量)
+### \*useState 状态 (vue响应式变量)
 
 对于基本类型的使用:
 
@@ -151,6 +160,31 @@ export default App;
 - 排序 --> 先将数组复制一份
 
 useState 的set函数是异步的，目的是性能优化 如果需要同步更新，可以使用 useReducer
+
+::: warning 注意
+
+setState是异步的, 因此更新的状态可能不是最新的
+
+This is because states behaves like a snapshot. Updating state requests another render with the new state value, but does not affect the count JavaScript variable in your already-running event handler.
+
+If you need to use the next state, you can save it in a variable before passing it to the set function:
+
+```ts
+const nextCount = count + 1;
+setCount(nextCount);
+
+console.log(count); // 0
+console.log(nextCount); // 1
+```
+
+如果我们想要基于之前的值进行更改, 要使用匿名函数的形式
+
+```ts
+setAge(age + 1); // 错误
+setAge((age) => age + 1); // 正确
+```
+
+:::
 
 ### useReducer 集中式 状态 (高级Hook)
 
@@ -600,6 +634,143 @@ function App() {
 3. 依赖项发生变化时执行 空数组的情况只走一次(初始化, 详情页数据)
 4. 组件卸载时执行 清理函数 组件更新之前也会执行
 
+::: warning useEffect的一些注意点
+
+useEffect
+
+1. 比如可以实现类似于生命周期的函数, 第一个参数是setup函数(匿名函数), 不能写Promise
+2. 第二个参数是依赖项, 如果依赖项有变化, 则会重新执行匿名函数, 如果依赖项为空, 则只会执行一次
+3. setup 函数, 函数返回一个函数, 这个函数会在组件卸载时执行
+4. setup 中的返回值会先于setup 执行, 因此在setup 中返回一个函数, 则会在组件卸载时执行
+
+### Clean up
+
+React calls your setup and cleanup functions whenever it’s necessary, which may happen multiple times:
+
+1. Your setup code runs when your component is added to the page (mounts).
+2. After every commit of your component where the dependencies have changed:
+   - First, your `cleanup code` runs with the old props and state.
+   - Then, your `setup code` runs with the new props and state.
+3. Your `cleanup code` runs one final time after your component is `removed` from the page (unmounts).
+
+```ts
+// 使用useEffect
+useEffect(() => {
+  // 创建一个定时器，每秒更新当前时间 只在首次渲染时执行
+  const interval = setInterval(() => {
+    setCurrentTime(new Date().toLocaleString());
+  }, 1000);
+
+  // 清除定时器 组件被remove时执行
+  return () => clearInterval(interval);
+}, []);
+```
+
+:::
+
+### SWR
+
+SWR = Stale-While-Revalidate，用于数据获取的 React Hooks 库
+
+> 实现一个功能: 当页面首次加载时, 自动发送一次请求, 当点击按钮时, 再次发送一次请求.
+
+可以使用`useEffect` 来实现:
+
+```jsx
+import { useEffect, useState } from "react";
+function App() {
+  const adviceURL = "https://api.adviceslip.com/advice";
+
+  async function getAdvice() {
+    setIsLoading(true);
+    const result = await fetch(adviceURL);
+    const data = await result.json();
+    setAdvice(data.slip.advice);
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    getAdvice();
+  }, []);
+
+  const [advice, setAdvice] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  return (
+    <main>
+      <h1>Advice App</h1>
+      <p>{isLoading ? "Loding..." : data.slip.advice}</p>
+      <button disabled={isLoading} onClick={getAdvice}>
+        Get Advice
+      </button>
+    </main>
+  );
+}
+export default App;
+```
+
+使用SWR, 可以不用定义函数
+
+```jsx
+import useSWR from "swr";
+function App() {
+  const adviceURL = "https://api.adviceslip.com/advice";
+
+  const fetcher = (...args) => fetch(...args).then((res) => res.json());
+  /**
+   * SWR 只会在首次渲染时执行
+   * data 是 API 返回的数据
+   * isLoading 是一个布尔值，表示数据是否正在加载中
+   * error 是 API 返回的错误信息
+   * mutate 是一个函数，用于手动触发数据更新
+   */
+  const {
+    data,
+    _error,
+    isLoading,
+    mutate: getAdvice,
+  } = useSWR(adviceURL, fetcher);
+
+  return (
+    <main>
+      <h1>Advice App</h1>
+      <p>{isLoading ? "Loding..." : data.slip?.advice}</p>
+      <button disabled={isLoading} onClick={getAdvice}>
+        Get Advice
+      </button>
+    </main>
+  );
+}
+export default App;
+```
+
+SWR也可以不一上来获取数据, 而是在需要的时候获取. 可以使用`useSWRMutation`.
+
+```ts
+useSWRMutation(key, fetcher, options?)
+```
+
+这里各部分含义：
+
+1. API_URL
+
+- 第一个参数 key（请求标识/基础 key）。
+- 你这里通常是接口基础地址，比如 https://api.openweathermap.org/data/2.5。
+
+2. fetcher
+
+- 第二个参数，请求函数。(封装一个fetch, 用于请求数据)
+- 传入请求函数
+- 使用`trigger(arg)`的时候需要把之前定义的fetcher的参数传入(url会自己读取API_URL, 不需要手动传入)。
+
+3. 解构出来的内容
+
+- trigger：手动触发请求的函数（mutation 不会自动请求）。触发的就是传进去的fetcher。
+- data：请求成功后的返回数据（即 fetcher 返回的 JSON）。
+- isMutating：是否正在请求中（true/false）。
+- error：请求失败时的错误对象。
+
 ### useLayoutEffect
 
 `useLayoutEffect` 是 React 中的一个 Hook，用于在浏览器重新绘制屏幕之前触发。
@@ -929,6 +1100,31 @@ export default App;
 什么是高阶组件？
 
 高阶组件就是一个组件，它接受另一个组件作为参数，并返回一个新的组件，（如果你学过Vue的话，跟Vue中的二次封装组件有点类似）新的组件可以复用旧组件的逻辑，并可以添加新的功能。常用于类组件中，虽然目前都是hooks写法会缩小HOC的使用场景，但还是有部分场景会用到。
+
+### Activity (19.2)
+
+用法:
+
+- 恢复隐藏组件的状态
+- 恢复隐藏组件的 DOM
+- 预渲染可能即将显示的内容
+- 加快页面加载过程中的交互速度
+
+类似于vue3的`v-show`
+
+When an Activity boundary is `hidden`, React will visually hide its children using the `display: "none"` CSS property. It will also destroy their Effects, cleaning up any active subscriptions.
+
+```tsx
+<Activity mode={visibility}>
+  <Sidebar />
+</Activity>
+```
+
+```tsx
+<Activity mode={isShowingSidebar ? "visible" : "hidden"}>
+  <Sidebar />
+</Activity>
+```
 
 ## API
 
@@ -1476,6 +1672,16 @@ export default function Menu() {
 - 子路由不需要增加`/`了直接写子路由的`path`即可
 - 子路由默认是不显示的，需要父路由通过 `Outlet` 组件来显示子路由 `Outlet` 就是类似于Vue的`<router-view>`展示子路由的一个容器
 - 子路由的层级可以无限嵌套，但是要注意的是，一般实际工作中就是2-3层
+
+::: tip 总结
+
+1. `outlet`: 嵌套路由中, 子路由在父路由中应该渲染的位置
+2. 跳转路由:
+   - `<router-link to="/">Home</router-link>`
+   - 使用 `useNavigate` hook
+3. 获取路由信息: `useLocation` hook
+
+:::
 
 #### 布局路由
 
@@ -2161,6 +2367,128 @@ import { useRouteError } from "react-router"; // 获取错误信息
 export default function Error() {
   const error = useRouteError();
   return <div>{error.message}</div>;
+}
+```
+
+## Tanstack Router
+
+[Tanstack](https://tanstack.com/)是一个工具集
+
+安装 Tanstack Router :
+
+```sh
+`pnpx @tanstack/cli create --router-only` # 以cli方式创建
+
+# 使用手动配置
+pnpm add @tanstack/react-router @tanstack/react-router-devtools
+pnpm add -D @tanstack/router-plugin
+```
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    // Please make sure that '@tanstack/router-plugin' is passed before '@vitejs/plugin-react'
+    tanstackRouter({
+      target: "react",
+      autoCodeSplitting: true,
+    }),
+    react(),
+    // ...,
+  ],
+});
+```
+
+- 基于`file base`实现路由
+- 新建`routes`文件夹(必须是这个名字), 并在文件夹下创建`__root.tsx`,` index.tsx`, `about.tsx`, 然后修改`main.tsx`文件(使用`__root.tsx`代替`App.tsx`组件)
+
+```tsx
+// routes/__root.tsx
+import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+
+const RootLayout = () => (
+  <>
+    <div className="p-2 flex gap-2">
+      <Link to="/" className="[&.active]:font-bold">
+        Home
+      </Link>{" "}
+      <Link to="/about" className="[&.active]:font-bold">
+        About
+      </Link>
+    </div>
+    <hr />
+    <Outlet />
+    <TanStackRouterDevtools />
+  </>
+);
+
+export const Route = createRootRoute({ component: RootLayout });
+```
+
+```tsx
+// routes/index.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/")({
+  component: Index,
+});
+
+function Index() {
+  return (
+    <div className="p-2">
+      <h3>Welcome Home!</h3>
+    </div>
+  );
+}
+```
+
+```tsx
+// routes/about.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/about")({
+  component: About,
+});
+
+function About() {
+  return <div className="p-2">Hello from About!</div>;
+}
+```
+
+```tsx
+// routes/main.tsx
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+
+// Import the generated route tree
+import { routeTree } from "./routeTree.gen"; // 这个文件是自动生成的
+
+// Create a new router instance
+const router = createRouter({ routeTree });
+
+// Register the router instance for type safety
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+// Render the app
+const rootElement = document.getElementById("root")!;
+if (!rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <RouterProvider router={router} />
+    </StrictMode>,
+  );
 }
 ```
 
