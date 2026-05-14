@@ -57,7 +57,16 @@ export default defineConfig({
       },
       {
         text: "后端",
-        link: "/src/backend/中间件/docker.md",
+        items: [
+          {
+            text: "nestjs-xmzs",
+            link: "/src/backend/TS后端/nestjs-xmzs.md",
+          },
+          {
+            text: "中间件",
+            link: "/src/backend/中间件/docker.md",
+          },
+        ],
       },
       {
         text: "小知识",
@@ -160,6 +169,14 @@ export default defineConfig({
         {
           text: "后端",
           items: [
+            {
+              text: "nestjs-xmzs",
+              link: "/src/backend/TS后端/nestjs-xmzs.md",
+            },
+            {
+              text: "nestjs-alex",
+              link: "/src/backend/TS后端/nestjs-xmzs.md",
+            },
             // {
             //   text: "Java",
             //   items: [
