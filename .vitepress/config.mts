@@ -34,6 +34,7 @@ export default defineConfig({
     siteTitle: "加菲猫",
     // https://vitepress.dev/reference/default-theme-config
     nav: [
+      // 顶部导航栏
       {
         text: "主页",
         link: "/",
@@ -59,7 +60,7 @@ export default defineConfig({
         text: "后端",
         items: [
           {
-            text: "nestjs-xmzs",
+            text: "nestjs",
             link: "/src/backend/TS后端/nestjs-xmzs.md",
           },
           {
@@ -77,11 +78,24 @@ export default defineConfig({
         items: [
           {
             text: "Langchain",
-            link: "/src/backend/TS后端/nestjs-xmzs.md",
+            link: "/src/AI/Langchain/Langchain.md",
           },
           {
-            text: "中间件",
-            link: "/src/backend/中间件/docker.md",
+            text: "RAG",
+            link: "/src/AI/Langchain/RAG.md",
+          },
+          {
+            text: "Agent",
+            link: "/src/AI/Langchain/Agent.md",
+          },
+        ],
+      },
+      {
+        text: "项目总结",
+        items: [
+          {
+            text: "Nestjs项目",
+            link: "/src/demo/nestjs+vue3项目前置知识总结.md",
           },
         ],
       },
@@ -99,6 +113,7 @@ export default defineConfig({
       },
     ],
 
+    // 主要内容
     sidebar: {
       "/src/frontend/": [
         {
@@ -195,7 +210,7 @@ export default defineConfig({
                 },
                 {
                   text: "nestjs-alex",
-                  link: "/src/backend/TS后端/nestjs-xmzs.md",
+                  link: "/src/backend/TS后端/nestjs-Alex.md",
                 },
               ],
             },
@@ -270,6 +285,41 @@ export default defineConfig({
                 { text: "剪映", link: "/src/other/jianji/剪映.md" },
                 { text: "达芬奇", link: "/src/other/jianji/达芬奇.md" },
                 { text: "测试页面", link: "/src/other/jianji/测试页面.md" },
+              ],
+            },
+          ],
+        },
+      ],
+      "/src/AI/": [
+        {
+          text: "AI",
+          items: [
+            {
+              text: "Langchain",
+              link: "/src/AI/Langchain/Langchain.md",
+            },
+            {
+              text: "RAG",
+              link: "/src/AI/Langchain/RAG.md",
+            },
+            {
+              text: "Agent",
+              link: "/src/AI/Langchain/Agent.md",
+            },
+          ],
+        },
+      ],
+      "/src/demo/": [
+        {
+          text: "项目总结",
+          items: [
+            {
+              text: "Nestjs项目",
+              items: [
+                {
+                  text: "Nestjs项目前置知识总结",
+                  link: "/src/demo/nestjs+vue3项目前置知识总结.md",
+                },
               ],
             },
           ],
