@@ -14,12 +14,34 @@ export default defineConfig({
     ], // 打包分析
   },
   title: "加菲猫的博客",
-  lastUpdated: true,
-  head: [["link", { rel: "icon", href: "favicon.ico" }]], // 修改图标
+  lastUpdated: true, // 显示最后更新时间
+  head: [
+    // SEO优化
+    ["link", { rel: "icon", href: "/site-blog/favicon.ico" }], // 修改图标
+    ["meta", { name: "theme-color", content: "#3eaf7c" }],
+    ["meta", { name: "apple-mobile-web-app-capable", content: "yes" }],
+    [
+      "meta",
+      { name: "apple-mobile-web-app-status-bar-style", content: "black" },
+    ],
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:title", content: "加菲猫的技术知识库" }],
+    ["meta", { property: "og:description", content: "记录自己的学习过程" }],
+  ],
+  // 站点地图 SEO
+  sitemap: {
+    hostname: "https://kcncozz.github.io/site-blog/",
+  },
+
   markdown: {
-    lineNumbers: true,
+    lineNumbers: true, // 显示代码行号
     image: {
       lazyLoading: true, // 默认禁用；设置为 true 可为所有图片启用懒加载。
+    },
+    // 代码块主题
+    theme: {
+      light: "github-light",
+      dark: "github-dark",
     },
   },
 
@@ -33,6 +55,36 @@ export default defineConfig({
     },
     siteTitle: "加菲猫",
     // https://vitepress.dev/reference/default-theme-config
+
+    // // 改进的导航
+    outline: {
+      level: [2, 3],
+      label: "目录",
+    },
+
+    // 显示最后更新时间格式
+    lastUpdated: {
+      text: "最后更新于",
+      formatOptions: {
+        dateStyle: "short",
+        timeStyle: "short",
+      },
+    },
+
+    // 深色模式切换
+    darkModeSwitchLabel: "主题",
+    lightModeSwitchTitle: "切换到浅色模式",
+    darkModeSwitchTitle: "切换到深色模式",
+
+    // // 返回顶部 当前版本不生效
+    // returnToTopLabel: "返回顶部",
+
+    // 上下页导航标签 改为中文
+    docFooter: {
+      prev: "上一页",
+      next: "下一页",
+    },
+
     nav: [
       // 顶部导航栏
       {
