@@ -63,6 +63,23 @@ export default defineConfig({
             link: "/src/backend/TS后端/nestjs-xmzs.md",
           },
           {
+            text: "Go",
+            link: "/src/backend/Go/go基础.md",
+          },
+          {
+            text: "中间件",
+            link: "/src/backend/中间件/docker.md",
+          },
+        ],
+      },
+      {
+        text: "AI",
+        items: [
+          {
+            text: "Langchain",
+            link: "/src/backend/TS后端/nestjs-xmzs.md",
+          },
+          {
             text: "中间件",
             link: "/src/backend/中间件/docker.md",
           },
@@ -170,23 +187,40 @@ export default defineConfig({
           text: "后端",
           items: [
             {
-              text: "nestjs-xmzs",
-              link: "/src/backend/TS后端/nestjs-xmzs.md",
+              text: "TS",
+              items: [
+                {
+                  text: "nestjs-xmzs",
+                  link: "/src/backend/TS后端/nestjs-xmzs.md",
+                },
+                {
+                  text: "nestjs-alex",
+                  link: "/src/backend/TS后端/nestjs-xmzs.md",
+                },
+              ],
             },
             {
-              text: "nestjs-alex",
-              link: "/src/backend/TS后端/nestjs-xmzs.md",
+              text: "Go",
+              items: [
+                {
+                  text: "Go",
+                  link: "/src/backend/Go/go基础.md",
+                },
+              ],
             },
-            // {
-            //   text: "Java",
-            //   items: [
-            //     { text: "JavaSE", link: "/src/backend/Java/JavaSE.md" },
-            //     { text: "JavaWeb", link: "/src/backend/Java/JavaWeb.md" },
-            //     { text: "SpringSSM", link: "/src/backend/Java/SpringSSM.md" },
-            //     { text: "Springboot", link: "/src/backend/Java/Springboot.md" },
-            //     { text: "SpringCloud", link: "/src/backend/Java/SpringCloud.md" },
-            //   ],
-            // },
+            {
+              text: "Java",
+              items: [
+                { text: "JavaSE", link: "/src/backend/Java/JavaSE.md" },
+                { text: "JavaWeb", link: "/src/backend/Java/JavaWeb.md" },
+                { text: "SpringSSM", link: "/src/backend/Java/SpringSSM.md" },
+                { text: "Springboot", link: "/src/backend/Java/Springboot.md" },
+                {
+                  text: "SpringCloud",
+                  link: "/src/backend/Java/SpringCloud.md",
+                },
+              ],
+            },
             {
               text: "中间件",
               items: [

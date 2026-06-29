@@ -1,1 +1,24 @@
+# 依赖
 node_modules
+
+# VitePress 缓存（注意：docs/ 是 GitHub Pages 发布目录，必须保留，不要忽略）
+.vitepress/cache
+
+# 打包分析报告
+stats.html
+
+# 日志
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 系统/编辑器
+.DS_Store
+*.swp
+
+# 环境变量
+.env
+.env.local
+.env.*.local
