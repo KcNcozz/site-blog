@@ -1,28 +1,8 @@
 # Zod 学习指南
 
-> 基于 **Zod 4**（2025 年起的主版本）编写。网上大量教程还是 Zod 3 语法，两者有不少差异——本文以 v4 为准，文末附 v3 → v4 差异对照表，方便你读旧资料时对号入座。
+> 基于 **Zod 4**编写。网上大量教程还是 Zod 3 语法，两者有不少差异——本文以 v4 为准，文末附 v3 → v4 差异对照表，方便你读旧资料时对号入座。
 >
 > 目标：覆盖日常开发 80% 的使用场景。建议通读一遍后当速查手册用，每节代码都可以直接粘到 `ts` 文件里跑。
-
----
-
-## 目录
-
-1. [Zod 是什么、为什么需要它](#1-zod-是什么为什么需要它)
-2. [安装与最小示例](#2-安装与最小示例)
-3. [基础类型](#3-基础类型)
-4. [字符串与数字的校验规则](#4-字符串与数字的校验规则)
-5. [对象 Schema](#5-对象-schema)
-6. [数组、元组、Record、Map、Set](#6-数组元组recordmapset)
-7. [联合、可辨识联合、交叉类型](#7-联合可辨识联合交叉类型)
-8. [解析与错误处理](#8-解析与错误处理)
-9. [类型推断：Zod 最大的价值](#9-类型推断zod-最大的价值)
-10. [默认值、可选、可空](#10-默认值可选可空)
-11. [转换与自定义校验：transform / refine / pipe](#11-转换与自定义校验transform--refine--pipe)
-12. [递归类型](#12-递归类型)
-13. [实战场景](#13-实战场景)
-14. [Zod 3 → Zod 4 差异对照](#14-zod-3--zod-4-差异对照)
-15. [速查表与学习建议](#15-速查表与学习建议)
 
 ---
 
@@ -78,14 +58,14 @@ import { z } from "zod";
 const schema = z.string();
 
 // 2. 校验数据 —— 两种方式
-schema.parse("hello");      // ✅ 返回 "hello"（类型是 string）
-schema.parse(42);           // ❌ 抛出 ZodError
+schema.parse("hello"); // ✅ 返回 "hello"（类型是 string）
+schema.parse(42); // ❌ 抛出 ZodError
 
 const result = schema.safeParse(42); // 不抛错的版本
 if (!result.success) {
   console.log(result.error.issues); // 错误详情
 } else {
-  console.log(result.data);         // 校验通过的数据
+  console.log(result.data); // 校验通过的数据
 }
 ```
 
@@ -97,32 +77,32 @@ if (!result.success) {
 
 ```ts
 // 原始类型
-z.string();     // string
-z.number();     // number（不含 NaN）
-z.boolean();    // boolean
-z.bigint();     // bigint
-z.date();       // Date 实例（注意：不是日期字符串！）
+z.string(); // string
+z.number(); // number（不含 NaN）
+z.boolean(); // boolean
+z.bigint(); // bigint
+z.date(); // Date 实例（注意：不是日期字符串！）
 z.symbol();
 
 // 字面量：值必须精确等于
-z.literal("hello");        // 只接受 "hello"
+z.literal("hello"); // 只接受 "hello"
 z.literal(42);
-z.literal(["a", "b"]);     // v4 支持多值字面量，等价于 union
+z.literal(["a", "b"]); // v4 支持多值字面量，等价于 union
 
 // 枚举
 const Fruit = z.enum(["apple", "banana", "orange"]);
 type Fruit = z.infer<typeof Fruit>; // "apple" | "banana" | "orange"
-Fruit.enum.apple;                   // "apple"，可当常量对象用
+Fruit.enum.apple; // "apple"，可当常量对象用
 
 // 空值类
 z.undefined();
 z.null();
-z.void();       // 常用于函数返回值
+z.void(); // 常用于函数返回值
 
 // 万金油（尽量少用）
-z.any();        // 任何值都过，类型为 any
-z.unknown();    // 任何值都过，类型为 unknown（比 any 安全）
-z.never();      // 任何值都不过
+z.any(); // 任何值都过，类型为 any
+z.unknown(); // 任何值都过，类型为 unknown（比 any 安全）
+z.never(); // 任何值都不过
 ```
 
 ### 类型强制转换（coerce）
@@ -130,15 +110,15 @@ z.never();      // 任何值都不过
 外部数据常是字符串形式（URL 参数、表单、环境变量），`z.coerce` 会先做类型转换再校验：
 
 ```ts
-z.coerce.number().parse("42");      // 42（内部执行 Number("42")）
-z.coerce.boolean().parse("false");  // ⚠️ true！非空字符串都是 truthy
-z.coerce.date().parse("2026-01-01");// Date 对象
+z.coerce.number().parse("42"); // 42（内部执行 Number("42")）
+z.coerce.boolean().parse("false"); // ⚠️ true！非空字符串都是 truthy
+z.coerce.date().parse("2026-01-01"); // Date 对象
 
 // 布尔值的字符串转换请用 stringbool（v4 新增），专为环境变量设计：
-z.stringbool().parse("true");   // true
-z.stringbool().parse("1");      // true
-z.stringbool().parse("false");  // false
-z.stringbool().parse("0");      // false
+z.stringbool().parse("true"); // true
+z.stringbool().parse("1"); // true
+z.stringbool().parse("false"); // false
+z.stringbool().parse("0"); // false
 ```
 
 ---
@@ -148,15 +128,15 @@ z.stringbool().parse("0");      // false
 ### 字符串
 
 ```ts
-z.string().min(1);            // 非空（最常用）
+z.string().min(1); // 非空（最常用）
 z.string().max(100);
 z.string().length(6);
 z.string().regex(/^\d+$/);
 z.string().startsWith("https://");
 z.string().endsWith(".md");
 z.string().includes("@");
-z.string().trim();            // 转换：去首尾空格
-z.string().toLowerCase();     // 转换：转小写
+z.string().trim(); // 转换：去首尾空格
+z.string().toLowerCase(); // 转换：转小写
 ```
 
 ### 字符串格式（v4 顶层 API）
@@ -164,14 +144,14 @@ z.string().toLowerCase();     // 转换：转小写
 v4 把常用格式提升为顶层函数（v3 的 `z.string().email()` 写法已废弃）：
 
 ```ts
-z.email();          // 邮箱
-z.url();            // URL
-z.uuid();           // UUID
+z.email(); // 邮箱
+z.url(); // URL
+z.uuid(); // UUID
 z.ipv4();
 z.ipv6();
-z.iso.datetime();   // ISO 8601 时间："2026-07-26T10:00:00Z"
-z.iso.date();       // "2026-07-26"
-z.iso.time();       // "10:30:00"
+z.iso.datetime(); // ISO 8601 时间："2026-07-26T10:00:00Z"
+z.iso.date(); // "2026-07-26"
+z.iso.time(); // "10:30:00"
 
 // 格式校验可以继续链其他规则
 z.email().endsWith("@company.com");
@@ -180,16 +160,16 @@ z.email().endsWith("@company.com");
 ### 数字
 
 ```ts
-z.number().min(0);            // >= 0（别名 .gte）
-z.number().max(100);          // <= 100（别名 .lte）
-z.number().gt(0);             // > 0
-z.number().lt(100);           // < 100
-z.number().positive();        // > 0
-z.number().nonnegative();     // >= 0
-z.number().multipleOf(5);     // 5 的倍数
+z.number().min(0); // >= 0（别名 .gte）
+z.number().max(100); // <= 100（别名 .lte）
+z.number().gt(0); // > 0
+z.number().lt(100); // < 100
+z.number().positive(); // > 0
+z.number().nonnegative(); // >= 0
+z.number().multipleOf(5); // 5 的倍数
 
-z.int();                      // 整数（v4 顶层 API，替代 z.number().int()）
-z.int32();                    // 32 位整数范围
+z.int(); // 整数（v4 顶层 API，替代 z.number().int()）
+z.int32(); // 32 位整数范围
 ```
 
 ### 自定义错误消息
@@ -218,8 +198,8 @@ const UserSchema = z.object({
   id: z.uuid(),
   name: z.string().min(1),
   email: z.email(),
-  age: z.int().min(0).optional(),      // 可选字段
-  bio: z.string().nullable(),          // 可以是 null
+  age: z.int().min(0).optional(), // 可选字段
+  bio: z.string().nullable(), // 可以是 null
   role: z.enum(["admin", "user"]).default("user"), // 带默认值
 });
 
@@ -294,10 +274,10 @@ const EmailOnly = UserSchema.shape.email;
 
 ```ts
 // 数组
-z.array(z.string());               // string[]
-z.array(z.string()).min(1);        // 非空数组
+z.array(z.string()); // string[]
+z.array(z.string()).min(1); // 非空数组
 z.array(z.string()).max(10);
-z.string().array();                // 等价写法
+z.string().array(); // 等价写法
 
 // 对象数组（最常见）
 const TodoListSchema = z.array(
@@ -309,12 +289,12 @@ const TodoListSchema = z.array(
 );
 
 // 元组：固定长度、每个位置类型不同
-z.tuple([z.string(), z.number()]);            // [string, number]
-z.tuple([z.string()], z.number());            // [string, ...number[]]（带 rest）
+z.tuple([z.string(), z.number()]); // [string, number]
+z.tuple([z.string()], z.number()); // [string, ...number[]]（带 rest）
 
 // Record：键值映射对象。v4 必须显式传键类型
-z.record(z.string(), z.number());             // Record<string, number>
-z.record(z.enum(["a", "b"]), z.number());     // { a: number; b: number }
+z.record(z.string(), z.number()); // Record<string, number>
+z.record(z.enum(["a", "b"]), z.number()); // { a: number; b: number }
 
 // Map 和 Set（真正的 Map/Set 实例）
 z.map(z.string(), z.number());
@@ -360,9 +340,9 @@ const AB = z.intersection(A, B); // { a: string } & { b: number }
 ### 四个解析方法
 
 ```ts
-schema.parse(data);           // 成功返回数据；失败抛 ZodError
-schema.safeParse(data);       // 永不抛错，返回 { success, data } 或 { success, error }
-await schema.parseAsync(data);     // schema 含异步 refine 时用
+schema.parse(data); // 成功返回数据；失败抛 ZodError
+schema.safeParse(data); // 永不抛错，返回 { success, data } 或 { success, error }
+await schema.parseAsync(data); // schema 含异步 refine 时用
 await schema.safeParseAsync(data);
 ```
 
@@ -374,8 +354,8 @@ const result = UserSchema.safeParse(input);
 if (!result.success) {
   // result.error 是 ZodError，核心是 issues 数组
   for (const issue of result.error.issues) {
-    console.log(issue.path);    // 出错位置，如 ["address", "city"]
-    console.log(issue.code);    // 错误码，如 "invalid_type" / "too_small"
+    console.log(issue.path); // 出错位置，如 ["address", "city"]
+    console.log(issue.code); // 错误码，如 "invalid_type" / "too_small"
     console.log(issue.message); // 人类可读消息
   }
   return;
@@ -422,11 +402,11 @@ type User = z.infer<typeof UserSchema>;
 
 ```ts
 const schema = z.object({
-  age: z.coerce.number(),       // 输入 string 也行，输出一定是 number
+  age: z.coerce.number(), // 输入 string 也行，输出一定是 number
   role: z.string().default("user"), // 输入可不传，输出一定有
 });
 
-type In = z.input<typeof schema>;  // { age: unknown; role?: string | undefined }
+type In = z.input<typeof schema>; // { age: unknown; role?: string | undefined }
 type Out = z.output<typeof schema>; // { age: number; role: string }
 // z.infer 等价于 z.output
 ```
@@ -446,9 +426,9 @@ export type User = z.infer<typeof UserSchema>;
 这几个修饰符长得像，语义完全不同，值得单独理清：
 
 ```ts
-z.string().optional();   // string | undefined —— 字段可以不传
-z.string().nullable();   // string | null      —— 值可以是 null
-z.string().nullish();    // string | null | undefined —— 两者皆可
+z.string().optional(); // string | undefined —— 字段可以不传
+z.string().nullable(); // string | null      —— 值可以是 null
+z.string().nullish(); // string | null | undefined —— 两者皆可
 
 z.string().default("hi");
 // 输入是 undefined 时 → 直接用默认值 "hi"（v4：默认值不再经过校验管道）
@@ -461,12 +441,12 @@ z.number().catch(0);
 
 对比总结：
 
-| 写法 | 允许 undefined | 允许 null | 校验失败时 |
-|---|---|---|---|
-| `.optional()` | ✅ | ❌ | 报错 |
-| `.nullable()` | ❌ | ✅ | 报错 |
-| `.default(v)` | ✅（变成 v） | ❌ | 报错 |
-| `.catch(v)` | ✅（变成 v） | ✅（变成 v） | 变成 v，不报错 |
+| 写法          | 允许 undefined | 允许 null    | 校验失败时     |
+| ------------- | -------------- | ------------ | -------------- |
+| `.optional()` | ✅             | ❌           | 报错           |
+| `.nullable()` | ❌             | ✅           | 报错           |
+| `.default(v)` | ✅（变成 v）   | ❌           | 报错           |
+| `.catch(v)`   | ✅（变成 v）   | ✅（变成 v） | 变成 v，不报错 |
 
 ---
 
@@ -479,7 +459,9 @@ const schema = z.string().transform((s) => s.length);
 schema.parse("hello"); // 5（输入 string，输出 number）
 
 // 常见：字符串转数组
-const TagsSchema = z.string().transform((s) => s.split(",").map((t) => t.trim()));
+const TagsSchema = z
+  .string()
+  .transform((s) => s.split(",").map((t) => t.trim()));
 TagsSchema.parse("a, b, c"); // ["a", "b", "c"]
 ```
 
@@ -521,21 +503,20 @@ const schema = z.array(z.string()).superRefine((items, ctx) => {
 
 ```ts
 // 先当字符串校验并转换，再当数字校验
-const AgeSchema = z.string()
-  .transform(Number)
-  .pipe(z.int().min(0).max(150));
+const AgeSchema = z.string().transform(Number).pipe(z.int().min(0).max(150));
 
-AgeSchema.parse("25");  // 25
+AgeSchema.parse("25"); // 25
 AgeSchema.parse("abc"); // ❌ NaN 过不了 int 校验
 ```
 
 ### 异步校验
 
 ```ts
-const UsernameSchema = z.string().refine(
-  async (name) => !(await isUsernameTaken(name)),
-  { error: "用户名已被占用" },
-);
+const UsernameSchema = z
+  .string()
+  .refine(async (name) => !(await isUsernameTaken(name)), {
+    error: "用户名已被占用",
+  });
 
 await UsernameSchema.parseAsync("alice"); // 含异步 refine 必须用 parseAsync
 ```
@@ -602,7 +583,9 @@ const form = useForm<z.infer<typeof LoginSchema>>({
 ```ts
 // env.ts —— 应用入口第一件事就是跑这个
 const EnvSchema = z.object({
-  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
   PORT: z.coerce.number().default(3000),
   DATABASE_URL: z.url(),
   ENABLE_CACHE: z.stringbool().default(false), // "true"/"1"/"yes" → boolean
@@ -649,11 +632,14 @@ app.post("/todos", (req, res) => {
 ### 13.4 localStorage / 配置文件解析
 
 ```ts
-const FavoritesSchema = z.record(z.string(), z.object({
-  title: z.string(),
-  favoritedAt: z.number(),
-  note: z.string().catch(""), // 旧版本数据可能没有 note，兜底空串
-}));
+const FavoritesSchema = z.record(
+  z.string(),
+  z.object({
+    title: z.string(),
+    favoritedAt: z.number(),
+    note: z.string().catch(""), // 旧版本数据可能没有 note，兜底空串
+  }),
+);
 
 function loadFavorites() {
   try {
@@ -707,11 +693,15 @@ const getWeather = betaZodTool({
 ```ts
 const BriefingSchema = z.object({
   overview: z.string(),
-  items: z.array(z.object({
-    title: z.string(),
-    summary: z.string(),
-    sourceUrl: z.url(),
-  })).max(10),
+  items: z
+    .array(
+      z.object({
+        title: z.string(),
+        summary: z.string(),
+        sourceUrl: z.url(),
+      }),
+    )
+    .max(10),
 });
 
 const parsed = BriefingSchema.safeParse(JSON.parse(llmOutput));
@@ -735,21 +725,21 @@ z.toJSONSchema(BriefingSchema);
 
 读旧教程 / 旧项目代码时的翻译表：
 
-| 场景 | Zod 3（旧） | Zod 4（新） |
-|---|---|---|
-| 邮箱等格式 | `z.string().email()` | `z.email()` |
-| URL | `z.string().url()` | `z.url()` |
-| UUID | `z.string().uuid()` | `z.uuid()` |
-| 整数 | `z.number().int()` | `z.int()` |
-| 自定义错误 | `{ message: "..." }` / `required_error` / `invalid_type_error` | 统一 `{ error: "..." }`（可传函数） |
-| 严格对象 | `z.object({...}).strict()` | `z.strictObject({...})` |
-| 宽松对象 | `z.object({...}).passthrough()` | `z.looseObject({...})` |
-| 合并对象 | `A.merge(B)` | `A.extend(B.shape)` 或展开 shape |
-| Record | `z.record(z.number())` | `z.record(z.string(), z.number())`（键类型必填） |
-| 错误格式化 | `error.format()` / `error.flatten()` | `z.treeifyError(err)` / `z.flattenError(err)` |
-| 原生枚举 | `z.nativeEnum(MyEnum)` | `z.enum(MyEnum)` |
-| 递归类型 | `z.lazy(() => schema)` | shape 里用 getter（`z.lazy` 仍可用） |
-| JSON Schema 导出 | 需第三方库 `zod-to-json-schema` | 内置 `z.toJSONSchema()` |
+| 场景             | Zod 3（旧）                                                    | Zod 4（新）                                      |
+| ---------------- | -------------------------------------------------------------- | ------------------------------------------------ |
+| 邮箱等格式       | `z.string().email()`                                           | `z.email()`                                      |
+| URL              | `z.string().url()`                                             | `z.url()`                                        |
+| UUID             | `z.string().uuid()`                                            | `z.uuid()`                                       |
+| 整数             | `z.number().int()`                                             | `z.int()`                                        |
+| 自定义错误       | `{ message: "..." }` / `required_error` / `invalid_type_error` | 统一 `{ error: "..." }`（可传函数）              |
+| 严格对象         | `z.object({...}).strict()`                                     | `z.strictObject({...})`                          |
+| 宽松对象         | `z.object({...}).passthrough()`                                | `z.looseObject({...})`                           |
+| 合并对象         | `A.merge(B)`                                                   | `A.extend(B.shape)` 或展开 shape                 |
+| Record           | `z.record(z.number())`                                         | `z.record(z.string(), z.number())`（键类型必填） |
+| 错误格式化       | `error.format()` / `error.flatten()`                           | `z.treeifyError(err)` / `z.flattenError(err)`    |
+| 原生枚举         | `z.nativeEnum(MyEnum)`                                         | `z.enum(MyEnum)`                                 |
+| 递归类型         | `z.lazy(() => schema)`                                         | shape 里用 getter（`z.lazy` 仍可用）             |
+| JSON Schema 导出 | 需第三方库 `zod-to-json-schema`                                | 内置 `z.toJSONSchema()`                          |
 
 > 兼容性提示：LangChain JS 新版本已支持 Zod 4；如果某个库报类型不兼容，检查它的 peerDependency 是否还锁在 zod 3。
 

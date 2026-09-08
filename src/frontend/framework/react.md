@@ -418,65 +418,243 @@ function Clock() {
 
 ## \*useRef
 
-- 通过Ref操作DOM元素
+- 通过 `Ref` 操作DOM元素
 - 数据存储
+
+首先是操作DOM元素:
 
 ```tsx
 import { useRef } from "react";
 
-function TextInput() {
-  const inputRef = useRef<HTMLInputElement>(null);
+function App() {
+  const divRef = useRef<HTMLDivElement>(null);
+
+  const handleClick = () => {
+    console.log(divRef.current);
+    console.dir(divRef.current); // 详细属性
+    divRef.current.style.backgroundColor = "yellow"; // 修改背景颜色
+  };
 
   return (
-    <>
-      <input ref={inputRef} />
-      <button onClick={() => inputRef.current?.focus()}>聚焦</button>
-    </>
+    <div>
+      <h1>道德经</h1>
+      <div ref={divRef}>道可道，非常道，名可名，非常名</div>
+      <button onClick={handleClick}>获取DOM元素</button>
+    </div>
   );
 }
+
+export default App;
 ```
+
+其次是数据存储: 比如这段代码
+
+```ts
+import { useState } from "react";
+
+function App() {
+  console.log("render");
+  let num = 0;
+
+  const [count, setCount] = useState(0);
+  const handleClick = () => {
+    setCount(count + 1); // 重新渲染
+    setCount(count + 1); // 没用 会异步渲染
+    setCount((count) => count + 1); // 有用 会变为点击一次 +2
+    num = count;
+  };
+  return (
+    <div>
+      <h1>数据存储</h1>
+      <div>
+        {/* 左边增加 右边不变 */}
+        {count}:{num}
+      </div>
+      <button onClick={handleClick}>增加</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+第一种解决方案是: 将`let num = 0;`提到外侧, 第二种解决方案就是使用 `useRef`
+
+```ts
+import { useRef, useState } from "react";
+
+function App() {
+  console.log("render");
+  let num = useRef(0);
+
+  const [count, setCount] = useState(0);
+  const handleClick = () => {
+    setCount(count + 1); // 重新渲染
+    num.current = count;
+  };
+  return (
+    <div>
+      <h1>数据存储</h1>
+      <div>
+        {/* 左边增加 右边不变 */}
+        {count}:{num.current}
+      </div>
+      <button onClick={handleClick}>增加</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+::: tip `vue`的`ref`和`react`的`ref`有什么区别
+
+1. `vue`的`ref`是通过`.value`访问值, 而`react`的`ref`是通过`.current`访问值
+2. `vue`的`ref`是响应式的, 而`react`的`ref`是非响应式的
+
+:::
 
 ### 注意事项
 
-1. 组件在重新渲染的时候，useRef的值不会被重新初始化。
-2. 改变 ref.current 属性时，React 不会重新渲染组件。React 不知道它何时会发生改变，因为 ref 是一个普通的 JavaScript 对象。(不是响应式的)
+1. 组件在重新渲染的时候，`useRef` 的值不会被重新初始化。
+2. 改变 `ref.current` 属性时，React 不会重新渲染组件。React 不知道它何时会发生改变，因为 `ref` 是一个普通的 `JavaScript` 对象。(不是响应式的)
 3. `ref` 对象本身的引用通常是稳定的，可以出现在依赖数组中；但修改 `ref.current` 不会触发渲染，因此把 `ref.current` 放入依赖数组也不能让 Effect 自动响应其变化。
 4. React 18 中，函数组件要接收父组件传入的 `ref`，通常需要 `forwardRef`。React 19 支持把 `ref` 作为函数组件的 prop 传入，新代码不再必须使用 `forwardRef`；类组件和 DOM 元素仍可直接接收 ref。
 
-## \*useMemo 性能优化
+### 实际应用场景
 
-`useMemo` 是 React 提供的性能优化 Hook。它会在依赖不变时复用上一次的计算结果，可用于跳过代价较高的计算或稳定对象引用。它不提供语义保证，React 在特定情况下可能丢弃缓存，因此程序的正确性不能依赖 `useMemo`。
+```ts
+import { useRef, useState } from "react";
 
-### React.memo
+function App() {
+  let timer = null; // 一直再被重置为null
+  const [count, setCount] = useState(0);
 
-`React.memo` 是一个 React API，用于在父组件重新渲染、且组件 props 与上次相比没有变化时跳过该组件的重新渲染。默认比较方式是逐项使用 `Object.is`；组件自身 state 或读取到的 Context 变化时仍会重新渲染。
+  const start = () => {
+    timer = setInterval(() => {
+      setCount((prev) => prev + 1); // 一直更新这个值 因此一直在渲染
+    }, 100);
+  };
+
+  // 点击结束没有作用
+  const end = () => {
+    clearInterval(timer);
+  };
+
+  return (
+    <div>
+      <h1>计时器</h1>
+      <div>{count}</div>
+      <button onClick={start}>开始</button>
+      <button onClick={end}>结束</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+解决方案:
+
+```ts
+import { useRef, useState } from "react";
+
+function App() {
+  let timer = useRef(null); // 一直再被重置为null
+  const [count, setCount] = useState(0);
+
+  const start = () => {
+    timer.current = setInterval(() => {
+      setCount((prev) => prev + 1); // 一直更新这个值 因此一直在渲染
+    }, 100);
+  };
+
+  // 点击结束没有作用
+  const end = () => {
+    if (timer.current) clearInterval(timer.current);
+  };
+
+  return (
+    <div>
+      <h1>计时器</h1>
+      <div>{count}</div>
+      <button onClick={start}>开始</button>
+      <button onClick={end}>结束</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+## React.memo
+
+`React.memo` 是一个 React API，用于在父组件重新渲染、且组件 `props` 与上次相比没有变化时跳过该组件的重新渲染。(目前有一部分已经被`React Compiler`自动接管)
 
 ### 用法
 
-使用 `React.memo` 包裹组件可以在 props 稳定时跳过一部分不必要的重新渲染，但它只是性能优化，不应无条件用于所有组件。
+使用 `React.memo` 包裹组件可以在 `props` 稳定时跳过一部分不必要的重新渲染，但它只是性能优化，不应无条件用于所有组件。
 
 ```tsx
-// React.memo
-import { memo, useMemo, useState } from "react";
+import React, { useState } from "react";
 
-const MyComponent = memo(({ total }: { total: number }) => {
-  return <p>总计：{total}</p>;
+type User = {
+  name: string;
+  age: number;
+  phone: string;
+};
+
+// 子组件
+// 现在这里React.memo不写也可以 已经被React Compiler自动接管
+const UserCard = React.memo(({ user }: { user: User }) => {
+  console.log("render child Component");
+
+  const styles = {
+    backgroundColor: "lightblue",
+    padding: "20px",
+    borderRadius: "10px",
+    margin: "10px",
+    color: "black",
+  };
+
+  return (
+    <div style={styles}>
+      <p>{user.name}</p>
+      <p>{user.age}</p>
+      <p>{user.phone}</p>
+    </div>
+  );
 });
 
-const App = () => {
-  const [prices, setPrices] = useState([10, 20, 30]);
-  const total = useMemo(
-    () => prices.reduce((sum, price) => sum + price, 0),
-    [prices],
-  );
+// 父组件
+function App() {
+  const [input, setInput] = useState("");
+  const [user, setUser] = useState<User>({
+    name: "Mike",
+    age: 18,
+    phone: "123456",
+  });
+
+  const changeUser = () => {
+    console.log("click");
+
+    setUser({
+      ...user,
+      name: input,
+    });
+  };
 
   return (
     <>
-      <MyComponent total={total} />
-      <button onClick={() => setPrices((items) => [...items, 40])}>添加</button>
+      {/* 此时点击这个 就会再次渲染 */}
+      <button onClick={changeUser}>更改User</button>
+      <input value={input} onChange={(e) => setInput(e.target.value)} />
+      <UserCard user={user}></UserCard>
     </>
   );
-};
+}
+
+export default App;
 ```
 
 ::: warning React的渲染条件是什么?
@@ -487,7 +665,72 @@ const App = () => {
 4. 外部 store 的订阅快照发生变化等其他更新来源。
    :::
 
+## \*useMemo 性能优化
+
+`useMemo` 就像一个"记忆缓存"，它会记住计算结果，只有当依赖项改变时才重新计算。, 类似于Vue的`computed`. (目前部分已经被`React Compiler`自动优化)
+
+```ts
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+```
+
+- 第一个参数：一个函数，返回需要缓存的值
+- 第二个参数：依赖数组，当依赖变化时才重新计算 (如果传入一个空数组, 这个函数只会在首次渲染时执行一次. 如果传入依赖项, 只有当依赖项发生变化的时候, 这个回调函数才会执行. 如果什么都不传入, 这个函数会在首次渲染时执行一次, 并且里面任何一个值得到更新, 这个函数都会重新调用)
+- 返回值：缓存的计算结果
+
+### 经典例子：购物车总价计算
+
+```ts
+import { useState, useMemo } from "react";
+
+function App() {
+  const [cart, setCart] = useState([
+    { id: 1, name: "苹果", price: 5, count: 2 },
+    { id: 2, name: "香蕉", price: 3, count: 3 },
+    { id: 3, name: "橙子", price: 4, count: 1 },
+  ]);
+
+  const [discount, setDiscount] = useState(0); // 折扣
+
+  // // 没有使用 useMemo - 每次渲染都重新计算
+  // const total = cart.reduce((sum, item) => {
+  //   console.log("正在计算总价..."); // 每次渲染都会执行
+  //   return sum + item.price * item.count;
+  // }, 0);
+
+  // 使用 useMemo - 只在购物车改变时重新计算
+  const total = useMemo(() => {
+    console.log("正在计算总价..."); // 只在 cart 改变时执行
+    return cart.reduce((sum, item) => {
+      return sum + item.price * item.count;
+    }, 0);
+  }, [cart]); // 依赖项：只有 cart 改变时才重新计算
+
+  return (
+    <div>
+      <h2>购物车</h2>
+      {cart.map((item) => (
+        <div key={item.id}>
+          {item.name} - ¥{item.price} × {item.count} = ¥
+          {item.price * item.count}
+        </div>
+      ))}
+
+      <h3>总价：¥{total}</h3>
+
+      <button onClick={() => setDiscount(discount + 10)}>
+        增加折扣（不影响总价计算）
+      </button>
+      <p>当前折扣：{discount}%</p>
+    </div>
+  );
+}
+
+export default App;
+```
+
 ## \*useCallback 性能优化
+
+在react中 `state props useContext`的更新都会导致组件重新渲染, 函数组件的重新渲染会导致组件内的函数被重新创建，这可能会导致性能问题。`useCallback` 通过缓存函数，可以减少不必要的重新渲染，提高性能。
 
 `useCallback` 返回一个在依赖不变时保持引用相同的函数。它常与 `memo`、其他 Hook 的依赖数组或需要稳定回调引用的 API 配合使用。
 
@@ -501,103 +744,158 @@ const memoizedCallback = useCallback(() => {
 }, [a, b]);
 ```
 
+> 依赖项和 `useEffect` 相同: 如果传入空数组则只执行一次, 如果传入依赖项则根据依赖项的变化而变化. 如果什么都不传, 那么创建和更新这个函数它都会执行.
+
 :::info `useCallback` 和 `useMemo` 的区别
 
-- `useMemo(() => value, deps)` 缓存计算结果。
-- `useCallback(fn, deps)` 缓存函数引用，等价于 `useMemo(() => fn, deps)`。
-  :::
+共同点: 回调函数和依赖项都是一样的
 
-## useImperativeHandle 父组件使用子组件的实例 方法
+不同点:
 
-```ts
-/**
- * ref: 父组件传递的ref对象
-   createHandle: 返回值，返回一个对象，对象的属性就是子组件暴露给父组件的方法或属性
-   deps?:[可选] 依赖项，当依赖项发生变化时，会重新调用createHandle函数，类似于useEffect的依赖项
- */
-useImperativeHandle(
-  ref,
-  () => {
-    return {
-      // 暴露给父组件的方法或属性
-    };
-  },
-  dependencies,
-);
-```
+1. `useCallback()`返回当前所缓存的函数, `useMemo()` 返回这个函数执行之后的一个结果
+2. `useCallback()`适合去缓存一些函数, `useMemo()` 适合去缓存一些有大量计算的一个值
+   :::
 
-### 执行时机
-
-1. 不传第三个参数时，每次组件重新渲染都会重新执行 `createHandle`。
-2. 传入空数组时，在依赖不变的情况下复用同一个句柄。
-3. 传入依赖项时，React 使用 `Object.is` 比较依赖；变化后会重新执行 `createHandle`。开发环境 Strict Mode 可能额外调用组件函数以检查纯度，因此不要在 `createHandle` 中放置副作用。
-
-## useContext
-
-`useContext` 提供了一个无需为每层组件手动添加 props，就能在组件树间进行数据传递的方法。设计的目的就是解决组件树间数据传递的问题。
-
-:::info 面试题
-使用 `useContext` 避免了层层传递props, 并且实现了跨组件之间的共享状态, 使组件之间的通讯变得更加简单. 换而言之, `useContext` 实现了祖孙级别的通讯.
-:::
-
-### 基本用法
+### 案例1:
 
 ```tsx
-import { createContext, useContext } from "react";
+import React, { useCallback, useState } from "react";
 
-const MyThemeContext = createContext({ theme: "light" });
+const map = new WeakMap();
+let count = 1;
 
 function App() {
+  console.log("Render");
+
+  const [input, setInput] = useState("");
+
+  // 如果不使用useCallback 这个函数每次state变化时都会创建
+  const changeValue = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  }, []);
+  if (!map.has(changeValue)) {
+    map.set(changeValue, count++);
+  }
+  console.log(map.get(changeValue));
+
   return (
-    <MyThemeContext value={{ theme: "dark" }}>
-      <MyComponent />
-    </MyThemeContext>
+    <>
+      <input type="text" value={input} onChange={changeValue} />
+    </>
   );
 }
 
-function MyComponent() {
-  const themeContext = useContext(MyThemeContext);
-  return <div>{themeContext.theme}</div>;
+export default App;
+```
+
+### 案例2
+
+```tsx
+import React, { useState } from "react";
+
+interface Props {
+  user: {
+    name: string;
+    age: number;
+  };
+  callback: () => void;
 }
+
+// 给props传递了一个函数
+// 此时点击按钮 即使有React.memo 仍然会打印  console.log("Render Child");
+const Child = React.memo((props: Props) => {
+  console.log("Render Child");
+
+  return (
+    <>
+      <div>{props.user.name}</div>
+      <div>{props.user.age}</div>
+      <button onClick={props.callback}>Click</button>
+    </>
+  );
+});
+
+function App() {
+  const [input, setInput] = useState("");
+  const [user, setUser] = useState({
+    name: "Mike",
+    age: 18,
+  });
+
+  const callback = () => {
+    console.log("callback");
+  };
+
+  return (
+    <>
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+      />
+      <Child user={user} callback={callback}></Child>
+    </>
+  );
+}
+
+export default App;
 ```
 
-React 19 可以直接把 Context 对象作为 Provider 使用。React 18 应写成 `<MyThemeContext.Provider value={...}>`；React 19 仍兼容 `.Provider`，并不是删除了 Provider。
+可以使用`useCallback` 去解决这个问题:
 
-### 注意事项
+```tsx
+import React, { useCallback, useState } from "react";
 
-- Provider 接收的上下文值使用 `value` prop 传递
-- 可以使用多个 `Context`
-- 组件读取同一个 Context 时，会获得其上方距离最近的 Provider 所提供的值
+interface Props {
+  user: {
+    name: string;
+    age: number;
+  };
+  callback: () => void;
+}
 
-## useDebugValue
+const Child = React.memo((props: Props) => {
+  console.log("Render Child");
 
-`useDebugValue` 是一个专为开发者调试自定义 Hook 而设计的 React Hook。它允许你在 React 开发者工具中为自定义 Hook 添加自定义的调试值。
+  return (
+    <>
+      <div>{props.user.name}</div>
+      <div>{props.user.age}</div>
+      <button onClick={props.callback}>Click</button>
+    </>
+  );
+});
 
-### 用法
+function App() {
+  const [input, setInput] = useState("");
+  const [user, setUser] = useState({
+    name: "Mike",
+    age: 18,
+  });
 
-```ts
-useDebugValue(value, formatValue);
+  // 使用useCallback进行优化 不会再次 console.log("Render Child");
+  const callback = useCallback(() => {
+    console.log("callback");
+  }, []);
+
+  return (
+    <>
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+      />
+      <Child user={user} callback={callback}></Child>
+    </>
+  );
+}
+
+export default App;
 ```
 
-`useDebugValue` 没有返回值，应在自定义 Hook 顶层调用。可选的格式化函数只在 React DevTools 读取调试值时执行，适合格式化成本较高的情况。
+## \*SWR
 
-## useId
-
-`useId` 是 React 18 新增的一个 Hook，用于生成稳定的唯一标识符，主要用于解决 SSR 场景下的 ID 不一致问题，或者需要为组件生成唯一 ID 的场景。
-
-用法:
-
-```ts
-const id = useId();
-```
-
-返回值的具体格式属于 React 实现细节，不应解析或依赖；`useId` 主要用于关联 `label` 与表单控件、ARIA 属性等。它不应用来生成列表的 `key`，列表 key 应来自数据本身。
-
-## SWR
-
-SWR = Stale-While-Revalidate，用于数据获取的 React Hooks 库
-
-> 实现一个功能: 当页面首次加载时, 自动发送一次请求, 当点击按钮时, 再次发送一次请求.
+SWR = Stale-While-Revalidate，用于数据获取的 React Hooks 库. 比如想实现一个功能: 当页面首次加载时, 自动发送一次请求, 当点击按钮时, 再次发送一次请求.
 
 可以使用`useEffect` 来实现:
 
@@ -705,6 +1003,175 @@ const { trigger, data, error, isMutating } = useSWRMutation(
 - data：请求成功后的返回数据（即 fetcher 返回的 JSON）。
 - isMutating：是否正在请求中（true/false）。
 - error：请求失败时的错误对象。
+
+## \*Tanstack Query
+
+## \*useContext
+
+`useContext` 是 React 提供的一个 Hook,用于跨组件层级共享数据,避免"`props` 逐层传递"(也叫 `prop drilling`)的问题。
+
+:::info 面试题
+使用 `useContext` 避免了层层传递props, 并且实现了跨组件之间的共享状态, 使组件之间的通讯变得更加简单. 换而言之, `useContext` 实现了祖孙级别的通讯.
+:::
+
+### 基本用法
+
+```tsx
+import { createContext, useContext } from "react";
+
+const MyThemeContext = createContext({ theme: "light" }); // 创建一个需要传递的值
+
+function App() {
+  return (
+    // 创建之后变成一个组件
+    <MyThemeContext value={{ theme: "dark" }}>
+      <MyComponent />
+    </MyThemeContext>
+  );
+}
+
+function MyComponent() {
+  const themeContext = useContext(MyThemeContext);
+  return <div>{themeContext.theme}</div>;
+}
+```
+
+React 19 可以直接把 Context 对象作为 Provider 使用。React 18 应写成 `<MyThemeContext.Provider value={...}>`；React 19 仍兼容 `.Provider`，并不是删除了 Provider。
+
+### 具体案例
+
+```tsx
+import React, { useContext, useState } from "react";
+
+const ThemeContext = React.createContext({} as IThemeContext);
+
+interface IThemeContext {
+  theme: string;
+  setTheme: (theme: string) => void;
+}
+
+const Child = () => {
+  const theme = useContext(ThemeContext);
+
+  console.log("theme Child", theme);
+
+  const styles = {
+    width: "200px",
+    height: "200px",
+    backgroundColor: theme.theme === "dark" ? "#000" : "#fff",
+    color: theme.theme === "dark" ? "#000" : "#fff",
+    border: "1px soild #ccc",
+  };
+  return (
+    <>
+      <div>
+        <button
+          onClick={() =>
+            theme.setTheme(theme.theme === "light" ? "dark" : "light")
+          }
+        >
+          Swtich
+        </button>
+        <div style={styles}>child</div>
+      </div>
+    </>
+  );
+};
+
+const Parent = () => {
+  const theme = useContext(ThemeContext);
+  console.log("theme Parent", theme);
+
+  const styles = {
+    width: "200px",
+    height: "200px",
+    backgroundColor: theme.theme === "dark" ? "#000" : "#fff",
+    color: theme.theme === "dark" ? "#000" : "#fff",
+    border: "1px soild #ccc",
+  };
+
+  return (
+    <>
+      <div>
+        <div style={styles}>Parent</div>
+      </div>
+      <Child />
+    </>
+  );
+};
+
+function App() {
+  const [theme, setTheme] = useState("light");
+  return (
+    <>
+      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+        Swtich
+      </button>
+      {/* ThemeContext.Provider 是react 18的写法 现在可以按照以下那种写法写 */}
+      <ThemeContext value={{ theme, setTheme }}>
+        <Parent />
+      </ThemeContext>
+    </>
+  );
+}
+
+export default App;
+```
+
+### 注意事项
+
+- `Provider` 接收使用 `value` (只能使用`value`, 不可以改名)
+- 可以使用多个 `Context`
+- 组件读取同一个 `Context` 时，下面的值会覆盖上面的值
+
+## useImperativeHandle 父组件使用子组件的实例 方法
+
+```ts
+/**
+ * ref: 父组件传递的ref对象
+   createHandle: 返回值，返回一个对象，对象的属性就是子组件暴露给父组件的方法或属性
+   deps?:[可选] 依赖项，当依赖项发生变化时，会重新调用createHandle函数，类似于useEffect的依赖项
+ */
+useImperativeHandle(
+  ref,
+  () => {
+    return {
+      // 暴露给父组件的方法或属性
+    };
+  },
+  dependencies,
+);
+```
+
+### 执行时机
+
+1. 不传第三个参数时，每次组件重新渲染都会重新执行 `createHandle`。
+2. 传入空数组时，在依赖不变的情况下复用同一个句柄。
+3. 传入依赖项时，React 使用 `Object.is` 比较依赖；变化后会重新执行 `createHandle`。开发环境 Strict Mode 可能额外调用组件函数以检查纯度，因此不要在 `createHandle` 中放置副作用。
+
+## useDebugValue
+
+`useDebugValue` 是一个专为开发者调试自定义 Hook 而设计的 React Hook。它允许你在 React 开发者工具中为自定义 Hook 添加自定义的调试值。
+
+### 用法
+
+```ts
+useDebugValue(value, formatValue);
+```
+
+`useDebugValue` 没有返回值，应在自定义 Hook **顶层调用**。可选的格式化函数只在 `React DevTools` 读取调试值时执行，适合格式化成本较高的情况。
+
+## useId
+
+`useId` 是 React 18 新增的一个 Hook，用于生成稳定的唯一标识符，主要用于解决 SSR 场景下的 ID 不一致问题，或者需要为组件生成唯一 ID 的场景。
+
+用法:
+
+```ts
+const id = useId();
+```
+
+返回值的具体格式属于 React 实现细节，不应解析或依赖；`useId` 主要用于关联 `label` 与表单控件、ARIA 属性等。它不应用来生成列表的 `key`，列表 key 应来自数据本身。
 
 ## useLayoutEffect
 

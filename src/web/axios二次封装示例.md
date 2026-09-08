@@ -1,31 +1,28 @@
-# axios二次封装示例
+# Axios二次封装示例
 
 ```typescript
 // types/api.ts
 export interface ApiResponse<T = unknown> {
-  code: number
-  message: string
-  data: T
+  code: number;
+  message: string;
+  data: T;
 }
 ```
 
 ```typescript
 // utils/request.ts
-import axios, {
-  type AxiosRequestConfig,
-  type AxiosResponse
-} from 'axios'
-import type { ApiResponse } from '@/types/api'
+import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
+import type { ApiResponse } from "@/types/api";
 
 type RequestErrorKind =
-  | 'business'
-  | 'protocol'
-  | 'http'
-  | 'network'
-  | 'timeout'
-  | 'canceled'
-  | 'configuration'
-  | 'unknown'
+  | "business"
+  | "protocol"
+  | "http"
+  | "network"
+  | "timeout"
+  | "canceled"
+  | "configuration"
+  | "unknown";
 
 class ApiError extends Error {
   constructor(
@@ -33,198 +30,184 @@ class ApiError extends Error {
     public readonly kind: RequestErrorKind,
     public readonly status?: number,
     public readonly code?: string | number,
-    public readonly cause?: unknown
+    public readonly cause?: unknown,
   ) {
-    super(message)
-    this.name = 'ApiError'
+    super(message);
+    this.name = "ApiError";
   }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
+  return typeof value === "object" && value !== null;
 }
 
 function readMessage(value: unknown): string | undefined {
-  if (!isRecord(value)) return undefined
-  return typeof value.message === 'string' ? value.message : undefined
+  if (!isRecord(value)) return undefined;
+  return typeof value.message === "string" ? value.message : undefined;
 }
 
 function isApiResponse(value: unknown): value is ApiResponse<unknown> {
   return (
     isRecord(value) &&
-    typeof value.code === 'number' &&
-    typeof value.message === 'string' &&
-    'data' in value
-  )
+    typeof value.code === "number" &&
+    typeof value.message === "string" &&
+    "data" in value
+  );
 }
 
 // 根据实际后端接口契约集中维护业务成功码。
-const API_SUCCESS_CODES = new Set<number>([200])
+const API_SUCCESS_CODES = new Set<number>([200]);
 
-const baseURL = import.meta.env.VITE_API_BASE_URL
-if (typeof baseURL !== 'string' || baseURL.trim() === '') {
-  throw new Error('缺少 VITE_API_BASE_URL，请检查启动环境配置')
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+if (typeof baseURL !== "string" || baseURL.trim() === "") {
+  throw new Error("缺少 VITE_API_BASE_URL，请检查启动环境配置");
 }
 
-const trustedBaseURL = new URL(baseURL, window.location.origin)
-if (!['http:', 'https:'].includes(trustedBaseURL.protocol)) {
-  throw new Error('VITE_API_BASE_URL 必须使用 HTTP 或 HTTPS')
+const trustedBaseURL = new URL(baseURL, window.location.origin);
+if (!["http:", "https:"].includes(trustedBaseURL.protocol)) {
+  throw new Error("VITE_API_BASE_URL 必须使用 HTTP 或 HTTPS");
 }
 
-const trustedPathPrefix = trustedBaseURL.pathname.endsWith('/')
+const trustedPathPrefix = trustedBaseURL.pathname.endsWith("/")
   ? trustedBaseURL.pathname
-  : `${trustedBaseURL.pathname}/`
+  : `${trustedBaseURL.pathname}/`;
 
 const instance = axios.create({
   baseURL,
   timeout: 10_000,
-  allowAbsoluteUrls: false
-})
+  allowAbsoluteUrls: false,
+});
 
-type AccessTokenProvider = () => string | null
-let accessTokenProvider: AccessTokenProvider = () => null
+type AccessTokenProvider = () => string | null;
+let accessTokenProvider: AccessTokenProvider = () => null;
 
 export function setAccessTokenProvider(provider: AccessTokenProvider) {
-  accessTokenProvider = provider
+  accessTokenProvider = provider;
 }
 
 // 请求拦截器
-instance.interceptors.request.use(config => {
+instance.interceptors.request.use((config) => {
   if (config.baseURL !== baseURL) {
-    throw new Error('不允许通过单次请求覆盖认证实例的 baseURL')
+    throw new Error("不允许通过单次请求覆盖认证实例的 baseURL");
   }
 
-  const requestURL = config.url
+  const requestURL = config.url;
   if (
-    typeof requestURL !== 'string' ||
-    requestURL.trim() === '' ||
-    requestURL.startsWith('//') ||
+    typeof requestURL !== "string" ||
+    requestURL.trim() === "" ||
+    requestURL.startsWith("//") ||
     /^[a-z][a-z\d+.-]*:/i.test(requestURL)
   ) {
-    throw new Error('认证实例只接受相对请求 URL')
+    throw new Error("认证实例只接受相对请求 URL");
   }
 
   const targetURL = new URL(
-    requestURL.replace(/^\/+/, ''),
-    new URL(trustedPathPrefix, trustedBaseURL)
-  )
+    requestURL.replace(/^\/+/, ""),
+    new URL(trustedPathPrefix, trustedBaseURL),
+  );
   const isTrustedTarget =
     targetURL.origin === trustedBaseURL.origin &&
     (targetURL.pathname === trustedBaseURL.pathname ||
-      targetURL.pathname.startsWith(trustedPathPrefix))
+      targetURL.pathname.startsWith(trustedPathPrefix));
 
   if (!isTrustedTarget) {
-    throw new Error('请求目标超出了认证实例的可信 baseURL 范围')
+    throw new Error("请求目标超出了认证实例的可信 baseURL 范围");
   }
 
-  const token = accessTokenProvider()
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+  const token = accessTokenProvider();
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
 function normalizeRequestError(error: unknown): ApiError {
   if (!axios.isAxiosError(error)) {
-    return new ApiError('发生未知错误', 'unknown', undefined, undefined, error)
+    return new ApiError("发生未知错误", "unknown", undefined, undefined, error);
   }
 
   if (axios.isCancel(error)) {
-    return new ApiError('请求已取消', 'canceled', undefined, error.code, error)
+    return new ApiError("请求已取消", "canceled", undefined, error.code, error);
   }
 
-  if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
-    return new ApiError('请求超时', 'timeout', undefined, error.code, error)
+  if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
+    return new ApiError("请求超时", "timeout", undefined, error.code, error);
   }
 
   if (error.response) {
-    const message = readMessage(error.response.data) ?? error.message
+    const message = readMessage(error.response.data) ?? error.message;
     return new ApiError(
       message,
-      'http',
+      "http",
       error.response.status,
       error.code,
-      error
-    )
+      error,
+    );
   }
 
   if (error.request) {
     return new ApiError(
-      '网络异常或服务器没有响应',
-      'network',
+      "网络异常或服务器没有响应",
+      "network",
       undefined,
       error.code,
-      error
-    )
+      error,
+    );
   }
 
   return new ApiError(
     error.message,
-    'configuration',
+    "configuration",
     undefined,
     error.code,
-    error
-  )
+    error,
+  );
 }
 
 // 响应拦截器保留完整响应，并统一归类请求链中的失败。
 instance.interceptors.response.use(
-  response => response,
-  (error: unknown) => Promise.reject(normalizeRequestError(error))
-)
+  (response) => response,
+  (error: unknown) => Promise.reject(normalizeRequestError(error)),
+);
 
-async function send<T, D = unknown>(
-  config: AxiosRequestConfig<D>
-): Promise<T> {
+async function send<T, D = unknown>(config: AxiosRequestConfig<D>): Promise<T> {
   const response = await instance.request<
     unknown,
     AxiosResponse<unknown, D>,
     D
-  >(config)
-  const payload = response.data
+  >(config);
+  const payload = response.data;
 
   if (!isApiResponse(payload)) {
-    throw new ApiError(
-      '接口响应格式不符合约定',
-      'protocol',
-      response.status
-    )
+    throw new ApiError("接口响应格式不符合约定", "protocol", response.status);
   }
 
   if (!API_SUCCESS_CODES.has(payload.code)) {
     throw new ApiError(
       payload.message,
-      'business',
+      "business",
       response.status,
-      payload.code
-    )
+      payload.code,
+    );
   }
 
-  return payload.data as T
+  return payload.data as T;
 }
 
 const request = {
   get<T>(url: string, config?: AxiosRequestConfig) {
-    return send<T>({ ...config, url, method: 'GET' })
+    return send<T>({ ...config, url, method: "GET" });
   },
-  post<T, D = unknown>(
-    url: string,
-    data: D,
-    config?: AxiosRequestConfig<D>
-  ) {
-    return send<T, D>({ ...config, url, method: 'POST', data })
+  post<T, D = unknown>(url: string, data: D, config?: AxiosRequestConfig<D>) {
+    return send<T, D>({ ...config, url, method: "POST", data });
   },
-  put<T, D = unknown>(
-    url: string,
-    data: D,
-    config?: AxiosRequestConfig<D>
-  ) {
-    return send<T, D>({ ...config, url, method: 'PUT', data })
+  put<T, D = unknown>(url: string, data: D, config?: AxiosRequestConfig<D>) {
+    return send<T, D>({ ...config, url, method: "PUT", data });
   },
   delete<T>(url: string, config?: AxiosRequestConfig) {
-    return send<T>({ ...config, url, method: 'DELETE' })
-  }
-}
+    return send<T>({ ...config, url, method: "DELETE" });
+  },
+};
 
-export default request
+export default request;
 ```
 
 上面的运行时检查会验证统一响应外壳中的 `code`、`message` 和 `data` 字段。泛型 `T` 仍然来自调用方声明；对支付、权限等高风险数据，还应使用项目选定的校验器继续验证 `data` 的具体结构。
@@ -233,66 +216,64 @@ export default request
 
 ```typescript
 // api/user.ts
-import request from '@/utils/request'
+import request from "@/utils/request";
 
 interface User {
-  id: number
-  name: string
-  email: string
+  id: number;
+  name: string;
+  email: string;
 }
 
 interface LoginParams {
-  username: string
-  password: string
+  username: string;
+  password: string;
 }
 
 interface LoginResult {
-  token: string
-  userInfo: User
+  token: string;
+  userInfo: User;
 }
 
 // 调用时直接传入业务数据类型，无需关心外层 ApiResponse 包裹
-export const getUser = (id: number) =>
-  request.get<User>(`/api/user/${id}`)
+export const getUser = (id: number) => request.get<User>(`/api/user/${id}`);
 
-export const getUserList = () =>
-  request.get<User[]>('/api/user/list')
+export const getUserList = () => request.get<User[]>("/api/user/list");
 
 export const login = (params: LoginParams) =>
-  request.post<LoginResult>('/api/login', params)
+  request.post<LoginResult>("/api/login", params);
 ```
 
 ```typescript
-import { ref } from 'vue'
-import { login } from '@/api/user'
+import { ref } from "vue";
+import { login } from "@/api/user";
 
-const username = ref('')
-const password = ref('')
+const username = ref("");
+const password = ref("");
 
 const handleLogin = async () => {
   try {
     const result = await login({
       username: username.value,
-      password: password.value
-    })
+      password: password.value,
+    });
     // result 类型自动推断为 LoginResult ✅
-    console.log(result.token)
-    console.log(result.userInfo.name)
+    console.log(result.token);
+    console.log(result.userInfo.name);
   } catch (error: unknown) {
     console.error(
-      error instanceof Error ? error.message : '登录失败，请稍后重试'
-    )
+      error instanceof Error ? error.message : "登录失败，请稍后重试",
+    );
   }
-}
+};
 ```
 
 ## 关键设计点
 
-| 设计 | 说明 |
-|------|------|
-| `send()` 剥离外层 | 拦截器保留完整响应，由 `send()` 验证响应结构并返回业务 `data` |
-| 泛型 `T` 只描述业务数据 | 不需要每次写 `ApiResponse<User>`，直接写 `User`；必要时继续校验具体数据结构 |
-| 分类处理错误 | 区分业务协议、HTTP、网络、超时、取消和配置错误，调用层可以按 `kind` 分别处理 |
+| 设计                    | 说明                                                                         |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| `send()` 剥离外层       | 拦截器保留完整响应，由 `send()` 验证响应结构并返回业务 `data`                |
+| 泛型 `T` 只描述业务数据 | 不需要每次写 `ApiResponse<User>`，直接写 `User`；必要时继续校验具体数据结构  |
+| 分类处理错误            | 区分业务协议、HTTP、网络、超时、取消和配置错误，调用层可以按 `kind` 分别处理 |
 
 ## 类型层与运行时返回值必须一致
 
@@ -302,38 +283,32 @@ const handleLogin = async () => {
 
 ```typescript
 instance.interceptors.response.use(
-  response => response,
-  (error: unknown) => Promise.reject(normalizeRequestError(error))
-)
+  (response) => response,
+  (error: unknown) => Promise.reject(normalizeRequestError(error)),
+);
 
-async function send<T, D = unknown>(
-  config: AxiosRequestConfig<D>
-): Promise<T> {
+async function send<T, D = unknown>(config: AxiosRequestConfig<D>): Promise<T> {
   const response = await instance.request<
     unknown,
     AxiosResponse<unknown, D>,
     D
-  >(config)
-  const payload = response.data
+  >(config);
+  const payload = response.data;
 
   if (!isApiResponse(payload)) {
-    throw new ApiError(
-      '接口响应格式不符合约定',
-      'protocol',
-      response.status
-    )
+    throw new ApiError("接口响应格式不符合约定", "protocol", response.status);
   }
 
   if (!API_SUCCESS_CODES.has(payload.code)) {
     throw new ApiError(
       payload.message,
-      'business',
+      "business",
       response.status,
-      payload.code
-    )
+      payload.code,
+    );
   }
 
-  return payload.data as T
+  return payload.data as T;
 }
 ```
 
@@ -345,11 +320,11 @@ Vite 会把 `VITE_` 前缀的环境变量暴露给客户端代码，而且读取
 
 ```typescript
 interface ImportMetaEnv {
-  readonly VITE_API_BASE_URL: string
+  readonly VITE_API_BASE_URL: string;
 }
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv
+  readonly env: ImportMetaEnv;
 }
 ```
 
@@ -363,32 +338,32 @@ interface ImportMeta {
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-import { login } from '@/api/user'
+import { ref } from "vue";
+import { login } from "@/api/user";
 
-const submitting = ref(false)
-const errorMessage = ref('')
-const username = ref('')
-const password = ref('')
+const submitting = ref(false);
+const errorMessage = ref("");
+const username = ref("");
+const password = ref("");
 
 async function handleLogin() {
-  if (submitting.value) return
+  if (submitting.value) return;
 
-  submitting.value = true
-  errorMessage.value = ''
+  submitting.value = true;
+  errorMessage.value = "";
 
   try {
     const result = await login({
       username: username.value,
-      password: password.value
-    })
+      password: password.value,
+    });
 
-    console.log(result.userInfo.name)
+    console.log(result.userInfo.name);
   } catch (error: unknown) {
     errorMessage.value =
-      error instanceof Error ? error.message : '登录失败，请稍后重试'
+      error instanceof Error ? error.message : "登录失败，请稍后重试";
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
 }
 </script>

@@ -339,7 +339,7 @@ export default defineConfig({
             { text: "JWT", link: "/src/web/JWT.md" },
             {
               text: "Axios二次封装示例",
-              link: "/src/web/axios二次封装示例.md",
+              link: "/src/web/Axios二次封装示例.md",
             },
             {
               text: "Vue3常用宏讲解",
