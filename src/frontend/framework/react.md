@@ -895,11 +895,11 @@ export default App;
 
 ## \*SWR
 
-SWR = Stale-While-Revalidate，用于数据获取的 React Hooks 库. 比如想实现一个功能: 当页面首次加载时, 自动发送一次请求, 当点击按钮时, 再次发送一次请求.
+`SWR` = `Stale-While-Revalidate`，用于数据获取的 React Hooks 库. 比如想实现一个功能: 当页面首次加载时, 自动发送一次请求, 当点击按钮时, 再次发送一次请求.
 
 可以使用`useEffect` 来实现:
 
-```jsx
+```tsx
 import { useCallback, useEffect, useState } from "react";
 
 const adviceURL = "https://api.adviceslip.com/advice";
@@ -939,7 +939,7 @@ export default App;
 
 使用 SWR 时仍然需要提供请求函数（fetcher），但缓存、重新验证和请求状态由 SWR 管理：
 
-```jsx
+```tsx
 import useSWR from "swr";
 function App() {
   const adviceURL = "https://api.adviceslip.com/advice";
@@ -1004,7 +1004,1173 @@ const { trigger, data, error, isMutating } = useSWRMutation(
 - isMutating：是否正在请求中（true/false）。
 - error：请求失败时的错误对象。
 
-## \*Tanstack Query
+## \*Tanstack Query (v5)
+
+> TanStack Query 是什么
+
+### 1. TanStack Query 是什么
+
+TanStack Query 原名 React Query，是一个用于管理**服务器状态（Server State）**的异步状态管理库。
+
+它主要解决：
+
+- 请求服务器数据
+- 管理加载和错误状态
+- 缓存服务器响应
+- 多个组件共享同一份请求结果
+- 判断数据是否过期
+- 后台重新请求
+- 请求失败自动重试
+- 创建、修改和删除服务器数据
+- 数据修改后的缓存刷新
+- 分页、无限滚动和乐观更新
+
+一句话总结：
+
+> TanStack Query 管理的是“来自服务器的数据”，而不是所有 React 状态。
+
+官方文档：[TanStack Query React 文档](https://tanstack.com/query/latest/docs/framework/react)
+
+---
+
+### 2. 为什么需要 TanStack Query
+
+只使用 React 获取数据时，通常需要自己管理：
+
+```tsx
+const [data, setData] = useState<User | null>(null);
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState<Error | null>(null);
+
+useEffect(() => {
+  setIsLoading(true);
+
+  fetch("/api/user")
+    .then((response) => response.json())
+    .then(setData)
+    .catch(setError)
+    .finally(() => setIsLoading(false));
+}, []);
+```
+
+真实项目还需要继续处理：
+
+- 组件卸载后的请求取消
+- 多个组件重复请求相同接口
+- 请求竞态问题
+- 缓存和缓存过期
+- 网络断开后重新连接
+- 窗口重新聚焦时刷新
+- 请求失败重试
+- 修改数据后重新获取列表
+
+TanStack Query 把这些通用逻辑封装起来，让组件只关心：
+
+```text
+请求什么数据？
+数据加载中显示什么？
+请求失败显示什么？
+请求成功显示什么？
+```
+
+---
+
+### 3. 服务器状态与客户端状态
+
+#### 服务器状态
+
+服务器状态来自远程 API：
+
+```ts
+const user = await fetch("/api/user");
+const articles = await fetch("/api/articles");
+const comments = await fetch("/api/comments");
+```
+
+它具有这些特点：
+
+- 不完全由前端控制
+- 需要异步请求
+- 可能被其他用户修改
+- 本地数据可能过期
+- 需要缓存和重新同步
+
+这类数据适合 TanStack Query。
+
+#### 客户端状态
+
+客户端状态只属于当前应用：
+
+```ts
+const isSidebarOpen = true;
+const theme = "dark";
+const searchInput = "react";
+```
+
+这类状态更适合：
+
+- `useState`
+- Zustand
+- URL
+
+#### 状态管理边界
+
+| 状态                 | 推荐工具                       |
+| -------------------- | ------------------------------ |
+| 输入框内容           | `useState`                     |
+| 弹窗是否打开         | `useState` 或 Zustand          |
+| 登录弹窗、主题       | Zustand                        |
+| 页码、标签、筛选条件 | React Router URL               |
+| 用户资料、文章、评论 | TanStack Query                 |
+| 表单提交状态         | React Actions 或 `useMutation` |
+
+TanStack Query不会完全替代 Zustand。它主要减少了把服务器响应存入全局 Store 的需要。[官方说明](https://tanstack.com/query/latest/docs/framework/react/guides/does-this-replace-client-state)
+
+---
+
+### 4. 安装与初始化
+
+#### 安装
+
+```bash
+pnpm add @tanstack/react-query
+```
+
+可选安装开发工具：
+
+```bash
+pnpm add -D @tanstack/react-query-devtools
+```
+
+#### 创建 QueryClient
+
+```tsx
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient();
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <App />
+
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  </StrictMode>,
+);
+```
+
+`QueryClient` 是整个应用的查询管理器，负责：
+
+- 保存查询缓存
+- 更新缓存
+- 使缓存失效
+- 重新请求数据
+- 设置全局默认配置
+
+通常一个前端应用只创建一个 `QueryClient`。
+
+---
+
+### 5. 三个核心概念
+
+TanStack Query 最重要的三个概念是：
+
+```text
+Query：查询服务器数据
+Mutation：修改服务器数据
+Invalidation：让旧缓存失效
+```
+
+官方快速入门也是围绕这三个概念展开的：[Quick Start](https://tanstack.com/query/latest/docs/framework/react/quick-start)
+
+---
+
+> 第一部分：Query
+
+---
+
+### 6. 使用 `useQuery` 获取数据
+
+基本结构：
+
+```tsx
+const query = useQuery({
+  queryKey: ["users"],
+  queryFn: getUsers,
+});
+```
+
+一个 Query 至少需要：
+
+- `queryKey`：缓存标识
+- `queryFn`：返回 Promise 的请求函数
+
+---
+
+### 7. 编写 API 请求函数
+
+```tsx
+interface GitHubUser {
+  login: string;
+  name: string | null;
+  avatar_url: string;
+  bio: string | null;
+}
+
+async function getGitHubUser(
+  username: string,
+  signal?: AbortSignal,
+): Promise<GitHubUser> {
+  const response = await fetch(`https://api.github.com/users/${username}`, {
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(`请求失败：${response.status}`);
+  }
+
+  return response.json();
+}
+```
+
+注意：`fetch` 遇到 404、500 时不会自动抛出异常，所以必须检查：
+
+```ts
+if (!response.ok) {
+  throw new Error("请求失败");
+}
+```
+
+---
+
+### 8. 完整的 `useQuery` 示例
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+
+interface UserPageProps {
+  username: string;
+}
+
+export function UserPage({ username }: UserPageProps) {
+  const {
+    data: user,
+    error,
+    isPending,
+    isError,
+    isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: ["github-user", username],
+    queryFn: ({ signal }) => getGitHubUser(username, signal),
+    staleTime: 60_000,
+  });
+
+  if (isPending) {
+    return <p>正在加载用户……</p>;
+  }
+
+  if (isError) {
+    return (
+      <section>
+        <p>{error.message}</p>
+
+        <button onClick={() => refetch()}>重新加载</button>
+      </section>
+    );
+  }
+
+  return (
+    <section>
+      {isFetching && <p>正在后台更新……</p>}
+
+      <img src={user.avatar_url} alt={`${user.login} 的头像`} />
+
+      <h1>{user.name ?? user.login}</h1>
+      <p>{user.bio ?? "该用户没有填写简介"}</p>
+    </section>
+  );
+}
+```
+
+---
+
+### 9. `useQuery` 的常用返回值
+
+| 返回值       | 说明                            |
+| ------------ | ------------------------------- |
+| `data`       | 查询成功后的数据                |
+| `error`      | 查询失败后的错误                |
+| `status`     | `pending`、`error` 或 `success` |
+| `isPending`  | 当前还没有可用数据              |
+| `isError`    | 查询失败                        |
+| `isSuccess`  | 查询成功                        |
+| `isFetching` | 当前正在执行请求，包括后台刷新  |
+| `refetch()`  | 手动重新请求                    |
+
+推荐的页面判断顺序：
+
+```tsx
+if (isPending) {
+  return <Loading />;
+}
+
+if (isError) {
+  return <ErrorMessage error={error} />;
+}
+
+return <SuccessContent data={data} />;
+```
+
+检查完 `isPending` 和 `isError` 后，TypeScript 能推断 `data` 已经存在。[Queries 官方指南](https://tanstack.com/query/latest/docs/framework/react/guides/queries)
+
+---
+
+### 10. `isPending` 与 `isFetching`
+
+第一次进入页面：
+
+```ts
+isPending === true;
+isFetching === true;
+```
+
+已经有缓存，正在后台更新：
+
+```ts
+isPending === false;
+isFetching === true;
+```
+
+因此：
+
+```tsx
+if (isPending) {
+  return <FullPageLoading />;
+}
+```
+
+适合第一次加载。
+
+```tsx
+{
+  isFetching && <SmallSpinner />;
+}
+```
+
+适合后台刷新提示。
+
+记忆：
+
+```text
+isPending：现在有没有数据？
+isFetching：现在有没有请求正在执行？
+```
+
+---
+
+### 11. Query Key
+
+`queryKey` 是一份服务器数据的缓存身份证。
+
+```tsx
+queryKey: ["github-user", username];
+```
+
+不同的 Key 表示不同的数据：
+
+```ts
+["github-user", "octocat"][("github-user", "torvalds")][
+  ("articles", { page: 1 })
+][("articles", { page: 2 })][("articles", { page: 1, tag: "react" })][
+  ("articles", { page: 1, tag: "typescript" })
+];
+```
+
+所有会影响请求结果的变量，都必须放进 `queryKey`：
+
+```tsx
+useQuery({
+  queryKey: ["articles", page, tag],
+  queryFn: () => getArticles(page, tag),
+});
+```
+
+错误示例：
+
+```tsx
+useQuery({
+  queryKey: ["articles"],
+  queryFn: () => getArticles(page, tag),
+});
+```
+
+这里 `page` 和 `tag` 变化了，但 Key 没变，缓存可能出现错误。
+
+规则：
+
+- Query Key 必须是数组
+- Key 应该可以序列化
+- 请求依赖的参数必须进入 Key
+- 相同 Key 代表同一份服务器数据
+
+参考：[Query Keys 官方指南](https://tanstack.com/query/latest/docs/framework/react/guides/query-keys)
+
+---
+
+### 12. 条件查询
+
+只有满足条件时才执行请求：
+
+```tsx
+const query = useQuery({
+  queryKey: ["github-user", username],
+  queryFn: ({ signal }) => getGitHubUser(username, signal),
+  enabled: username.trim().length > 0,
+});
+```
+
+当 `enabled` 为 `false` 时，查询不会自动执行。
+
+适用场景：
+
+- 用户名不为空才查询
+- 登录后才查询个人数据
+- 上一个请求成功后才执行下一个请求
+- 弹窗打开后才请求详情
+
+---
+
+### 13. 查询取消
+
+TanStack Query 会把 `AbortSignal` 传给 `queryFn`：
+
+```tsx
+useQuery({
+  queryKey: ["user", username],
+  queryFn: ({ signal }) =>
+    fetch(`/api/users/${username}`, { signal }).then(async (response) => {
+      if (!response.ok) {
+        throw new Error("请求失败");
+      }
+
+      return response.json();
+    }),
+});
+```
+
+当查询不再需要或被取消时，`signal` 可以终止对应的 `fetch` 请求。
+
+这能防止：
+
+- 用户快速切换页面时旧请求覆盖新数据
+- 组件离开后继续执行无用请求
+- 浪费网络资源
+
+参考：[Query Cancellation](https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation)
+
+---
+
+> 第二部分：缓存
+
+---
+
+### 14. TanStack Query 的缓存流程
+
+假设组件执行：
+
+```tsx
+useQuery({
+  queryKey: ["users"],
+  queryFn: getUsers,
+});
+```
+
+运行过程：
+
+```text
+组件渲染
+   ↓
+根据 queryKey 查找缓存
+   ↓
+缓存中没有数据
+   ↓
+执行 queryFn
+   ↓
+保存请求结果
+   ↓
+组件重新渲染
+   ↓
+其他组件使用相同 queryKey
+   ↓
+共享同一份缓存
+```
+
+如果另一个组件也使用：
+
+```tsx
+useQuery({
+  queryKey: ["users"],
+  queryFn: getUsers,
+});
+```
+
+TanStack Query能够复用缓存，而不需要把用户数据放进 Zustand。
+
+---
+
+### 15. `staleTime`
+
+`staleTime` 表示数据在多长时间内是“新鲜”的：
+
+```tsx
+useQuery({
+  queryKey: ["users"],
+  queryFn: getUsers,
+  staleTime: 60_000,
+});
+```
+
+表示一分钟内数据是新鲜的。
+
+在新鲜期间，TanStack Query通常可以直接使用缓存，而不进行基于过期状态的重新请求。
+
+```ts
+staleTime: 0;
+```
+
+数据立即过期，这是默认行为。
+
+```ts
+staleTime: 5 * 60_000;
+```
+
+五分钟内视为新鲜。
+
+```ts
+staleTime: Infinity;
+```
+
+永不过期，直到手动使其失效。
+
+---
+
+### 16. `gcTime`
+
+`gcTime` 表示：
+
+> 当没有任何组件使用缓存后，缓存还要保存多长时间。
+
+```tsx
+useQuery({
+  queryKey: ["users"],
+  queryFn: getUsers,
+  gcTime: 10 * 60_000,
+});
+```
+
+表示查询不再被使用后，缓存保留十分钟。
+
+区别：
+
+```text
+staleTime：数据什么时候过期
+gcTime：无人使用的缓存什么时候被删除
+```
+
+不要把它们混为一谈。
+
+---
+
+### 17. 当前重要默认行为
+
+TanStack Query v5 默认：
+
+- 查询数据会立即被认为过期
+- 过期数据可能在组件挂载时后台刷新
+- 窗口重新获得焦点时可能刷新
+- 网络恢复时可能刷新
+- 无人使用的缓存默认约 5 分钟后回收
+- 查询失败默认重试 3 次
+
+这些默认行为可以修改：
+
+```tsx
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      gcTime: 10 * 60_000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+```
+
+不要看到开发环境中接口多次请求，就立即认为代码有问题。先检查缓存是否已经 stale，以及是否发生了窗口聚焦、重新挂载或网络恢复。
+
+参考：[Important Defaults](https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults)
+
+---
+
+> 第三部分：Mutation
+
+---
+
+### 18. 使用 `useMutation` 修改数据
+
+`useQuery` 通常用于读取数据：
+
+```text
+GET 用户
+GET 文章
+GET 评论
+```
+
+`useMutation` 通常用于产生服务器副作用：
+
+```text
+POST 创建
+PUT/PATCH 修改
+DELETE 删除
+登录、注册、收藏、关注
+```
+
+定义请求函数：
+
+```tsx
+interface CreateTodoInput {
+  title: string;
+}
+
+interface Todo {
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
+async function createTodo(input: CreateTodoInput): Promise<Todo> {
+  const response = await fetch("/api/todos", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    throw new Error("创建任务失败");
+  }
+
+  return response.json();
+}
+```
+
+组件中使用：
+
+```tsx
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+function TodoForm() {
+  const queryClient = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: createTodo,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["todos"],
+      });
+    },
+  });
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const title = String(formData.get("title") ?? "").trim();
+
+    if (!title) return;
+
+    createMutation.mutate({ title });
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="title" />
+
+      <button disabled={createMutation.isPending}>
+        {createMutation.isPending ? "正在创建……" : "创建任务"}
+      </button>
+
+      {createMutation.isError && <p>{createMutation.error.message}</p>}
+    </form>
+  );
+}
+```
+
+Mutation 的主要状态：
+
+| 状态        | 说明     |
+| ----------- | -------- |
+| `isIdle`    | 尚未执行 |
+| `isPending` | 正在提交 |
+| `isError`   | 提交失败 |
+| `isSuccess` | 提交成功 |
+
+参考：[Mutations 官方指南](https://tanstack.com/query/latest/docs/framework/react/guides/mutations)
+
+---
+
+### 19. `mutate` 与 `mutateAsync`
+
+普通调用：
+
+```tsx
+mutation.mutate(input);
+```
+
+使用回调处理结果：
+
+```tsx
+mutation.mutate(input, {
+  onSuccess: (data) => {
+    console.log(data);
+  },
+});
+```
+
+如果需要使用 `await`：
+
+```tsx
+try {
+  const result = await mutation.mutateAsync(input);
+  console.log(result);
+} catch (error) {
+  console.error(error);
+}
+```
+
+一般事件处理使用 `mutate` 就够了；需要串行组合异步流程时可以使用 `mutateAsync`。
+
+---
+
+> 第四部分：缓存失效
+
+---
+
+### 20. `invalidateQueries`
+
+创建、修改或删除数据后，之前缓存的列表可能已经不准确。
+
+例如创建任务成功：
+
+```tsx
+const mutation = useMutation({
+  mutationFn: createTodo,
+
+  onSuccess: () => {
+    queryClient.invalidateQueries({
+      queryKey: ["todos"],
+    });
+  },
+});
+```
+
+`invalidateQueries()` 的作用可以理解为：
+
+```text
+告诉 TanStack Query：
+这份缓存可能已经过期，请在适当的时候重新获取。
+```
+
+它不是简单地直接删除所有缓存。
+
+例如：
+
+```tsx
+queryClient.invalidateQueries({
+  queryKey: ["todos"],
+});
+```
+
+可以匹配：
+
+```ts
+["todos"][("todos", { page: 1 })][("todos", { page: 2 })];
+```
+
+如果只希望精确匹配：
+
+```tsx
+queryClient.invalidateQueries({
+  queryKey: ["todos"],
+  exact:tk true,
+});
+```
+
+> 注：正确代码应写成 `exact: true`。
+
+参考：[Query Invalidation](https://tanstack.com/query/latest/docs/framework/react/guides/query-invalidation)
+
+---
+
+### 21. 直接更新缓存
+
+如果接口已经返回完整的新数据，可以直接更新缓存：
+
+```tsx
+const updateMutation = useMutation({
+  mutationFn: updateTodo,
+
+  onSuccess: (updatedTodo) => {
+    queryClient.setQueryData<Todo[]>(["todos"], (oldTodos = []) =>
+      oldTodos.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo)),
+    );
+  },
+});
+```
+
+两种常见策略：
+
+```text
+invalidateQueries
+实现简单，重新请求服务器，可靠性更高
+
+setQueryData
+立即更新本地缓存，减少请求，但逻辑更复杂
+```
+
+学习初期优先使用：
+
+```tsx
+invalidateQueries();
+```
+
+---
+
+> 第五部分：与其他工具协作
+
+---
+
+### 22. TanStack Query 与 Zustand
+
+错误做法：
+
+```tsx
+const { data } = useQuery(...);
+
+useEffect(() => {
+  useUserStore.getState().setUser(data);
+}, [data]);
+```
+
+这会产生两份服务器数据：
+
+```text
+TanStack Query 中一份
+Zustand 中又一份
+```
+
+之后很难判断哪一份是最新数据。
+
+正确划分：
+
+```text
+TanStack Query
+用户资料、文章、评论、商品
+
+Zustand
+主题、搜索历史、侧边栏、客户端草稿
+```
+
+---
+
+### 23. TanStack Query 与 React Router
+
+React Router负责：
+
+- 当前页面
+- URL 参数
+- 页码
+- 标签
+- 搜索条件
+- 页面导航
+
+TanStack Query负责：
+
+- 根据这些参数请求服务器数据
+- 缓存请求结果
+- 后台重新同步
+
+例如：
+
+```text
+/users/octocat?page=2
+```
+
+状态划分：
+
+```ts
+// React Router
+username = "octocat";
+page = 2;
+
+// TanStack Query
+user;
+repositories;
+
+// Zustand
+searchHistory;
+
+// useState
+searchInput;
+```
+
+一个参数完整的查询：
+
+```tsx
+const query = useQuery({
+  queryKey: ["repositories", username, page],
+  queryFn: ({ signal }) => getRepositories(username, page, signal),
+});
+```
+
+Router和 TanStack Query 都能参与数据加载。项目中应该明确选择数据策略，避免 loader 和组件对同一个接口重复请求。
+
+---
+
+### 24. 当前 TodoMVC 是否需要 TanStack Query
+
+当前 TodoMVC 的 Todo 数据保存在浏览器本地：
+
+```ts
+todos: Todo[];
+```
+
+它不是服务器状态，因此不需要 TanStack Query。
+
+当前项目应该使用：
+
+```text
+本地 State
+   ↓
+迁移到 Zustand
+   ↓
+使用 persist 保存到 localStorage
+```
+
+当项目连接 Go 后端之后：
+
+```text
+GET /api/todos
+POST /api/todos
+PATCH /api/todos/:id
+DELETE /api/todos/:id
+```
+
+这些服务器数据才适合交给 TanStack Query。
+
+---
+
+> 第六部分：常见错误
+
+---
+
+### 25. 直接执行 `queryFn`
+
+错误：
+
+```tsx
+useQuery({
+  queryKey: ["user", username],
+  queryFn: getUser(username),
+});
+```
+
+这里在渲染时已经调用了函数。
+
+正确：
+
+```tsx
+useQuery({
+  queryKey: ["user", username],
+  queryFn: () => getUser(username),
+});
+```
+
+---
+
+### 26. Query Key 缺少依赖参数
+
+错误：
+
+```tsx
+useQuery({
+  queryKey: ["user"],
+  queryFn: () => getUser(username),
+});
+```
+
+正确：
+
+```tsx
+useQuery({
+  queryKey: ["user", username],
+  queryFn: () => getUser(username),
+});
+```
+
+---
+
+### 27. 不检查 HTTP 状态
+
+错误：
+
+```tsx
+const response = await fetch("/api/users");
+return response.json();
+```
+
+正确：
+
+```tsx
+const response = await fetch("/api/users");
+
+if (!response.ok) {
+  throw new Error(`请求失败：${response.status}`);
+}
+
+return response.json();
+```
+
+---
+
+### 28. 把服务器响应复制到 `useState`
+
+通常不需要：
+
+```tsx
+const query = useQuery(...);
+const [users, setUsers] = useState<User[]>([]);
+
+useEffect(() => {
+  if (query.data) {
+    setUsers(query.data);
+  }
+}, [query.data]);
+```
+
+直接使用：
+
+```tsx
+const { data: users = [] } = useQuery(...);
+```
+
+只有当用户需要编辑一份独立草稿时，才考虑复制服务器数据。
+
+---
+
+### 29. 所有数据都设置 `staleTime: Infinity`
+
+```tsx
+staleTime: Infinity;
+```
+
+表示数据不会因为过期自动刷新。
+
+它适合极少变化的数据，不适合直接作为所有接口的默认配置。否则用户可能长期看到旧数据。
+
+应该根据业务设置：
+
+```ts
+// 更新频繁
+staleTime: 10_000;
+
+// 普通列表
+staleTime: 60_000;
+
+// 很少变化的配置
+staleTime: 30 * 60_000;
+```
+
+---
+
+> 第七部分：记忆总结
+
+---
+
+### 30. 核心口诀
+
+```text
+读取服务器数据：useQuery
+修改服务器数据：useMutation
+操作查询缓存：useQueryClient
+标识一份数据：queryKey
+执行具体请求：queryFn
+通知缓存过期：invalidateQueries
+新鲜时间：staleTime
+缓存回收时间：gcTime
+```
+
+### 31. 最小使用模板
+
+```tsx
+const query = useQuery({
+  queryKey: ["resource", id],
+  queryFn: ({ signal }) => getResource(id, signal),
+});
+
+if (query.isPending) {
+  return <Loading />;
+}
+
+if (query.isError) {
+  return <ErrorMessage error={query.error} />;
+}
+
+return <Content data={query.data} />;
+```
+
+Mutation 模板：
+
+```tsx
+const queryClient = useQueryClient();
+
+const mutation = useMutation({
+  mutationFn: createResource,
+
+  onSuccess: () => {
+    queryClient.invalidateQueries({
+      queryKey: ["resources"],
+    });
+  },
+});
+```
+
+---
+
+> 第八部分：复习问题
+
+---
+
+1. TanStack Query主要管理客户端状态还是服务器状态？
+2. `queryKey` 有什么作用？
+3. 为什么请求参数必须放进 `queryKey`？
+4. `queryFn` 必须返回什么？
+5. `isPending` 和 `isFetching` 有什么区别？
+6. `staleTime` 和 `gcTime` 有什么区别？
+7. `useQuery` 与 `useMutation` 分别适合什么操作？
+8. 创建数据成功后，为什么需要调用 `invalidateQueries`？
+9. 为什么不应该把 Query 数据再复制进 Zustand？
+10. React Router、Zustand 和 TanStack Query分别负责什么状态？
+
+如果能不看答案解释这些问题，说明已经掌握了 TanStack Query 的核心思想。
 
 ## \*useContext
 
