@@ -904,105 +904,266 @@ import { useCallback, useEffect, useState } from "react";
 
 const adviceURL = "https://api.adviceslip.com/advice";
 
-function App() {
+function Data() {
   const [advice, setAdvice] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // 初始化时就设置为 true，第一次挂载不用在 effect 里再 setLoading
 
   const getAdvice = useCallback(async () => {
-    setIsLoading(true);
+    // 不再在这个函数里先 setIsLoading(true)
+    // 原因：它会被 effect 调用，且该 setState 是同步执行，触发 lint 的 set-state-in-effect 警告
     try {
       const result = await fetch(adviceURL);
       if (!result.ok) throw new Error(`HTTP ${result.status}`);
       const data = await result.json();
-      setAdvice(data.slip.advice);
+      setAdvice(data?.slip?.advice ?? "No advice returned");
+    } catch {
+      setAdvice("获取失败，请重试");
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // 只在请求结束后更新 isLoading，属于 async 回调，不会触发同类警告
     }
   }, []);
 
   useEffect(() => {
-    void getAdvice();
+    void getAdvice(); // effect 只触发一次请求，不做同步状态设置
   }, [getAdvice]);
+
+  const handleRefresh = async () => {
+    // 用户事件里处理“重新加载”状态
+    setIsLoading(true); // 事件驱动，符合 React 建议
+    await getAdvice();
+  };
 
   return (
     <main>
       <h1>Advice App</h1>
       <p>{isLoading ? "Loading..." : advice}</p>
-      <button disabled={isLoading} onClick={getAdvice}>
+      <button type="button" disabled={isLoading} onClick={handleRefresh}>
         Get Advice
       </button>
     </main>
   );
 }
-export default App;
+
+export default Data;
+```
+
+但是这样太麻烦了, 而且也不是React推荐的写法, 可以使用SWR:
+
+`const { data, error, isLoading, isValidating, mutate } = useSWR<AdviceResponse>(key, fetcher, config);`
+
+### 参数
+
+1. `key`
+
+`key` 是整个 SWR 的核心概念，它决定"**这份数据是谁**"：
+
+- 缓存身份：SWR 内部有一个缓存仓库，key 就是仓库名。相同 `key` 的 `useSWR` 调用(哪怕在不同组件里)共享同一份数据、只发一次请求(自动去重)
+- key 变 = 换数据: `useSWR` (/api/user/${id}, `f`) 里 `id` 变了，SWR 认为你要的是另一份数据，自动重新请求——这就是注释里"让 key 动起来"实现换一条的原理
+- key 为 `null` → 不请求：条件请求的开关
+
+```ts
+// key 是 null 就不发请求;userId 有值才发
+const { data } = useSWR(userId ? `/api/user/${userId}` : null, fetcher);
+```
+
+进阶：key 还可以是数组(把多个值组合成一个 key)——`useSWR(['/api/posts', page], f)`, SWR 会把数组整体当作缓存身份，适合 "URL + 分页参数" 这种组合。
+
+2. `fetcher` ("怎么拿到数据")
+
+```ts
+const fetcher = async (url: string) => {
+  const response = await fetch(url);
+  return await response.json();
+};
+```
+
+- 它是真正执行请求的函数，SWR 自己不发请求，只负责调度 ( 什么时候发、发几次、结果放哪 )
+- SWR 会把 **key** 作为第一个参数传给它——这就是为什么你 fetcher 的参数叫 `url`: 它收到的就是你传给 useSWR 的那个 key
+- 必须返回 `Promise` (async 函数天然满足)
+- 不会每次渲染都调用：只在需要时执行——首次挂载、key 变化、重新验证。同一时间窗口内的重复触发会自动去重合并
+
+一句话分工：key 说“我要哪份数据”，fetcher 说“这份数据怎么生产”。
+
+3. `options` (可选)
+
+```ts
+useSWR(url, fetcher, {
+  refreshInterval: 5000, // 每 5 秒轮询
+  revalidateOnFocus: false, // 关掉切标签页自动刷新
+  errorRetryCount: 3, // 失败最多重试 3 次
+});
+```
+
+常用的还有 `dedupingInterval` (去重窗口)、`revalidateOnReconnect` (断网恢复刷新)、`keepPreviousData` (key 变化时保留旧数据) 等。不传就用默认值。
+
+### 返回值
+
+解构出来的内容
+
+- `data`：
+  1. 请求成功后的返回数据, 类型是 `Data | undefined`, 泛型决定它是什么
+  2. 生命周期：首次渲染是 `undefined` → `fetcher` 成功后变成数据 → 之后一直有值(除非 `key` 变了，那就是另一份数据了)
+  3. 它的核心理念：可能是旧的。`SWR` 会先把缓存里的旧数据给你渲染，后台请求回来再悄悄替换——这就是 `Stale-While-Revalidate` 名字的由来。所以切标签页回来时，`data` 立刻有值(旧的)，稍后自动变成新的
+  4. `undefined` 阶段必须处理，直接读`data`就白屏
+  5. 出错时 `data` 不会被清空，和 `error` 可以同时有值
+- `error`：
+  1. fetcher 只要 `throw` 或 `reject`, 错误就进 `error`, 不会抛到组件外把页面搞崩——渲染分支由你决定怎么展示
+  2. 出错后 `SWR` 会**自动重试**(指数退避)，可用 `errorRetryCount` / `errorRetryInterval` 配置
+  3. 因为 `error` 和 `data` 能共存，渲染顺序有讲究：先判 `error` → 失败就显示错误；先判 `data` → 失败时降级显示旧数据。按需求选
+- `isLoading`:
+  1. 为 `true` 的条件很苛刻：有请求在飞，且 `data` 还是 `undefined`
+  2. 一旦这个 `key` 拿到过数据，它就永远是 `false` ——后台刷新时它不参与
+  3. 用途：骨架屏、加载动画，只该在“第一次”出现
+  4. 它是 `SWR 2.0` 才加的，等价于旧写法 `data === undefined && isValidating`
+
+- ` isValidating`:
+  1. 为 `true` 的条件：这个 `key` 上有任何请求在进行——首次加载、切标签页触发的后台重新验证、`mutate` 触发的，全算
+  2. 和 `isLoading` 的关系：`isLoading` 为 `true` 时 `isValidating` 必为 `true`, 反之不然
+  3. 用途：“刷新中…”这种小提示。用 `isValidating` 而不是 `isLoading`, 否则每次后台刷新 UI 都会闪回加载态
+- `mutate`: 缓存遥控器
+
+绑定当前 key,四种用法：
+
+```tsx
+mutate(); // 1. 重新请求(你的"换一条"就是它)
+mutate(newData); // 2. 乐观更新:立刻把 newData 写进缓存, 然后再发请求确认
+mutate(newData, false); // 3.只写缓存,不发请求
+mutate((prev) => ({ ...prev, count: prev.count + 1 })); // 4. 基于旧值算新值
 ```
 
 使用 SWR 时仍然需要提供请求函数（fetcher），但缓存、重新验证和请求状态由 SWR 管理：
 
 ```tsx
 import useSWR from "swr";
-function App() {
-  const adviceURL = "https://api.adviceslip.com/advice";
 
-  const fetcher = (...args) => fetch(...args).then((res) => res.json());
+const adviceURL = "https://api.adviceslip.com/advice";
+
+// fetcher: 一个普通函数, 接收 key,返回 Promise
+// 不需要 useCallback —— SWR 内部处理了引用稳定性
+const fetcher = async (url: string) => {
+  // cache: "no-store" 防止浏览器 HTTP 缓存导致每次拿到同一条建议(后面解释)
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+function Data() {
+  // 这一行替代了 useState x2 + useCallback + useEffect
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    adviceURL,
+    fetcher,
+  );
+
+  const advice = data?.slip?.advice;
+
+  // 双层三元表达式
+
   /**
-   * SWR 会在 key 有效时请求数据，并可在重新聚焦、网络恢复等时机重新验证
-   * data 是 API 返回的数据
-   * isLoading 是一个布尔值，表示数据是否正在加载中
-   * error 是 API 返回的错误信息
-   * mutate 是一个函数，用于手动触发数据更新
+   *let text;
+
+    if (isLoading) {
+    // 情况 1:正在首次加载
+    text = "Loading...";
+    } else if (error) {
+    // 情况 2:加载完成但出错了
+    text = "获取失败,请重试";
+    } else {
+    // 情况 3:加载成功
+    text = advice ?? "No advice returned";
+    }
    */
-  const {
-    data,
-    error,
-    isLoading,
-    mutate: getAdvice,
-  } = useSWR(adviceURL, fetcher);
+  const text = isValidating
+    ? "Loading..."
+    : error
+      ? "获取失败,请重试"
+      : (advice ?? "No advice returned");
+
+  /**
+ * 问自己一个问题：“加载中”想出现在哪些等待时刻？
+- 每次等响应都想显示(包括点按钮刷新) → 用 isValidating
+- 只想在第一次进页面时显示 → 用 isLoading
+ */
 
   return (
     <main>
       <h1>Advice App</h1>
-      <p>
-        {error ? error.message : isLoading ? "Loading..." : data?.slip?.advice}
-      </p>
-      <button disabled={isLoading} onClick={() => getAdvice()}>
+      <p>{text}</p>
+      <button type="button" disabled={isValidating} onClick={() => mutate()}>
         Get Advice
       </button>
     </main>
   );
 }
-export default App;
+
+export default Data;
 ```
 
-SWR也可以不一上来获取数据, 而是在需要的时候获取. 可以使用`useSWRMutation`.
+### useSWRMutation
+
+SWR 里专门负责“写操作”的 hook——POST / PUT / DELETE 这类会修改服务端数据的请求(发表评论、提交表单、删除条目)。
+
+> 和 `useSWR` 的核心区别：**不会自动发请求**
+
+- `useSWR:` 组件挂载就自动请求，之后还会自动重新验证
+- `useSWRMutation`: 挂载后什么都不做，一直等你手动调用 `trigger()` 才发请求
+
+基本用法:
+
+```tsx
+import useSWRMutation from "swr/mutation"; // 不是 "swr"
+
+// fetcher 签名:(url, { arg }) —— 之前讲过的那个 { arg } 就出自这里
+async function addComment(url: string, { arg }: { arg: { content: string } }) {
+  return fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(arg), // arg = trigger 时传入的载荷
+  }).then((r) => r.json());
+}
+
+function CommentBox() {
+  const { trigger, isMutating, data, error, reset } = useSWRMutation(
+    "/api/comments",
+    addComment,
+  );
+
+  const handleSubmit = async () => {
+    try {
+      const result = await trigger({ content: "好文章!" }); // 载荷在这里传入
+      console.log("发表成功:", result);
+    } catch (e) {
+      console.log("发表失败", e); // trigger 失败会 reject,可以用 try/catch
+    }
+  };
+
+  return (
+    <button disabled={isMutating} onClick={handleSubmit}>
+      {isMutating ? "发表中…" : "发表评论"}
+    </button>
+  );
+}
+```
+
+返回值 (类比`useSWR`):
+
+- `useSWRMutation`: 手动发请求的函数，返回 `Promise`, 能直接拿到结果
+- ` isMutating`: 请求进行中，禁用按钮用它
+- ` data / error`: 最近一次 `trigger` 的结果/错误
+- ` reset`: 清空 `data/error`, 恢复初始状态
+
+最常见的搭配：**写完之后刷新读数据**, 真实场景里两个 hook 是配合使用的——发表评论成功后，让评论列表重新拉取：
 
 ```ts
-const { trigger, data, error, isMutating } = useSWRMutation(
-  key,
-  fetcher,
-  options,
-);
+import useSWRConfig from "swr";
+
+const { trigger } = useSWRMutation("/api/comments", addComment);
+const { mutate } = useSWRConfig(); // 全局 mutate
+
+const handleSubmit = async () => {
+  await trigger({ content: "好文章!" });
+  mutate("/api/comments"); // 按 key 让列表页的 useSWR 重新请求
+};
 ```
-
-这里各部分含义：
-
-1. API_URL
-
-- 第一个参数 key（请求标识/基础 key）。
-- 你这里通常是接口基础地址，比如 https://api.openweathermap.org/data/2.5。
-
-2. fetcher
-
-- 第二个参数，请求函数。(封装一个fetch, 用于请求数据)
-- 传入请求函数
-- 调用 `trigger(arg)` 时，SWR 会把 `arg` 作为第二个参数对象中的 `arg` 字段传给 fetcher，例如 `async (url, { arg }) => ...`；第一个参数仍是 key。
-
-3. 解构出来的内容
-
-- trigger：手动触发请求的函数（mutation 不会自动请求）。触发的就是传进去的fetcher。
-- data：请求成功后的返回数据（即 fetcher 返回的 JSON）。
-- isMutating：是否正在请求中（true/false）。
-- error：请求失败时的错误对象。
 
 ## \*Tanstack Query (v5)
 
@@ -3217,10 +3378,8 @@ console.log(a);
 React Router v7 提供三种逐级增强的使用模式：
 
 - 声明模式：使用 `<BrowserRouter>`、`<Routes>` 等 API 完成基础匹配和导航。
-- `数据`模式：在声明模式之上增加 loader、action、pending state、fetcher 等数据能力。(主要使用的模式)
+- `数据`模式：在声明模式之上增加 loader、action、pending state、fetcher 等数据能力。**(主要使用的模式)**
 - 框架模式：在数据模式之上结合 Vite 插件和路由模块，提供类型安全、智能分包以及 SPA、SSR、静态渲染等能力。
-
-三种模式没有统一的“最佳”选择，应根据应用是否需要数据 API、服务端渲染以及对构建架构的控制程度决定。
 
 ::: tip 主要使用的hook函数
 
@@ -3240,7 +3399,7 @@ const loader = useLoaderData(); // 用于在组件中获取路由加载器返回
 pnpm add react-router
 ```
 
-v7 的主要 API 已合并到 `react-router`； 在 v7 版本中 `react-router-dom` 仍作为兼容性重导出包发布.
+v7 的主要 API 已合并到 `react-router`； 在 v7 版本中 `react-router-dom` 仍作为兼容性重导出包发布. (已经可以不安装这个)
 
 #### 基本使用
 
@@ -3264,11 +3423,8 @@ const router = createBrowserRouter([
 export default router;
 ```
 
-这种写法叫做平行路由.
-
-因为`<RouterProvider router={router} />`这个是写在`render`中因此他可以直接代替`<App />`直接写为:
-
 ```tsx
+// 这个一般写在main.tsx 此时App组件将不再直接挂载到main.tsx 而是路由文件统一分配
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <RouterProvider router={router} />
@@ -3315,16 +3471,16 @@ export default App;
 
 **核心特点**：
 
-- 使用 HTML History API（`pushState`、`replaceState` 和 `popstate` 事件）
-- 浏览器URL比较纯净 (/search, /about, /user/123)
-- 需要`服务器端支持`(nginx, apache,等)否则会刷新404
+- 使用 `HTML History API`（`pushState`、`replaceState` 和 `popstate` 事件）
+- URL不会出现其他的东西 (`/home`, `/about`, `/user/111`)
+- 需要`服务器端支持`(`nginx`, `apache`等), 否则会刷新`404` (本地不需要处理是因为 `vite` 起了一个服务已经帮我们处理了)
 
-#### createHashRouter
+#### createHashRouter (做后台)
 
 **核心特点**：
 
-- 使用URL的hash部分(`#/search`, `#/about`, `#/user`)
-- hash 后的内容不会作为 HTTP 请求路径发送给服务器，因此深层路由刷新通常不需要服务器配置 SPA fallback
+- 使用 `url` 的 `hash` 部分(`#/home`, `#/about`, `#/user`)
+- `hash` 后的内容不会作为 HTTP 请求路径发送给服务器，因此深层路由刷新通常不需要服务器配置 SPA fallback
 - 浏览器刷新后仍能从 URL hash 恢复当前路由
 
 **使用场景**：
@@ -3338,18 +3494,18 @@ export default App;
 
 - 使用`内存`中的路由表
 - 刷新页面会丢失状态
-- 切换页面路由不显示URL
+- 切换页面地址栏不会发生变化
 
 **使用场景**：
 
-- 没有地址栏、又只需要内存导航历史的环境
-- 单元测试或者组件测试（Jest、Vitest、Storybook 等）
+- 非浏览器环境 (`RN Electron`)
+- 单元测试或者组件测试（`Jest`、`Vitest`、`Storybook` 等）
 
 #### createStaticRouter
 
 **核心特点**：
 
-- 专为数据路由器的服务端渲染设计
+- 专为数据路由器的 `SSR` (服务端渲染) 设计
 - 接收 `createStaticHandler().query(request)` 生成的路由上下文，并与 `StaticRouterProvider` 配合渲染
 - 客户端通常再创建浏览器路由器并使用服务端生成的 hydration 数据完成接管
 
@@ -3360,8 +3516,8 @@ export default App;
 
 #### 如何解决刷新404问题
 
-1. 在使用`createBrowserRouter`创建路由
-2. Nginx中修改`/conf/nginx.conf` , 在`location`中添加如下代码`try_files $uri $uri/ /index.html;`
+1. 在使用 `createBrowserRouter` 创建路由
+2. Nginx中修改`/conf/nginx.conf` , 在 `location` 中添加如下代码 `try_files $uri $uri/ /index.html;` (重新定回`index.html`)
 
 ### \*导航
 
