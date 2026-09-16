@@ -2335,7 +2335,7 @@ const mutation = useMutation({
 
 ## \*useContext
 
-`useContext` 是 React 提供的一个 Hook,用于跨组件层级共享数据,避免"`props` 逐层传递"(也叫 `prop drilling`)的问题。
+`useContext` 是 React 提供的一个 Hook, 用于跨组件层级共享数据, 避免"`props` 逐层传递"(也叫 `prop drilling`)的问题。
 
 :::info 面试题
 使用 `useContext` 避免了层层传递props, 并且实现了跨组件之间的共享状态, 使组件之间的通讯变得更加简单. 换而言之, `useContext` 实现了祖孙级别的通讯.
@@ -2869,7 +2869,7 @@ export default function App() {
 }
 ```
 
-1. props基本用法
+1. props 基本用法
 2. TypeScript 类型:
    - 可以使用 `interface` 或 `type` 为 props 添加类型。
    - 可以直接标注函数参数，也可以使用 `React.FC`（Function Component）；`React.FC` 不是必需的。
@@ -2965,7 +2965,7 @@ export default App;
 
 ### 异步组件
 
-`Suspense` 是 React 用来协调“渲染期间尚未就绪的内容”的边界。当子树发生挂起时，它会暂时显示 `fallback`，待所需代码或数据就绪后再展示内容。
+`Suspense` 是 React 用来协调"渲染期间尚未就绪的内容"的边界。当子树发生挂起时，它会暂时显示 `fallback`，待所需代码或数据就绪后再展示内容。
 
 #### 应用场景
 

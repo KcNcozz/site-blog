@@ -387,6 +387,14 @@ export default defineConfig({
               text: "Codex常用命令",
               link: "/src/AI/Codex命令总结.md",
             },
+            {
+              text: "PI使用指南",
+              link: "/src/AI/PI食用指南.md",
+            },
+            {
+              text: "MCP说明文档",
+              link: "/src/AI/MCP说明文档.md",
+            },
           ],
         },
       ],
