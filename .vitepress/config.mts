@@ -242,6 +242,10 @@ export default defineConfig({
               text: "nodejs",
               link: "/src/frontend/nodejs.md",
             },
+            {
+              text: "uniapp",
+              link: "/src/frontend/uniapp.md",
+            },
           ],
         },
         {
@@ -352,6 +356,14 @@ export default defineConfig({
             {
               text: "React常用JS方法",
               link: "/src/web/React常用JS方法.md",
+            },
+            {
+              text: "单文件-HTML-嵌入数据套路",
+              link: "/src/web/单文件-HTML-嵌入数据套路.md",
+            },
+            {
+              text: "Vite 配置 @ 别名",
+              link: "/src/web/Vite 项目配置 @ 路径别名.md",
             },
             // { text: "正则表达式", link: "/src/web/正则表达式.md" },
           ],
