@@ -104,7 +104,7 @@ export default defineConfig({
           },
           {
             text: "前端工具",
-            link: "/src/frontend/ESLint、OXC（Oxlint）和 Prettier 说明.md",
+            link: "/src/frontend/ESLint OXC Prettier.md",
           },
         ],
       },
@@ -124,8 +124,12 @@ export default defineConfig({
             link: "/src/backend/Python/Python基础.md",
           },
           {
-            text: "中间件",
+            text: "docker",
             link: "/src/backend/中间件/docker.md",
+          },
+          {
+            text: "mysql",
+            link: "/src/backend/中间件/Mysql从入门到进阶.md",
           },
         ],
       },
@@ -252,8 +256,8 @@ export default defineConfig({
           text: "前端工具部分",
           items: [
             {
-              text: "ESLint、OXC（Oxlint）和 Prettier 说明",
-              link: "/src/frontend/ESLint、OXC（Oxlint）和 Prettier 说明.md",
+              text: "ESLint OXC Prettier",
+              link: "/src/frontend/ESLint OXC Prettier.md",
             },
             {
               text: "package.json 与前端工程化工具说明",
@@ -326,6 +330,10 @@ export default defineConfig({
               text: "中间件",
               items: [
                 { text: "Docker", link: "/src/backend/中间件/docker.md" },
+                {
+                  text: "Mysql",
+                  link: "/src/backend/中间件/Mysql从入门到进阶.md",
+                },
               ],
             },
           ],
@@ -450,6 +458,10 @@ export default defineConfig({
                 {
                   text: "雅思",
                   link: "/src/other/雅思.md",
+                },
+                {
+                  text: "提示词",
+                  link: "/src/other/提示词.md",
                 },
               ],
             },
