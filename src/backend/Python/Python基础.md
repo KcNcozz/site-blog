@@ -1,38 +1,20 @@
 # Python 开发快速复习与上手指南
 
-> 适用范围：Python 3.12+。面向已有 Java、Go、JavaScript/TypeScript 等语言经验的开发者，目标是快速恢复 Python 基础，并能够阅读 NiceGUI、FastAPI 等项目。
-
-## 这份文档怎么用
-
-你已经会 Vue 3、React、Java、Go、NestJS、Next.js，所以不需要从“什么是变量、循环、HTTP”重新学起。你的目标是建立语言映射，并补齐 Python 特有的部分。
-
-第一遍只看这些章节，总计约一小时：
-
-1. 函数、lambda 和闭包。
-2. 作用域、对象引用和可变性。
-3. dataclass、Enum 和类型标注。
-4. 模块、`with`、装饰器。
-5. `async/await` 和阻塞任务处理。
-6. Python 工程开发最小工作流。
-7. NiceGUI/FastAPI 项目重点。
-
-基础类型、`if`、`for`、类和异常处理只需快速扫一遍；它们与你熟悉的语言概念基本相同。
-
 ### 你已有知识与 Python 的映射
 
-| 你熟悉的概念 | Python 中常见写法 | 需要特别注意 |
-|---|---|---|
-| TypeScript `interface` / Java DTO | `dataclass`、Pydantic `BaseModel` | 类型标注本身通常不做运行时校验 |
-| Java/Go enum | `Enum` | 一般比较枚举成员，不直接比较字符串 |
-| JS Promise | coroutine + `async/await` | 调用 `async def` 只会得到 coroutine，必须 `await` |
-| Java try-with-resources / Go `defer` | `with` 上下文管理器 | 用于文件、锁、事务，也用于 NiceGUI 布局嵌套 |
-| Java Annotation / NestJS Decorator | Python 装饰器 | 装饰器会接收并替换原函数 |
-| JS callback | 函数对象、lambda、闭包 | 传函数写 `handler`，立即调用才写 `handler()` |
-| npm module / Java package | `.py` 模块与 Python 包 | 模块首次导入时会执行顶层代码 |
-| NestJS Controller | FastAPI `APIRouter` | 路由函数可以直接同步或异步 |
-| class-validator | Pydantic | FastAPI 用它解析并验证请求体 |
-| JPA / TypeORM / Prisma | SQLAlchemy | Session 生命周期和事务边界最重要 |
-| Node 事件循环 | `asyncio` 事件循环 | 不能在异步处理函数里执行阻塞 I/O 或 `time.sleep()` |
+| 你熟悉的概念                         | Python 中常见写法                 | 需要特别注意                                       |
+| ------------------------------------ | --------------------------------- | -------------------------------------------------- |
+| TypeScript `interface` / Java DTO    | `dataclass`、Pydantic `BaseModel` | 类型标注本身通常不做运行时校验                     |
+| Java/Go enum                         | `Enum`                            | 一般比较枚举成员，不直接比较字符串                 |
+| JS Promise                           | coroutine + `async/await`         | 调用 `async def` 只会得到 coroutine，必须 `await`  |
+| Java try-with-resources / Go `defer` | `with` 上下文管理器               | 用于文件、锁、事务，也用于 NiceGUI 布局嵌套        |
+| Java Annotation / NestJS Decorator   | Python 装饰器                     | 装饰器会接收并替换原函数                           |
+| JS callback                          | 函数对象、lambda、闭包            | 传函数写 `handler`，立即调用才写 `handler()`       |
+| npm module / Java package            | `.py` 模块与 Python 包            | 模块首次导入时会执行顶层代码                       |
+| NestJS Controller                    | FastAPI `APIRouter`               | 路由函数可以直接同步或异步                         |
+| class-validator                      | Pydantic                          | FastAPI 用它解析并验证请求体                       |
+| JPA / TypeORM / Prisma               | SQLAlchemy                        | Session 生命周期和事务边界最重要                   |
+| Node 事件循环                        | `asyncio` 事件循环                | 不能在异步处理函数里执行阻塞 I/O 或 `time.sleep()` |
 
 ### 阅读陌生 Python 项目的固定顺序
 
@@ -53,34 +35,6 @@ tests               项目真正承诺的行为
 ```
 
 不要按文件名字母顺序阅读，也不要先钻进 CSS、图表配置和工具函数。先追踪一个完整功能：输入从哪里进入、经过哪个函数、状态在哪里改变、结果在哪里显示或保存。
-
-## 目录
-
-1. [Python 的基本特点](#一python-的基本特点)
-2. [变量和基本类型](#二变量和基本类型)
-3. [集合类型](#三集合类型)
-4. [条件和循环](#四条件和循环)
-5. [函数](#五函数)
-6. [作用域、引用和可变性](#六作用域引用和可变性)
-7. [类、dataclass 和 Enum](#七类dataclass-和-enum)
-8. [模块和包](#八模块和包)
-9. [异常处理](#九异常处理)
-10. [文件和 JSON](#十文件和-json)
-11. [with 上下文管理器](#十一with-上下文管理器)
-12. [装饰器](#十二装饰器)
-13. [迭代器和生成器](#十三迭代器和生成器)
-14. [async/await](#十四asyncawait)
-15. [类型标注](#十五类型标注)
-16. [常用内置函数](#十六常用内置函数)
-17. [常见陷阱](#十七常见陷阱)
-18. [日志、调试和测试](#十八日志调试和测试)
-19. [NiceGUI 项目重点](#十九nicegui-项目重点)
-20. [Python 工程开发最小工作流](#二十python-工程开发最小工作流)
-21. [FastAPI 最小开发模型](#二十一fastapi-最小开发模型)
-22. [一小时复习计划](#二十二一小时复习计划)
-23. [最终速查表](#二十三最终速查表)
-
----
 
 ## 一、Python 的基本特点
 

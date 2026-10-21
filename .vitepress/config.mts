@@ -134,6 +134,10 @@ export default defineConfig({
             text: "mysql",
             link: "/src/backend/中间件/Mysql从入门到进阶.md",
           },
+          {
+            text: "Linux",
+            link: "/src/backend/中间件/Linux.md",
+          },
         ],
       },
       {
@@ -336,6 +340,10 @@ export default defineConfig({
                 {
                   text: "Mysql",
                   link: "/src/backend/中间件/Mysql从入门到进阶.md",
+                },
+                {
+                  text: "Linux",
+                  link: "/src/backend/中间件/Linux.md",
                 },
               ],
             },

@@ -2,29 +2,29 @@
 
 ## 模块（go.mod）
 
-Go module 是一组一起进行版本管理的包，由 `go.mod` 文件定义。一个代码仓库可以只有一个 module，也可以包含多个 module；一个 module 内也可以包含多个命令和包，因此“项目”和 module 不是严格的一一对应关系。
+Go module 是一组一起进行版本管理的包, 由 `go.mod` 文件定义。一个代码仓库可以只有一个 module, 也可以包含多个 module；一个 module 内也可以包含多个命令和包, 因此“项目”和 module 不是严格的一一对应关系。
 
 ```go
-module test-demo       // 模块路径，也是其他代码导入时的前缀
+module test-demo       // 模块路径, 也是其他代码导入时的前缀
 go 1.26                // 模块要求的最低 Go 语言版本
 ```
 
-`go` 指令会影响语言语义和 Go 命令对最低版本的判断，但它不等同于记录当前实际执行的工具链版本；需要建议具体工具链时可使用 `toolchain` 指令。
+`go` 指令会影响语言语义和 Go 命令对最低版本的判断, 但它不等同于记录当前实际执行的工具链版本；需要建议具体工具链时可使用 `toolchain` 指令。
 
 - `go mod init <模块名>` — 初始化一个新模块
 - `go mod tidy` — 自动添加/移除依赖
-- 同一模块内的包通过 `模块名/包路径` 导入，例如 `import "test-demo/包名"`
+- 同一模块内的包通过 `模块名/包路径` 导入, 例如 `import "test-demo/包名"`
 
-> 本文所有示例都在 `package main` 下，后续学习多包时需注意模块的概念。
+> 本文所有示例都在 `package main` 下, 后续学习多包时需注意模块的概念。
 >
-> ⚠️ **运行提示**：各章节示例代码都是独立的 `package main` + `func main`，若直接全部放到同一目录编译会报 `main redeclared` 错误。想实际运行某段示例时，请把它的代码单独放到一个子目录中（例如 `test-demo/ch03/main.go`），每个子目录就是一个可独立运行的小程序。
+> ⚠️ **运行提示**：各章节示例代码都是独立的 `package main` + `func main`, 若直接全部放到同一目录编译会报 `main redeclared` 错误。想实际运行某段示例时, 请把它的代码单独放到一个子目录中（例如 `test-demo/ch03/main.go`）, 每个子目录就是一个可独立运行的小程序。
 
 ## 基础语法
 
 ```go
 package main // 包
 
-// import是导入关键字，后面跟着的是被导入的包名。
+// import是导入关键字, 后面跟着的是被导入的包名。
 import (
 	"fmt"
 )
@@ -40,23 +40,23 @@ func main() {
 	inputOutput()
 	var a1, a2 = 1, 2 // 一次赋值多个
 	fmt.Println(a1, a2)
-    // 包级标识符、字段或方法的名称以 Unicode 大写字母开头时为 exported，
-    // 可被其他包引用；其余名称不导出，但仍可在同一包内访问。
-	// 注意：下划线 _ 开头的是空标识符，与访问权限无关
+    // 包级标识符、字段或方法的名称以 Unicode 大写字母开头时为 exported,
+    // 可被其他包引用；其余名称不导出, 但仍可在同一包内访问。
+	// 注意：下划线 _ 开头的是空标识符, 与访问权限无关
 }
 func inputOutput() {
 	fmt.Println("init")
 	// 格式化输出 不换行 %s %d %f
 	// %T 打印类型
 	// %v 任意类型（默认格式）
-	// %#v 打印值的 Go 语法表示，例如字符串会带引号 "1111"
+	// %#v 打印值的 Go 语法表示, 例如字符串会带引号 "1111"
 	fmt.Printf("%s 哇,1111", "2222")
 	// 格式化后赋值
 	var f = fmt.Sprintf("%s 哇,1111", "2222")
 
 	var xxx string
-	// Scan 从标准输入读取，返回值 n 是成功扫描的项数，err 是错误
-	n, err := fmt.Scan(&xxx) // & 是取地址运算符，获取变量的内存地址
+	// Scan 从标准输入读取, 返回值 n 是成功扫描的项数, err 是错误
+	n, err := fmt.Scan(&xxx) // & 是取地址运算符, 获取变量的内存地址
 	fmt.Println(f, xxx, n, err)
 }
 ```
@@ -65,25 +65,25 @@ func inputOutput() {
 
 ### 整数型
 
-1. 整数字面量本身通常是无类型常量；进入需要具体类型的上下文后，未显式指定类型时常默认推断为 `int`
-2. `uint` 等无符号整数可以表示零和正整数，不能表示负数
+1. 整数字面量本身通常是无类型常量；进入需要具体类型的上下文后, 未显式指定类型时常默认推断为 `int`
+2. `uint` 等无符号整数可以表示零和正整数, 不能表示负数
 3. 后面的数字就是2进制的位数
-4. uint8还有一个别名 byte， 一个字节=8个bit位
+4. uint8还有一个别名 byte, 一个字节=8个bit位
 5. int类型的大小取决于所使用的平台
 
 ### 浮点型
 
 默认是float64
 
-1. float32的浮点数的最大范围约为3.4e38，可以使用常量定义：`math.MaxFloat32`
-2. float64的浮点数的最大范围约为 1.8e308，可以使用一个常量定义：`math.MaxFloat64`
+1. float32的浮点数的最大范围约为3.4e38, 可以使用常量定义：`math.MaxFloat32`
+2. float64的浮点数的最大范围约为 1.8e308, 可以使用一个常量定义：`math.MaxFloat64`
 
 ### rune（Unicode 码点）
 
 > byte 等同于 uint8
 
-1. `byte` 是 `uint8` 的别名，通常用于表示原始字节；一个 UTF-8 字符可能由多个 byte 编码
-2. `rune` 是 `int32` 的别名，用于表示一个 Unicode 码点；码点不等同于用户看到的完整字符（例如某些字符由多个码点组合）
+1. `byte` 是 `uint8` 的别名, 通常用于表示原始字节；一个 UTF-8 字符可能由多个 byte 编码
+2. `rune` 是 `int32` 的别名, 用于表示一个 Unicode 码点；码点不等同于用户看到的完整字符（例如某些字符由多个码点组合）
 
 ```go
 package main // 包
@@ -101,13 +101,13 @@ func main() {
 
 ### 字符串
 
-- 多行字符串用**反引号** `` ` `` 包裹（原样输出，不支持转义）
+- 多行字符串用**反引号** `` ` `` 包裹（原样输出, 不支持转义）
 - 双引号字符串支持转义字符
 
 转义字符:
 
 - `\n` 换行（光标移到下一行开头）
-- `\r` 回到行首（回车，光标回到当前行开头，不换行）
+- `\r` 回到行首（回车, 光标回到当前行开头, 不换行）
 - `\"` 在双引号里面套双引号
 - `\t` 制表符
 - `\\` 反斜杠 (windows路径)
@@ -120,7 +120,7 @@ func main() {
 
 ### 零值问题
 
-声明变量而不赋值，Go 会给每个变量一个默认的**零值**：
+声明变量而不赋值, Go 会给每个变量一个默认的**零值**：
 
 | 类型                                 | 零值           |
 | ------------------------------------ | -------------- |
@@ -132,7 +132,7 @@ func main() {
 ### 常量
 
 - 常量可以用作枚举
-- 未显式声明类型的常量是无类型常量，能够在其值可表示的前提下适配不同的数值类型；把它赋给变量或传入需要具体类型的上下文时才会发生默认类型推断或转换
+- 未显式声明类型的常量是无类型常量, 能够在其值可表示的前提下适配不同的数值类型；把它赋给变量或传入需要具体类型的上下文时才会发生默认类型推断或转换
 
 ```go
 const (
@@ -143,19 +143,52 @@ const (
 
 // iota的使用
 const (
-	a, b = iota + 1, iota + 2 // iota = 0，a = 1，b = 2
-	c, d                      // iota = 1，c = 2，d = 3
-	e, f                      // iota = 2，e = 3，f = 4
-	g, h = iota * 2, iota * 3 // iota = 3，g = 6，h = 9
-	i, k                      // iota = 4，i = 8，k = 12
+	a, b = iota + 1, iota + 2 // iota = 0, a = 1, b = 2
+	c, d                      // iota = 1, c = 2, d = 3
+	e, f                      // iota = 2, e = 3, f = 4
+	g, h = iota * 2, iota * 3 // iota = 3, g = 6, h = 9
+	i, k                      // iota = 4, i = 8, k = 12
 )
 ```
 
 - 可以使用 `iota`关键字
 
-> 💡 **省略表达式的行**：当某行省略表达式时（如上面的 `c, d`），它会**复用上一行的表达式模板**，但 `iota` 的值会自增。所以 `c, d` 等价于 `iota + 1, iota + 2`（此时 `iota=1`，得到 `c=2, d=3`）。`i, k` 同理复用 `iota * 2, iota * 3`（`iota=4`，得到 `i=8, k=12`）。
+> 💡 **省略表达式的行**：当某行省略表达式时（如上面的 `c, d`）, 它会**复用上一行的表达式模板**, 但 `iota` 的值会自增。所以 `c, d` 等价于 `iota + 1, iota + 2`（此时 `iota=1`, 得到 `c=2, d=3`）。`i, k` 同理复用 `iota * 2, iota * 3`（`iota=4`, 得到 `i=8, k=12`）。
 
----
+### go语言类型转换
+
+```go
+package main
+
+import (
+	"fmt"
+	"strconv" // Import strconv package to convert string to int
+)
+
+func main() {
+	p := 3.14
+	// Convert float64 to int
+	newInt := int(p)
+	fmt.Println(newInt)
+	a := "1"
+	b := 2
+	newA, _ := strconv.Atoi(a) // Convert string to int
+	fmt.Println(newA + b)
+	newB := strconv.Itoa(b) // Convert int to string
+	fmt.Println(a + newB)
+	fmt.Printf("\n类型: %T", newB) // Print the type of newB
+	fmt.Printf("\n值:%#v", newB)  // Print the value of newB with type information
+	fmt.Printf("\n值:%v", newB)   // Print the value of newB
+
+	str := "1"
+	boolValue, _ := strconv.ParseBool(str) // Convert string to bool
+	fmt.Println("\nConverted bool value:", boolValue)
+
+	newStr := strconv.FormatBool(true) // Convert bool to string
+	fmt.Println("Converted string value:", newStr)
+	fmt.Printf("\nType: %T", newStr)
+}
+```
 
 ## 数组、切片与 map
 
@@ -180,32 +213,32 @@ func main() {
 	// === 切片的几种创建方式 ===
 	// 方式1：make([]T, len)
 	// 这里 len=0、cap=0；实现不必为它分配可用的底层数组。
-	// nil 切片同样可以安全 append，是否使用 make 取决于是否要预设长度或容量。
+	// nil 切片同样可以安全 append, 是否使用 make 取决于是否要预设长度或容量。
 	var nameList []string = make([]string, 0)
     // nameList := make([]int, 3) // 空间3 初始化值0 让:=自动推导为切片
 
-	// 方式2：字面量 —— 带初始元素，编译期确定底层数组，len=cap=3
+	// 方式2：字面量 —— 带初始元素, 编译期确定底层数组, len=cap=3
 	var list []string = []string{"1", "2", "3"}
 
-	// 方式3：空字面量 —— 空切片（不是 nil 切片），len=0, cap=0，本身不是 nil，可 append
+	// 方式3：空字面量 —— 空切片（不是 nil 切片）, len=0, cap=0, 本身不是 nil, 可 append
 	list1 := []string{}
 
 	fmt.Println(list)     // [1 2 3]
-	fmt.Println(list1)    // []        空切片，打印空方括号
-	fmt.Println(nameList) // []        make 出来的空切片，也是 []
+	fmt.Println(list1)    // []        空切片, 打印空方括号
+	fmt.Println(nameList) // []        make 出来的空切片, 也是 []
 
-	// append 往尾部追加，返回新切片（必须用返回值接住）
-	// nameList 原 cap=0，这里会触发扩容，开辟新的底层数组
+	// append 往尾部追加, 返回新切片（必须用返回值接住）
+	// nameList 原 cap=0, 这里会触发扩容, 开辟新的底层数组
 	nameList = append(nameList, "111", "222")
 	fmt.Println(nameList) // [111 222]
 
 	// make([]T, len) 不给第三参数 cap 时 cap=len
-	// 这里 len=3，得到 [0 0 0]：长度 3，每个元素是 int 的零值 0
+	// 这里 len=3, 得到 [0 0 0]：长度 3, 每个元素是 int 的零值 0
 	age := make([]int, 3) // [0 0 0]
 	fmt.Println(age)
 
 	// 补充：make 还可指定容量 make([]T, len, cap)
-	// age2 := make([]int, 3, 5) // len=3（可访问 3 个 0），cap=5（预留位置，减少扩容次数）
+	// age2 := make([]int, 3, 5) // len=3（可访问 3 个 0）, cap=5（预留位置, 减少扩容次数）
 }
 ```
 
@@ -237,8 +270,8 @@ func main() {
 	numbers = append(numbers, 2)
 	fmt.Printf("len = %d, cap = %d, slice = %v\n\n", len(numbers), cap(numbers), numbers)
 
-	// 向 numbers 切片追加一个元素 3，超过原容量后会扩容。
-	// 新容量由运行时实现决定，不应依赖它恰好翻倍为 10。
+	// 向 numbers 切片追加一个元素 3, 超过原容量后会扩容。
+	// 新容量由运行时实现决定, 不应依赖它恰好翻倍为 10。
 	numbers = append(numbers, 3)
 	fmt.Printf("len = %d, cap = %d, slice = %v\n\n", len(numbers), cap(numbers), numbers)
 
@@ -254,8 +287,8 @@ func main() {
 	fmt.Println(s)  // [100 2 3]
 	fmt.Println(s1) // [100 2]
 
-	// copy 会复制切片元素；对 int 这类值元素，结果拥有独立的底层数组。
-	// 若元素内部仍含指针、切片或 map，copy 不会递归复制其指向的数据。
+	// copy 会复制切片元素；对 int 这类值元素, 结果拥有独立的底层数组。
+	// 若元素内部仍含指针、切片或 map, copy 不会递归复制其指向的数据。
 	s2 := make([]int, 3) //[0, 0, 0]
 	copy(s2, s)          // s --> s2
 	fmt.Println(s2)      // [100 2 3]
@@ -292,7 +325,7 @@ func main() {
 		fmt.Println(key, value)
 	}
 
-	// 删除 key （删掉刚才加的 Japan，再删 city）
+	// 删除 key （删掉刚才加的 Japan, 再删 city）
 	delete(m2, "Japan")
 	delete(m2, "city")
 	fmt.Println(m2) // map[name:Alice]
@@ -312,7 +345,7 @@ func main() {
 }
 ```
 
-> 注意：map 的零值是 nil，向 nil map 写入会 panic，必须先用 make 初始化。
+> 注意：map 的零值是 nil, 向 nil map 写入会 panic, 必须先用 make 初始化。
 
 ---
 
@@ -365,65 +398,65 @@ func manyReturn2(a int, b int) (x int, y int) {
 
 #### 1. 普通多返回值 `(int, int)`
 
-返回值列表只有类型、没名字，是**匿名**的。函数里必须 `return 值1, 值2` 把值「塞」进去：
+返回值列表只有类型、没名字, 是**匿名**的。函数里必须 `return 值1, 值2` 把值「塞」进去：
 
-- 个数必须一一对应（声明 2 个就 return 2 个，否则编译报错）
-- 顺序对应：`return A, B` → 第一个返回值是 A，第二个是 B
+- 个数必须一一对应（声明 2 个就 return 2 个, 否则编译报错）
+- 顺序对应：`return A, B` → 第一个返回值是 A, 第二个是 B
 - 函数内部**碰不到**「返回值变量」
 
-最常见的用法是 **(结果, 错误)** 模式，例如 `n, err := fmt.Scan(&xxx)`。
+最常见的用法是 **(结果, 错误)** 模式, 例如 `n, err := fmt.Scan(&xxx)`。
 
 #### 2. 命名返回值 `(x int, y int)`
 
-返回值不光有类型，还有**名字**。本质上 Go 会在**函数一开始**就自动声明这两个变量并**赋零值**，相当于函数体最前面偷偷做了：
+返回值不光有类型, 还有**名字**。本质上 Go 会在**函数一开始**就自动声明这两个变量并**赋零值**, 相当于函数体最前面偷偷做了：
 
 ```go
 var x int  // = 0
 var y int  // = 0
 ```
 
-`x`、`y` 就像普通局部变量，作用域是整个函数：可以赋值、读取、参与运算。
+`x`、`y` 就像普通局部变量, 作用域是整个函数：可以赋值、读取、参与运算。
 
 - **不赋值就 return** → 返回零值（int 就是 0）
 - **赋值后 `return`（裸 return）** → 自动返回 x、y 当前的值
-- **也可以 `return 222, 999`** → 显式给出值，会覆盖 x、y（两种写法结果一样）
+- **也可以 `return 222, 999`** → 显式给出值, 会覆盖 x、y（两种写法结果一样）
 
 裸 return 对照表：
 
 | 写法                  | 匿名 `(int, int)`     | 命名 `(x int, y int)`   |
 | --------------------- | --------------------- | ----------------------- |
-| `return 222, 999`     | ✅ 显式给值           | ✅ 也可，会覆盖 x、y    |
-| `return`（裸 return） | ❌ 编译错误，必须给值 | ✅ 自动返回 x、y 当前值 |
+| `return 222, 999`     | ✅ 显式给值           | ✅ 也可, 会覆盖 x、y    |
+| `return`（裸 return） | ❌ 编译错误, 必须给值 | ✅ 自动返回 x、y 当前值 |
 
 #### 3. 为什么要用命名返回值
 
-- **配合 defer 修改返回值**（最实用）：defer 能改命名返回值，因为它是真实存在的变量；匿名返回值 defer 抓不到、改不了。
+- **配合 defer 修改返回值**（最实用）：defer 能改命名返回值, 因为它是真实存在的变量；匿名返回值 defer 抓不到、改不了。
 - **裸 return 简化长函数**：省得每次把一堆变量名重抄一遍。
-- **自文档化**：如 `func Read() (n int, err error)` 中的 `n` 暗示「读到的字节数」，比 `(int, error)` 更易读。
+- **自文档化**：如 `func Read() (n int, err error)` 中的 `n` 暗示「读到的字节数」, 比 `(int, error)` 更易读。
 
 #### 4. 坑：命名返回值会被遮蔽（shadowing）
 
-命名返回值用 `=` 赋值最保险；若在内层块里用 `:=` 会**新建**局部变量、遮蔽外层的命名返回值，导致裸 return 返回的是外层那个（可能不是你以为的值）：
+命名返回值用 `=` 赋值最保险；若在内层块里用 `:=` 会**新建**局部变量、遮蔽外层的命名返回值, 导致裸 return 返回的是外层那个（可能不是你以为的值）：
 
 ```go
 func bad() (x int) {
     x = 5
     if true {
-        x := 10     // ⚠️ 新建了一个局部 x，和外层命名返回值 x 不是同一个
+        x := 10     // ⚠️ 新建了一个局部 x, 和外层命名返回值 x 不是同一个
         _ = x
     }
-    return          // 裸 return 返回外层 x = 5，不是 10
+    return          // 裸 return 返回外层 x = 5, 不是 10
 }
 ```
 
 #### 一句话总结
 
-- **`(int, int)`** = 匿名多返回值，必须 `return 值1, 值2`，函数内碰不到返回值变量。
-- **`(x int, y int)`** = 命名返回值，函数开头就存在（零值），可用 `=` 赋值，`return` 裸写自动返回它们；主要用在 defer 修改返回值、裸 return 简化、自文档化三种场景。
+- **`(int, int)`** = 匿名多返回值, 必须 `return 值1, 值2`, 函数内碰不到返回值变量。
+- **`(x int, y int)`** = 命名返回值, 函数开头就存在（零值）, 可用 `=` 赋值, `return` 裸写自动返回它们；主要用在 defer 修改返回值、裸 return 简化、自文档化三种场景。
 
 ### `init` 函数
 
-`init` 是 Go 的特殊函数：**每个包可以有多个 init，在 main 之前自动执行，不能手动调用**。
+`init` 是 Go 的特殊函数：**每个包可以有多个 init, 在 main 之前自动执行, 不能手动调用**。
 
 ```go
 package main
@@ -448,11 +481,11 @@ func main() {
 ```
 
 > 应用场景：初始化配置、注册驱动、校验环境变量等。
-> 同一文件内多个 `init` 按出现顺序执行；同一包跨文件的初始化顺序不应依赖文件名，Go 规范只鼓励构建系统按词法文件名顺序向编译器提供文件。包之间会先初始化被依赖的包，再初始化当前包。
+> 同一文件内多个 `init` 按出现顺序执行；同一包跨文件的初始化顺序不应依赖文件名, Go 规范只鼓励构建系统按词法文件名顺序向编译器提供文件。包之间会先初始化被依赖的包, 再初始化当前包。
 
 ## 错误处理（error）
 
-Go 没有 `try/except` 异常机制。错误就是一个普通的**返回值**，类型是内置接口 `error`：
+Go 没有 `try/except` 异常机制。错误就是一个普通的**返回值**, 类型是内置接口 `error`：
 
 ```go
 type error interface {
@@ -460,7 +493,7 @@ type error interface {
 }
 ```
 
-惯用法是**多返回值 (结果, 错误)**：成功时 `err == nil`，失败时 `err != nil`。调用方通常应检查错误；若确实有意忽略，也应使用 `_` 或注释明确表达意图。
+惯用法是**多返回值 (结果, 错误)**：成功时 `err == nil`, 失败时 `err != nil`。调用方通常应检查错误；若确实有意忽略, 也应使用 `_` 或注释明确表达意图。
 
 ### 创建错误 — `errors.New` / `fmt.Errorf`
 
@@ -492,13 +525,13 @@ func main() {
 
 ### 错误包装 — `fmt.Errorf("%w")`
 
-下层函数返回的错误，上层不要原样抛，而应该**加上自己的上下文**再往外传，这样排错时能看到完整的调用链。用 `%w` 包装（不是 `%s`）：
+下层函数返回的错误, 上层不要原样抛, 而应该**加上自己的上下文**再往外传, 这样排错时能看到完整的调用链。用 `%w` 包装（不是 `%s`）：
 
 ```go
 func readConfig(path string) error {
 	file, err := os.Open(path)
 	if err != nil {
-		// %w 把原始 err 包进去，保留它的类型信息
+		// %w 把原始 err 包进去, 保留它的类型信息
 		return fmt.Errorf("读取配置 %s 失败: %w", path, err)
 	}
 	defer file.Close()
@@ -506,16 +539,16 @@ func readConfig(path string) error {
 }
 ```
 
-> `%w`（wrap）和 `%s`/`%v` 的区别：`%w` 包裹的错误**还能被 `errors.Is/As` 识别**；`%s`/`%v` 只把文本写入新错误。调用方需要检查底层错误时使用 `%w`；若有意隐藏底层错误身份，则不要包装。
+> `%w`（wrap）和 `%s`/`%v` 的区别：`%w` 包裹的错误**还能被 `errors.Is/As` 识别**；`%s`/`%v` 只把文本写入新错误。调用方需要检查底层错误时使用 `%w`；若有意隐藏底层错误身份, 则不要包装。
 
 ### 判断错误 — `errors.Is` 与 `errors.As`
 
 | 函数                      | 用途                                                                       | 对比对象            |
 | ------------------------- | -------------------------------------------------------------------------- | ------------------- |
-| `errors.Is(err, target)`  | 沿错误链判断是否匹配目标；除可比较值相等外，也会调用错误自定义的 `Is` 方法 | 一个具体的 error 值 |
-| `errors.As(err, &target)` | 判断 err 链里**是否能赋值给**某个类型，并取出它                            | 一个 error **类型** |
+| `errors.Is(err, target)`  | 沿错误链判断是否匹配目标；除可比较值相等外, 也会调用错误自定义的 `Is` 方法 | 一个具体的 error 值 |
+| `errors.As(err, &target)` | 判断 err 链里**是否能赋值给**某个类型, 并取出它                            | 一个 error **类型** |
 
-**哨兵错误**（预定义的错误值，用于 `==` 比较）：
+**哨兵错误**（预定义的错误值, 用于 `==` 比较）：
 
 ```go
 var ErrNotFound = errors.New("not found")
@@ -529,14 +562,14 @@ func findUser(id int) error {
 
 func main() {
 	err := findUser(2)
-	// 即使 err 被中间层 %w 包装过，errors.Is 也能穿透包装链找到 ErrNotFound
+	// 即使 err 被中间层 %w 包装过, errors.Is 也能穿透包装链找到 ErrNotFound
 	if errors.Is(err, ErrNotFound) {
 		fmt.Println("用户不存在")
 	}
 }
 ```
 
-**自定义错误类型**（携带更多字段，用 `errors.As` 提取）：
+**自定义错误类型**（携带更多字段, 用 `errors.As` 提取）：
 
 ```go
 type ValidationError struct {
@@ -562,7 +595,7 @@ func main() {
 
 ### panic / recover —— 仅限真异常
 
-`error` 是**正常的失败**（文件打不开、网络超时），`panic` 是**不该发生的事**（数组越界、nil 解引用）。`panic` 会一路向上崩，直到被 `recover` 接住（通常在 defer 里），否则程序退出。
+`error` 是**正常的失败**（文件打不开、网络超时）, `panic` 是**不该发生的事**（数组越界、nil 解引用）。`panic` 会一路向上崩, 直到被 `recover` 接住（通常在 defer 里）, 否则程序退出。
 
 ```go
 func safeDiv(a, b int) (result int, err error) {
@@ -579,10 +612,10 @@ func safeDiv(a, b int) (result int, err error) {
 
 ### 一句话总结
 
-- 错误是返回值，**必检 `if err != nil`**。
+- 错误是返回值, **必检 `if err != nil`**。
 - 往上抛要加上下文：`fmt.Errorf("...: %w", err)`。
-- 比较错误：值用 `errors.Is`，类型用 `errors.As`。
-- `panic/recover` 只给真正的程序错误，日常逻辑用 `error`。
+- 比较错误：值用 `errors.Is`, 类型用 `errors.As`。
+- `panic/recover` 只给真正的程序错误, 日常逻辑用 `error`。
 
 ## 包与导入
 
@@ -601,7 +634,7 @@ import (
 
 ## 指针
 
-Go 有指针，但没有指针运算（不像 C）。指针保存值的**内存地址**。
+Go 有指针, 但没有指针运算（不像 C）。指针保存值的**内存地址**。
 
 ### 基本语法
 
@@ -609,10 +642,10 @@ Go 有指针，但没有指针运算（不像 C）。指针保存值的**内存�
 func main() {
     // === 声明与取值 ===
     var x int = 10
-    var p *int = &x // & 取地址，p 是指向 int 的指针
+    var p *int = &x // & 取地址, p 是指向 int 的指针
 
     fmt.Println(p)  // 0xc0000... 内存地址
-    fmt.Println(*p) // 10  * 解引用，获取指针指向的值
+    fmt.Println(*p) // 10  * 解引用, 获取指针指向的值
 
     *p = 20         // 通过指针修改值
     fmt.Println(x)  // 20  原变量也被修改了
@@ -627,27 +660,13 @@ func main() {
 }
 ```
 
-### 图解
-
-```
-变量内存
-┌──────────┬─────────────┐
-│ 变量名    │ 值           │
-├──────────┼─────────────┤
-│ num      │ 42          │  ← 普通变量
-│ p        │ 0xc000...   │  ← 指针变量，存储 num 的地址
-└──────────┴─────────────┘
-              │
-              └──→ num = 42  （p 指向 num）
-```
-
 ### 指针的作用
 
 #### 1. 修改外部变量
 
 ```go
 func changeVal(val int) {
-    val = 100  // ❌ 只修改副本，不影响外面的变量
+    val = 100  // ❌ 只修改副本, 不影响外面的变量
 }
 
 func changePtr(ptr *int) {
@@ -674,7 +693,7 @@ type BigStruct struct {
 // ❌ 每次调用拷贝 1MB
 func process(b BigStruct) {}
 
-// ✅ 只复制一个指针值；指针大小取决于目标体系结构，通常是一个机器字
+// ✅ 只复制一个指针值；指针大小取决于目标体系结构, 通常是一个机器字
 func process(b *BigStruct) {}
 ```
 
@@ -725,26 +744,283 @@ for _, n := range nums {
 // ptrs[0] -> 1, ptrs[1] -> 2, ptrs[2] -> 3 ✅
 ```
 
-> ⚠️ **版本差异**：在 **Go 1.22 之前**，`for` 的循环变量 `n` 在整个循环里是**同一个变量**，每次迭代只是被重新赋值。如果直接 `&n`，所有指针都会指向同一个地址、最终都拿到最后一个值（3）。那时的正确做法是在循环体内 `n := n` 显式新建一个局部变量。
->
-> **Go 1.22 起**，循环变量每次迭代都是**新建**的，所以 `&n` 天然安全，`n := n` 的技巧已经**不再需要**。本笔记基于 Go 1.26，直接用上面的写法即可。
+### Go、Java、JavaScript、Python：指针、值传递与引用
 
-### 与 C 指针的对比
+**核心结论：引用类型和引用传递是两个不同的概念。**
 
-| 特性            | Go                    | C                                  |
-| --------------- | --------------------- | ---------------------------------- |
-| 指针运算        | ❌ 不允许             | ✅ 允许                            |
-| 空指针          | nil（解引用会 panic） | NULL（错误解引用会产生未定义行为） |
-| 垃圾回收        | ✅ 自动管理           | ❌ 手动管理                        |
-| 取地址 / 解引用 | `&` / `*`             | `&` / `*`                          |
+- **指针**：保存变量地址的值。
+- **值传递**：函数参数得到传入值的一份副本。
+- **引用类型**：通常指可以通过引用访问底层数据、复制后仍可能共享数据的类型。
+- **引用传递**：函数参数成为调用者变量的别名, 给参数赋值可以直接改变调用者变量的值。
 
-> **一句话总结**：Go 不支持普通指针运算，并由垃圾回收器管理可达内存，但仍可能出现 nil 解引用、对象长期被引用造成的内存滞留，以及未关闭文件或连接等资源泄漏。`&` 取地址，`*` 解引用，指针零值是 `nil`。
+Go、Java、JavaScript 都采用值传递。Java、JavaScript 传入对象时, 复制的是对象引用, 而不是对象内容。
+
+Python 官方称为“按赋值传递”：参数名绑定到传入的对象, 也常被称为“对象共享传参”。
+
+### 指针保存地址, 通过指针可以修改所指变量
+
+```go
+x := 10
+p := &x
+
+*p = 100
+
+fmt.Println(x) // 100
+```
+
+| 写法   | 含义                      |
+| ------ | ------------------------- |
+| `&x`   | 获取变量 `x` 的地址       |
+| `*int` | 指向 `int` 变量的指针类型 |
+| `*p`   | 访问指针 `p` 指向的变量   |
+
+传入指针时, 仍然是值传递, 只是复制的值是地址。
+
+```go
+func change(p *int) {
+    *p = 100
+}
+
+func main() {
+    x := 10
+    change(&x)
+    fmt.Println(x) // 100
+}
+```
+
+需要区分：
+
+- `*p = 100`：修改指针指向的变量。
+- `p = nil`：修改函数自己的指针参数, 不会让调用者的指针变量变成 `nil`。
+
+### 不同语言指针对比
+
+Go 中, 赋值和传参复制什么, 取决于值的类型
+
+| 类型             | 复制的内容               | 是否可能共享底层数据                       |
+| ---------------- | ------------------------ | ------------------------------------------ |
+| `int`、`bool` 等 | 数值、布尔值             | 不涉及共享可变对象                         |
+| `string`         | 字符串值                 | 内容不可原地修改, 不能简单理解为逐字节复制 |
+| 数组 `[N]T`      | 所有元素的值             | 元素包含引用时, 相关数据可能共享           |
+| 结构体 `struct`  | 所有字段的值             | 字段包含引用时, 相关数据可能共享           |
+| 指针 `*T`        | 地址值                   | 可以指向同一个变量                         |
+| 切片 `[]T`       | 底层数组引用、长度、容量 | 可以共享底层数组                           |
+| `map`、`chan`    | 对底层数据结构的引用     | 可以共享同一个底层数据结构                 |
+
+**值复制不等于深拷贝。**
+
+例如, 复制一个包含切片字段的结构体, 会复制切片的描述信息, 但不会自动复制切片的底层数组。
+
+**切片的元素可以共享, 但长度和容量各自保存。**
+
+可以把切片理解为：
+
+```text
+切片值 = 底层数组引用 + 长度 len + 容量 cap
+```
+
+调用 `change(a)` 时, 这三项信息会复制给参数 `s`。
+
+```text
+a：指向数组 A, len=3, cap=3
+s：指向数组 A, len=3, cap=3
+
+数组 A：[1, 2, 3]
+```
+
+`a` 和 `s` 是两个独立的切片值, 但最初共享同一个底层数组。
+
+因此, 修改元素会影响共享数组：
+
+```go
+func change(s []int) {
+    s[0] = 100
+}
+
+func main() {
+    a := []int{1, 2, 3}
+    change(a)
+
+    fmt.Println(a) // [100 2 3]
+}
+```
+
+执行 `s[0] = 100` 后, 数组 A 变成 `[100, 2, 3]`, 通过 `a` 也能看到变化。
+
+但追加元素需要更新切片自身的描述信息：
+
+```go
+func change(s []int) {
+    s = append(s, 4)
+
+    fmt.Println(s) // [1 2 3 4]
+}
+
+func main() {
+    a := []int{1, 2, 3}
+    change(a)
+
+    fmt.Println(a) // [1 2 3]
+}
+```
+
+`append` 返回更新后的切片, `s = append(s, 4)` 只把返回结果赋给了局部变量 `s`。
+
+追加时有两种情况：
+
+| 情况     | 底层数组                           | 调用者 `a` 的长度 |
+| -------- | ---------------------------------- | ----------------- |
+| 容量足够 | 复用原数组, 追加的数据写入共享数组 | 不会自动改变      |
+| 容量不足 | 分配新数组, 复制原元素, 再追加     | 不会自动改变      |
+
+**即使没有分配新数组, `a` 的长度也不会自动增加。**
+
+推荐返回追加后的切片, 再由调用者接收：
+
+```go
+func change(s []int) []int {
+    s[0] = 100
+    return append(s, 4)
+}
+
+func main() {
+    a := []int{1, 2, 3}
+    a = change(a)
+
+    fmt.Println(a) // [100 2 3 4]
+}
+```
+
+参考：[Go 官方切片说明](https://go.dev/blog/slices-intro)。
+
+---
+
+**Java、JavaScript、Python 共享对象, 不代表它们采用引用传递。**
+
+以 JavaScript 为例：
+
+```javascript
+function change(p) {
+  p.age = 20; // 修改共享对象
+  p = { age: 30 }; // 给局部参数重新赋值
+}
+
+let a = { age: 10 };
+change(a);
+
+console.log(a.age); // 20
+```
+
+刚进入函数时：
+
+```text
+外部变量 a ──→ 同一个对象
+局部参数 p ──→ 同一个对象
+```
+
+| 操作              | 修改了什么              | 是否影响外部         |
+| ----------------- | ----------------------- | -------------------- |
+| `p.age = 20`      | 共享对象的属性          | 外部能看到属性变化   |
+| `p = { age: 30 }` | 局部变量 `p` 保存的引用 | 不会替换外部变量 `a` |
+
+Java 的对象参数、Python 的可变对象参数也有类似表现。
+
+参考：[Java 官方传参说明](https://docs.oracle.com/javase/tutorial/java/javaOO/arguments.html)、[JavaScript 参数说明](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions#passing_arguments)。
+
+---
+
+**跨语言比较时, 要关注“复制什么”和“修改哪一层”。**
+
+| 语言       | 主要特点                                                   |
+| ---------- | ---------------------------------------------------------- |
+| Go         | 结构体、数组可以直接按值复制；也可以显式使用指针共享数据   |
+| Java       | 基本类型复制值；类实例、数组通过对象引用访问               |
+| JavaScript | 原始类型按值使用；对象、数组通过引用共享                   |
+| Python     | 所有数据都是对象, 名称绑定到对象；重点区分可变与不可变对象 |
+
+例如, Go 中：
+
+```go
+type User struct {
+    Age int
+}
+
+a := User{Age: 10}
+b := a // 复制结构体
+
+b.Age = 20
+fmt.Println(a.Age) // 10
+```
+
+使用指针才会共享这个结构体变量：
+
+```go
+p := &a
+p.Age = 30
+
+fmt.Println(a.Age) // 30
+```
+
+而 Java 的 `User b = a`、JavaScript 的 `let b = a`、Python 的 `b = a`, 在 `a` 表示对象时, 通常只是让两个变量访问同一个对象。
+
+---
+
+**Python 还需要区分对象是否允许原地修改。**
+
+整数不可变：
+
+```python
+def change(n):
+    n = n + 1
+
+x = 10
+change(x)
+print(x)  # 10
+```
+
+列表可变：
+
+```python
+def change(items):
+    items.append(3)
+
+a = [1, 2]
+change(a)
+print(a)  # [1, 2, 3]
+```
+
+区别来自对象的可变性, 不是 Python 对整数和列表采用了不同的传参机制。
+
+参考：[Python 官方 FAQ](https://docs.python.org/3/faq/programming.html#how-do-i-write-a-function-with-output-parameters-call-by-reference)。
+
+---
+
+**JavaScript 数组、Python 列表的追加行为, 与 Go 切片不同, 是因为长度保存的位置不同。**
+
+| 类型            | 长度属于哪里           |
+| --------------- | ---------------------- |
+| JavaScript 数组 | 共享数组对象的状态     |
+| Python 列表     | 共享列表对象的状态     |
+| Go 切片         | 每份切片自身的描述信息 |
+
+因此：
+
+- JavaScript 的 `push()`、Python 的 `append()` 会修改共享容器的长度。
+- Go 的 `append()` 返回更新后的切片, 需要调用者接收, 才能更新调用者切片的长度及可能变化的底层数组引用。
+- Java 数组长度固定, 不能直接追加元素；常用 `ArrayList` 等集合实现动态增长。
+
+理解任意语言中的这类代码时, 可以依次检查：
+
+1. 参数拿到的是数据值, 还是访问对象的引用？
+2. 代码是在修改对象内容, 还是给参数变量重新赋值？
+3. 对象是否允许原地修改？
+4. 赋值是否复制了实际数据, 还是仍然共享底层对象？
 
 ## defer
 
 `defer` 是什么, 函数结束时执行的语句, 和Java的`finally` 类似
 
-延迟调用会在外围函数正常返回或发生 panic 时执行；`os.Exit` 会立即终止进程，不会执行尚未运行的 `defer`。
+延迟调用会在外围函数正常返回或发生 panic 时执行；`os.Exit` 会立即终止进程, 不会执行尚未运行的 `defer`。
 
 ```go
 func main() {
@@ -770,27 +1046,27 @@ return 分两步走：
 2. **执行 defer**
 3. **函数真正返回**
 
-所以结论是：**return 的赋值先于 defer，但函数最终返回在 defer 之后**。
+所以结论是：**return 的赋值先于 defer, 但函数最终返回在 defer 之后**。
 
 ```go
 func deferDemo() int {
 	n := 1
 	defer func() {
-		n += 10 // 修改的是局部变量 n，不影响返回值
+		n += 10 // 修改的是局部变量 n, 不影响返回值
 	}()
-	return n // 这里是【未命名返回值】：return 时把 n 的当前值拷贝到临时返回值里，defer 改的是 n 本身，影响不到那个拷贝
+	return n // 这里是【未命名返回值】：return 时把 n 的当前值拷贝到临时返回值里, defer 改的是 n 本身, 影响不到那个拷贝
 }
-// 结果为 1，不是 11
+// 结果为 1, 不是 11
 ```
 
-如果返回值是**命名返回值**，defer 可以修改它：
+如果返回值是**命名返回值**, defer 可以修改它：
 
 ```go
 func deferNamed() (result int) {
 	defer func() {
 		result += 10 // 命名返回值可以被 defer 修改
 	}()
-	return 1 // 这里是【命名返回值】result：return 时 1 赋给 result这个具名变量，defer 直接改 result，所以最终返回 11
+	return 1 // 这里是【命名返回值】result：return 时 1 赋给 result这个具名变量, defer 直接改 result, 所以最终返回 11
 }
 // 结果为 11
 ```
@@ -801,72 +1077,60 @@ func deferNamed() (result int) {
 
 ### 结构体与方法
 
-结构体用于组合字段，方法可以绑定到已定义类型。Go 没有 class 和传统继承体系，通常通过组合与接口组织行为。
+结构体用于组合字段, 方法可以绑定到已定义类型。Go 没有 class 和传统继承体系, 通常通过组合与接口组织行为。
 
 ```go
 package main
 
 import "fmt"
 
-// 声明新的定义类型 myint；它与 int 具有相同底层类型，但不是别名
-type myint int
-
-// 定义一个结构体
-type Book struct {
-	title  string
-	author string
+// -----------struct--->定义属性-----------
+type AliPay struct {
+	// 支付宝支付
+	AppId string
 }
 
-func changeBook(book Book) {
-	// 传递一个book的副本
-	book.title = "new title"
+type WeChatPay struct {
+	// 微信支付
+	AppId string
 }
 
-func changeBook2(book *Book) {
-	// 传递一个book的指针
-	book.title = "new title 2"
-	// 会改变
+// -----------interface--->定义函数-----------
+type Payment interface {
+	Pay(money float64) (string, float64)
 }
 
-func main() {
-	// 别名
-	var a myint = 42
-	fmt.Println(a)
-
-	var book1 Book
-	book1.title = "Go Programming Language"
-	book1.author = "www.golang.org"
-	fmt.Println(book1)
-}
-```
-
-Go 中的结构体与方法：
-
-```go
-package main
-
-import "fmt"
-
-// Hero 名称已导出，其他包可以引用
-type Hero struct {
-	// 字段名大写表示已导出；小写字段可在同一个包内访问，而不是只在“类内部”访问
-	Name  string
-	Age   int
-	Level int
+// 绑定结构体和函数
+// 在函数名称前面编写
+// (起一个名字 结构体名称)
+// 然后这个名字可以访问结构体内部的属性
+func (a AliPay) Pay(money float64) (string, float64) {
+	fmt.Println("AliPay ID:", a.AppId)
+	return "Paid success!, Paid:", money
 }
 
-// GetName (h Hero) 表示当前方法绑定到当前的Hero结构体
-func (h *Hero) GetName() {
-	fmt.Println(h.Name)
+func (w WeChatPay) Pay(money float64) (string, float64) {
+	fmt.Println("WeChat ID:", w.AppId)
+	return "Paid success!, Paid:", money
+}
+
+// 业务层封装
+// 接收 结构体和money
+func CreateOrder(pay Payment, money float64) {
+	str, num := pay.Pay(money)
+	fmt.Println(str, num)
 }
 
 func main() {
-	hero := Hero{
-		Name:  "Bob",
-		Age:   20,
-		Level: 20,
+	// 初始化结构体
+	ali := AliPay{
+		AppId: "zfb-id",
 	}
-	hero.GetName()
+	str, money := ali.Pay(66.666)
+	fmt.Println(str, money)
+
+	CreateOrder(AliPay{AppId: "ali_1111"}, 777.66)
+	CreateOrder(WeChatPay{AppId: "wx_1111"}, 333.66)
 }
 ```
 
@@ -877,7 +1141,7 @@ package main
 
 import "fmt"
 
-// Human 名称已导出，其他包可以引用
+// Human 名称已导出, 其他包可以引用
 type Human struct {
 	// 小写字段 sex 在同一个包内可见
 	Name string
@@ -891,13 +1155,13 @@ func (h *Human) Walk() {
 	fmt.Println("Human Walk")
 }
 
-// SuperHuman 嵌入 Human，属于组合，并会提升 Human 的字段和方法
+// SuperHuman 嵌入 Human, 属于组合, 并会提升 Human 的字段和方法
 type SuperHuman struct {
 	Human
 	level int
 }
 
-// Walk 与提升的方法同名时，选择 SuperHuman 自己声明的方法；这不是类继承中的 override
+// Walk 与提升的方法同名时, 选择 SuperHuman 自己声明的方法；这不是类继承中的 override
 func (h *SuperHuman) Walk() {
 	fmt.Println("Superman Walk")
 }
@@ -939,9 +1203,9 @@ func main() {
 
 ### 接口与多态
 
-接口值由动态类型和动态值共同描述，但接口本身不能简单等同于指针。接口不要求父类或子类关系：函数接收接口值后，会根据传入值的动态类型调用相应方法。
+接口值由动态类型和动态值共同描述, 但接口本身不能简单等同于指针。接口不要求父类或子类关系：函数接收接口值后, 会根据传入值的动态类型调用相应方法。
 
-> Go 的接口是**隐式实现**：不需要像 Java 那样写 `implements`，只要一个类型实现了接口里定义的**全部方法**，它就自动满足该接口。上面的 `*Cat` 和 `*Dog` 都实现了 `AnimalIF` 的三个方法，所以它们都是 `AnimalIF`。
+> Go 的接口是**隐式实现**：不需要像 Java 那样写 `implements`, 只要一个类型实现了接口里定义的**全部方法**, 它就自动满足该接口。上面的 `*Cat` 和 `*Dog` 都实现了 `AnimalIF` 的三个方法, 所以它们都是 `AnimalIF`。
 
 ```go
 package main
@@ -987,7 +1251,7 @@ func (d *Dog) GetType() string {
 }
 
 // showAnimal 接收的是接口类型 AnimalIF
-// 传进来的是 *Cat 就走 Cat 的方法，传进来的是 *Dog 就走 Dog 的方法 —— 这就是多态
+// 传进来的是 *Cat 就走 Cat 的方法, 传进来的是 *Dog 就走 Dog 的方法 —— 这就是多态
 func showAnimal(a AnimalIF) {
 	fmt.Printf("类型: %s, 颜色: %s\n", a.GetType(), a.GetColor())
 	a.Sleep()
@@ -997,7 +1261,7 @@ func main() {
 	cat := &Cat{color: "red"}
 	dog := &Dog{color: "black"}
 
-	// 同一个 showAnimal 函数，传入不同实现，行为不同
+	// 同一个 showAnimal 函数, 传入不同实现, 行为不同
 	showAnimal(cat) // 类型: Cat, 颜色: red / Cat 正在睡觉
 	showAnimal(dog) // 类型: Dog, 颜色: black / Dog 正在睡觉
 }
@@ -1039,11 +1303,9 @@ func main() {
 }
 ```
 
----
-
 ## 反射
 
-普通变量具有编译期静态类型；接口值还携带动态类型和动态值（常被非正式地描述为一个 pair）。`reflect.TypeOf` 和 `reflect.ValueOf` 可以在运行时检查传入值的类型和值，但不能把“动态 pair”泛化成所有变量的统一运行时表示。
+普通变量具有编译期静态类型；接口值还携带动态类型和动态值（常被非正式地描述为一个 pair）。`reflect.TypeOf` 和 `reflect.ValueOf` 可以在运行时检查传入值的类型和值, 但不能把“动态 pair”泛化成所有变量的统一运行时表示。
 
 简单介绍pair:
 
@@ -1067,7 +1329,7 @@ func main() {
 }
 ```
 
-另一个例子（具体值赋给接口后，接口记录其动态类型和值）：
+另一个例子（具体值赋给接口后, 接口记录其动态类型和值）：
 
 ```go
 package main
@@ -1157,7 +1419,7 @@ func DoFileAndMethod(input interface{}) {
 
 #### 概念
 
-标签是附加在结构体字段上的**元数据**，本身不影响程序运行，但可以通过**反射**读取，常用于给第三方库提供配置信息。
+标签是附加在结构体字段上的**元数据**, 本身不影响程序运行, 但可以通过**反射**读取, 常用于给第三方库提供配置信息。
 
 #### 标签格式
 
@@ -1225,11 +1487,11 @@ func main() {
 // doc:
 ```
 
-> **核心思想**：结构体标签 = 给字段贴的"便签纸"。程序本身不看它，但第三方库通过反射读取它来做对应的事情。
+> **核心思想**：结构体标签 = 给字段贴的"便签纸"。程序本身不看它, 但第三方库通过反射读取它来做对应的事情。
 
 ### JSON 中的结构体标签
 
-`json` 标签是结构体标签中**最常用**的，用于控制结构体与 JSON 之间的转换。
+`json` 标签是结构体标签中**最常用**的, 用于控制结构体与 JSON 之间的转换。
 
 #### json 标签语法
 
@@ -1238,7 +1500,7 @@ type User struct {
     Name  string `json:"name"`            // JSON 字段名为 "name"
     Age   int    `json:"age"`             // JSON 字段名为 "age"
     Email string `json:"email,omitempty"` // 空值时省略该字段
-    Pass  string `json:"-"`               // 完全忽略，不参与 JSON
+    Pass  string `json:"-"`               // 完全忽略, 不参与 JSON
 }
 ```
 
@@ -1246,7 +1508,7 @@ type User struct {
 | ------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `json:"name"`       | JSON 中字段名为 "name"                                                                                                |
 | `json:"-"`          | 该字段不参与 JSON 序列化/反序列化                                                                                     |
-| `json:",omitempty"` | 值为 false、0、nil 指针/接口，或长度为 0 的字符串、数组、切片、map 时省略；普通结构体值不会仅因字段都是零值而自动省略 |
+| `json:",omitempty"` | 值为 false、0、nil 指针/接口, 或长度为 0 的字符串、数组、切片、map 时省略；普通结构体值不会仅因字段都是零值而自动省略 |
 
 #### 序列化与反序列化
 
@@ -1300,20 +1562,20 @@ func main() {
 
 ## 泛型（类型参数）
 
-Go 1.18 引入了**泛型（Generics）**，可以用一套代码写「对任意类型都成立」的函数和类型，告别「为 int/float64/string 各抄一遍」或者退而求其次用 `interface{}` + 类型断言。
+Go 1.18 引入了**泛型（Generics）**, 可以用一套代码写「对任意类型都成立」的函数和类型, 告别「为 int/float64/string 各抄一遍」或者退而求其次用 `interface{}` + 类型断言。
 
-> 反射是在运行时检查类型和值；泛型在编译期进行类型检查，并能减少类型断言。具体实现可能采用单态化、字典传递或共享代码等策略，因此不应笼统承诺“零运行开销”。
+> 反射是在运行时检查类型和值；泛型在编译期进行类型检查, 并能减少类型断言。具体实现可能采用单态化、字典传递或共享代码等策略, 因此不应笼统承诺“零运行开销”。
 
 ### 泛型函数 —— `[T any]`
 
-在函数名后、参数前，用方括号声明**类型参数 T**，`any` 是它的约束（任意类型都行）：
+在函数名后、参数前, 用方括号声明**类型参数 T**, `any` 是它的约束（任意类型都行）：
 
 ```go
 package main
 
 import "fmt"
 
-// T 是类型参数，any 表示「任意类型」
+// T 是类型参数, any 表示「任意类型」
 func Reverse[T any](s []T) []T {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
@@ -1322,18 +1584,18 @@ func Reverse[T any](s []T) []T {
 }
 
 func main() {
-	// 调用时可以省略类型参数，Go 会自动推断
+	// 调用时可以省略类型参数, Go 会自动推断
 	fmt.Println(Reverse([]int{1, 2, 3}))       // [3 2 1]
 	fmt.Println(Reverse([]string{"a", "b", "c"})) // [c b a]
 }
 ```
 
-- 同一个 `Reverse`，int 切片、string 切片都能用。
-- 不需要 `interface{}`，也不需要类型断言，**编译期类型安全**。
+- 同一个 `Reverse`, int 切片、string 切片都能用。
+- 不需要 `interface{}`, 也不需要类型断言, **编译期类型安全**。
 
 ### 类型约束 —— `comparable` 与自定义约束
 
-`any` 太宽，很多操作需要类型具备某种能力（比如「可比较」「是数字」）。约束放在方括号里：
+`any` 太宽, 很多操作需要类型具备某种能力（比如「可比较」「是数字」）。约束放在方括号里：
 
 ```go
 import "fmt"
@@ -1341,7 +1603,7 @@ import "fmt"
 // comparable 是内置约束：支持 == 和 != （map 的 key、查重都需要它）
 func Contains[T comparable](slice []T, target T) bool {
 	for _, v := range slice {
-		if v == target { // 若没有 comparable 约束，这里编译不过
+		if v == target { // 若没有 comparable 约束, 这里编译不过
 			return true
 		}
 	}
@@ -1375,12 +1637,12 @@ func main() {
 }
 ```
 
-> 当前标准库的 `cmp.Ordered` 提供常用的有序类型约束。`golang.org/x/exp/constraints` 属于实验性扩展模块，并未整体迁入标准库。
+> 当前标准库的 `cmp.Ordered` 提供常用的有序类型约束。`golang.org/x/exp/constraints` 属于实验性扩展模块, 并未整体迁入标准库。
 
 ### 泛型类型 —— 泛型切片、Map 与结构体
 
 ```go
-// 泛型栈：任意类型的栈，一套实现
+// 泛型栈：任意类型的栈, 一套实现
 type Stack[T any] struct {
 	data []T
 }
@@ -1412,7 +1674,7 @@ func main() {
 }
 ```
 
-注意方法接收者写法：`(s *Stack[T])`，要把类型参数带上。
+注意方法接收者写法：`(s *Stack[T])`, 要把类型参数带上。
 
 ### 泛型 vs interface{} vs 反射
 
@@ -1424,9 +1686,9 @@ func main() {
 
 ### 一句话总结
 
-- 泛型 = `func 名[T 约束](...)`，类型参数放方括号，调用时通常可自动推断。
-- `any` 任意类型，`comparable` 可比较，自定义 `interface { int | float64 | ... }` 做联合约束。
-- 泛型类型写 `type Stack[T any] struct{...}`，方法接收者带上 `[T]`。
+- 泛型 = `func 名[T 约束](...)`, 类型参数放方括号, 调用时通常可自动推断。
+- `any` 任意类型, `comparable` 可比较, 自定义 `interface { int | float64 | ... }` 做联合约束。
+- 泛型类型写 `type Stack[T any] struct{...}`, 方法接收者带上 `[T]`。
 - 根据问题选择工具：同一算法处理一组受约束类型时优先考虑泛型；动态异构值用接口；必须运行时检查结构时再使用反射。
 
 ---
@@ -1444,13 +1706,13 @@ func main() {
 
 ### 什么是 goroutine
 
-Goroutine 是 Go 语言中的**轻量级线程**，由 Go 运行时（runtime）管理，而非操作系统。
+Goroutine 是 Go 语言中的**轻量级线程**, 由 Go 运行时（runtime）管理, 而非操作系统。
 
 | 特点                 | 说明                                             |
 | -------------------- | ------------------------------------------------ |
-| **极轻量**           | 使用可动态增长和收缩的小栈，通常远小于 OS 线程栈 |
+| **极轻量**           | 使用可动态增长和收缩的小栈, 通常远小于 OS 线程栈 |
 | **低成本创建**       | 可轻松创建数十万个                               |
-| **由 Go 调度器管理** | 使用 M:N 调度模型，多路复用到 OS 线程上          |
+| **由 Go 调度器管理** | 使用 M:N 调度模型, 多路复用到 OS 线程上          |
 
 ### 基本用法
 
@@ -1526,27 +1788,57 @@ func main() {
 		A defer
 	*/
 }
+```
 
+案例2:
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+type Order struct {
+	Name string
+	Time time.Duration
+}
+
+func notify(order Order, wg *sync.WaitGroup) {
+	// 模拟延迟
+	defer wg.Done() // 表示子协程执行完毕 count - 1
+	time.Sleep(order.Time)
+	fmt.Println("Success", order.Name)
+}
+
+// 主协程
+func main() {
+	var wg sync.WaitGroup
+
+	orders := []Order{
+		{Name: "A0001", Time: 100 * time.Microsecond},
+		{Name: "A0002", Time: 1 * time.Second},
+		{Name: "A0003", Time: 300 * time.Microsecond},
+	}
+	// 告诉go 我有几个子携程
+	wg.Add(len(orders)) // count --> 3
+
+	for _, order := range orders {
+		go notify(order, &wg)
+	}
+
+	wg.Wait() // 让主协程等待 不退出
+	fmt.Println("主协程执行完毕")
+}
 ```
 
 ### GMP 调度模型
 
-```
-┌─────────────────────────────────────────┐
-│              Go Scheduler               │
-│                                         │
-│   G (Goroutine)  ──→  M (Machine/线程)  │
-│         ↑                  ↑            │
-│         └──── P (Processor) ────┘        │
-│              本地运行队列                 │
-└─────────────────────────────────────────┘
-```
-
-- **G (Goroutine)**：代表一个并发任务
-- **M (Machine)**：OS 线程，执行代码
-- **P (Processor)**：逻辑处理器，持有本地运行队列
-
-这张图只是心智模型。实际调度还涉及全局运行队列、P 之间的 work stealing、网络轮询器、系统调用阻塞，以及 M 获取 P 后才能执行 Go 代码等机制。
+- **G (Goroutine)**：协程, 也可以代表一个并发任务
+- **M (Machine)**：OS 内核线程, 执行代码, M必须绑定P才能跑G
+- **P (Processor)**：逻辑处理器, 用来管理G的, P的数量默认等于CPU的逻辑核数
 
 ### runtime.Goexit()
 
@@ -1614,13 +1906,13 @@ for i := 0; i < 5; i++ {
 wg.Wait() // 等待所有完成
 ```
 
-`WaitGroup` 只用于等待一组任务完成，不负责传递业务数据；数据通信可使用 channel，共享状态也可以根据场景使用互斥锁或原子操作保护。
+`WaitGroup` 只用于等待一组任务完成, 不负责传递业务数据；数据通信可使用 channel, 共享状态也可以根据场景使用互斥锁或原子操作保护。
 
 ### 注意事项
 
-- **main 退出时所有 goroutine 会被终止**，需要同步机制等待
-- **共享数据必须正确同步**，可根据场景使用 channel、`sync.Mutex`、`sync/atomic` 等机制
-- **不要通过共享内存通信，要通过通信来共享内存**（Go 哲学）
+- **main 退出时所有 goroutine 会被终止**, 需要同步机制等待
+- **共享数据必须正确同步**, 可根据场景使用 channel、`sync.Mutex`、`sync/atomic` 等机制
+- **不要通过共享内存通信, 要通过通信来共享内存**（Go 哲学）
 
 ---
 
@@ -1661,7 +1953,7 @@ func main() {
 
 ![img.png](/assert/go-image/有缓冲channel.png)
 
-> 带缓冲的channel满时，发送方会阻塞，直到接收方读取数据腾出空间。
+> 带缓冲的channel满时, 发送方会阻塞, 直到接收方读取数据腾出空间。
 
 ### 关闭 channel
 
@@ -1686,14 +1978,14 @@ func main() {
 		不关闭就会 deadlock
 		无法向已经关闭的channel发送数据
 		关闭后可以继续从channel接收数据
-		不关闭的话，接收方永远不知道发送方已经结束，就会一直等下去。
+		不关闭的话, 接收方永远不知道发送方已经结束, 就会一直等下去。
         因此Go官方推荐发送方关闭channel
 		 */
 	}()
 
 	for {
-		// 若关闭前还有缓冲数据，接收这些值时 ok 仍为 true；
-		// 只有通道已关闭且缓冲区已读空时，ok 才为 false。
+		// 若关闭前还有缓冲数据, 接收这些值时 ok 仍为 true；
+		// 只有通道已关闭且缓冲区已读空时, ok 才为 false。
 
 		if data, ok := <-c; ok {
 			fmt.Println(data)
@@ -1705,7 +1997,7 @@ func main() {
 }
 ```
 
-并非所有 channel 都必须关闭。只有接收方需要“不会再有值”的信号时才需要关闭，且通常由发送方或明确拥有发送生命周期的一方关闭；不要为了释放 channel 本身而关闭它。
+并非所有 channel 都必须关闭。只有接收方需要“不会再有值”的信号时才需要关闭, 且通常由发送方或明确拥有发送生命周期的一方关闭；不要为了释放 channel 本身而关闭它。
 
 ### channel 与 range
 
@@ -1747,64 +2039,138 @@ func main() {
 }
 ```
 
-### channel 与 select
-
-单流程下一个go只能监控一个channel的状态，select可以完成监控多个channel的状态
-
-> 要不断熟悉下面代码的执行流程:
+案例2:
 
 ```go
+// 无缓冲管道
 package main
 
 import "fmt"
 
-func fibonacii(c chan int, quit chan int) {
-	x, y := 1, 1
-
-	for {
-		select {
-		case c <- x: // 如果c可写执行这个 能写c就写(子goroutine在读)
-			x, y = y, x+y // 同步赋值：新 x = 旧 y，新 y = 旧 x + 旧 y
-		case <-quit: // 能读quit就读（子goroutine发quit时才"能读"）
-			// <-quit 读quit
-			fmt.Println("quit")
-			return
-		}
-	}
+// child
+func worker(ch chan int) {
+	// 运行机制：打电话
+	// 如果没有接受 子协程代码就会阻塞 因此需要有接收的
+	ch <- 100
 }
 
+// main
+func main() {
+	// Go 的通道（channel）主要用于 goroutine 之间传递数据 协调执行
+	// 无缓冲通道 不定义容量
+	ch := make(chan int) // 无缓冲通道
+
+	// 有缓冲通道 定义容量
+	go worker(ch)
+	// 数量比较少的时候可以这样
+	val := <-ch
+	// 如果数量多 就用循环
+	fmt.Println(val)
+
+}
+```
+
+```go
+// 有缓冲通道
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+// child
+func worker(ch chan int) {
+	fmt.Println("start")
+	ch <- 100
+	ch <- 200
+	ch <- 300 // 多一个就会死锁 解决方式：把100消费掉就可以解决
+	fmt.Println("end")
+}
+
+// main
 func main() {
 
-	c := make(chan int)
-	quit := make(chan int)
+	// 有缓冲通道
+	// 确定容量后 不使用也不会造成死锁
+	// [100, 200] 300
+	ch := make(chan int, 2)
+	go worker(ch)
+	val := <-ch
+	fmt.Println(val)
+	time.Sleep(1 * time.Second)
 
-	go func() {
-		for i := 0; i < 6; i++ {
-			fmt.Println(<-c) // 读c
-		}
-		quit <- 0
-	}()
+}
+```
 
-	fibonacii(c, quit)
+### select
+
+1. 多channel同时监听
+2. 请求超时控制
+3. 非阻塞读写channel
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+// child1
+func worker1(ch chan string) {
+	time.Sleep(30 * time.Millisecond)
+	ch <- "我是第一个数据v1"
+}
+
+// child2
+func worker2(ch chan string) {
+	time.Sleep(30 * time.Millisecond)
+	ch <- "我是第二个数据v2"
+}
+
+// main
+func main() {
+	ch1 := make(chan string)
+	ch2 := make(chan string)
+	go worker1(ch1)
+	go worker2(ch2)
+
+	// 哪个延迟低就返回哪个 其他的就不会执行
+	// 如果延迟一样 随机返回
+	select {
+	// 多channel同时监听
+	case msg1 := <-ch1:
+		fmt.Println(msg1)
+	case msg2 := <-ch2:
+		fmt.Println(msg2)
+	case <-time.After(20 * time.Microsecond):
+		// 超时处理
+		fmt.Println("超时")
+	default:
+		// 如果不想等就 default
+		// 如果需要等待就删除 default
+		fmt.Println("非阻塞测试")
+	}
 }
 ```
 
 ## context（上下文）
 
-goroutine + channel 解决了「并发」和「通信」，但还有一个现实问题没解决：**怎么在需要时取消一批 goroutine？怎么给它们设超时？怎么在 goroutine 之间传递请求级的截止时间/值？**
+goroutine + channel 解决了「并发」和「通信」, 但还有一个现实问题没解决：**怎么在需要时取消一批 goroutine？怎么给它们设超时？怎么在 goroutine 之间传递请求级的截止时间/值？**
 
-`context` 包用于在调用链中传播取消、截止时间和请求级值。并非每段并发代码都必须同时使用 goroutine、channel 和 context，应按生命周期与通信需求选择。
+`context` 包用于在调用链中传播取消、截止时间和请求级值。并非每段并发代码都必须同时使用 goroutine、channel 和 context, 应按生命周期与通信需求选择。
 
-> 一句话理解：**`context.Context` 是一次请求/一次操作的「生命周期管家」**，沿着调用链向下传，负责「取消信号」和「截止时间」的传播。
+> 一句话理解：**`context.Context` 是一次请求/一次操作的「生命周期管家」**, 沿着调用链向下传, 负责「取消信号」和「截止时间」的传播。
 
 ### 核心：Context 沿调用链传递
 
-约定：**函数的第一个参数通常是 `ctx context.Context`**，从 `main` / HTTP handler 一路传下去。不要把 ctx 存进结构体里，要显式传参。
+约定：**函数的第一个参数通常是 `ctx context.Context`**, 从 `main` / HTTP handler 一路传下去。不要把 ctx 存进结构体里, 要显式传参。
 
 ### 创建根 context
 
 ```go
-background := context.Background() // 空上下文，通常用于 main / 测试 / 顶层
+background := context.Background() // 空上下文, 通常用于 main / 测试 / 顶层
 todo := context.TODO()             // 暂时还不能确定上游 context 时占位
 _, _ = background, todo
 ```
@@ -1813,12 +2179,12 @@ _, _ = background, todo
 
 | 函数                               | 作用                                          |
 | ---------------------------------- | --------------------------------------------- |
-| `context.WithCancel(parent)`       | 返回 ctx + `cancel()`，**手动取消**           |
-| `context.WithTimeout(parent, dur)` | 返回 ctx + `cancel()`，**到点自动取消**       |
-| `context.WithDeadline(parent, t)`  | 同上，指定绝对时间点                          |
-| `context.WithValue(parent, k, v)`  | 在 ctx 上带一个键值（请求级数据，如 traceID） |
+| `context.WithCancel(parent)`       | 返回 ctx + `cancel()`, **手动取消**           |
+| `context.WithTimeout(parent, dur)` | 返回 ctx + `cancel()`, **到点自动取消**       |
+| `context.WithDeadline(parent, t)`  | 同上, 指定绝对时间点                          |
+| `context.WithValue(parent, k, v)`  | 在 ctx 上带一个键值（请求级数据, 如 traceID） |
 
-> 调用方应调用 `WithCancel`、`WithTimeout`、`WithDeadline` 返回的 `cancel()`，以尽快释放关联的计时器和引用；即使超时最终会触发，也通常在创建后立即 `defer cancel()`。
+> 调用方应调用 `WithCancel`、`WithTimeout`、`WithDeadline` 返回的 `cancel()`, 以尽快释放关联的计时器和引用；即使超时最终会触发, 也通常在创建后立即 `defer cancel()`。
 
 ### 演示：取消信号传播
 
@@ -1834,7 +2200,7 @@ import (
 func worker(ctx context.Context, id int) {
 	for {
 		select {
-		case <-ctx.Done(): // 收到取消信号，退出
+		case <-ctx.Done(): // 收到取消信号, 退出
 			fmt.Printf("worker %d 被取消: %v\n", id, ctx.Err())
 			return
 		default:
@@ -1846,7 +2212,7 @@ func worker(ctx context.Context, id int) {
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel() // 习惯性 defer，防止泄漏
+	defer cancel() // 习惯性 defer, 防止泄漏
 
 	go worker(ctx, 1)
 	go worker(ctx, 2)
@@ -1861,7 +2227,7 @@ func main() {
 关键点：
 
 - 子 goroutine 用 `select { case <-ctx.Done(): }` 监听取消。
-- `cancel()` 一调用，所有从该 ctx 派生出去的 goroutine **同时**收到信号——这就是「取消一批 goroutine」。
+- `cancel()` 一调用, 所有从该 ctx 派生出去的 goroutine **同时**收到信号——这就是「取消一批 goroutine」。
 
 ### 演示：超时控制
 
@@ -1879,7 +2245,7 @@ func fetch(ctx context.Context) (string, error) {
 }
 
 func main() {
-	// 给 1 秒上限，但 fetch 需要 2 秒 → 必然超时
+	// 给 1 秒上限, 但 fetch 需要 2 秒 → 必然超时
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -1902,14 +2268,14 @@ ctx := context.WithValue(context.Background(), traceIDKey, "abc-123")
 v := ctx.Value(traceIDKey)
 ```
 
-> `WithValue` 只传**请求作用域的值**（traceID、userID、token），**不要**用它传函数参数。滥用会让代码难追踪。
+> `WithValue` 只传**请求作用域的值**（traceID、userID、token）, **不要**用它传函数参数。滥用会让代码难追踪。
 
 ### 一句话总结
 
-- `context` 管「取消 + 超时 + 跨 goroutine 传值」，沿调用链传第一个参数。
-- `WithCancel` 手动取消，`WithTimeout` 自动超时，返回的 `cancel()` 必须 `defer cancel()`。
-- 子 goroutine 用 `<-ctx.Done()` 监听退出，`ctx.Err()` 看退出原因（`canceled` / `deadline exceeded`）。
-- `WithValue` 只传请求级元数据，不传业务参数。
+- `context` 管「取消 + 超时 + 跨 goroutine 传值」, 沿调用链传第一个参数。
+- `WithCancel` 手动取消, `WithTimeout` 自动超时, 返回的 `cancel()` 必须 `defer cancel()`。
+- 子 goroutine 用 `<-ctx.Done()` 监听退出, `ctx.Err()` 看退出原因（`canceled` / `deadline exceeded`）。
+- `WithValue` 只传请求级元数据, 不传业务参数。
 
 ---
 
@@ -1918,7 +2284,7 @@ v := ctx.Value(traceIDKey)
 Go modules解决了哪些问题:
 
 1. Go语言长久以来的依赖管理问题。
-2. 让项目源码和依赖版本不再必须依赖传统的 `GOPATH/src` 工作区布局；`GOPATH` 本身仍用于模块缓存、安装目录等默认位置，并未消失。
+2. 让项目源码和依赖版本不再必须依赖传统的 `GOPATH/src` 工作区布局；`GOPATH` 本身仍用于模块缓存、安装目录等默认位置, 并未消失。
 3. 统一社区中的其它的依赖管理工具(提供迁移功能)。
 
 ## Go Modules 常用操作
@@ -1927,16 +2293,16 @@ Go modules解决了哪些问题:
 
 | 命令              | 作用                                                                                     |
 | ----------------- | ---------------------------------------------------------------------------------------- |
-| `go mod init`     | 初始化新模块，创建 go.mod 文件                                                           |
+| `go mod init`     | 初始化新模块, 创建 go.mod 文件                                                           |
 | `go mod download` | 下载go.mod文件中指明的所有依赖                                                           |
-| `go mod tidy`     | 整理依赖：添加缺少的，删除未使用的                                                       |
+| `go mod tidy`     | 整理依赖：添加缺少的, 删除未使用的                                                       |
 | `go mod graph`    | 打印依赖关系图                                                                           |
 | `go mod edit`     | 用命令行编辑 go.mod                                                                      |
 | `go mod vendor`   | 把构建和测试主模块所需的依赖包复制到 `vendor` 目录；使用方式受 Go 版本和 `-mod` 设置影响 |
-| `go mod verify`   | 检查已下载模块内容是否与模块缓存中记录的校验值一致，不验证依赖业务正确性                 |
+| `go mod verify`   | 检查已下载模块内容是否与模块缓存中记录的校验值一致, 不验证依赖业务正确性                 |
 | `go mod why`      | 解释为什么需要某个依赖                                                                   |
 
-使用 `go mod init 模块路径` 显式初始化模块并创建 `go.mod`。IDE 可以提供向导，但不应假定它一定会自动创建。
+使用 `go mod init 模块路径` 显式初始化模块并创建 `go.mod`。IDE 可以提供向导, 但不应假定它一定会自动创建。
 
 ### 调整依赖版本与来源
 
@@ -1948,7 +2314,7 @@ go get github.com/gin-gonic/gin@latest    # 升级到最新
 go get github.com/gin-gonic/gin@abc1234   # 指定某个 commit
 ```
 
-通常优先使用 `go get 模块@版本` 调整依赖，让 Go 命令同步维护间接依赖和 `go.sum`。手工编辑 `require` 不是与 `go get` 完全等价的首选流程，编辑后至少应运行 `go mod tidy` 并测试。
+通常优先使用 `go get 模块@版本` 调整依赖, 让 Go 命令同步维护间接依赖和 `go.sum`。手工编辑 `require` 不是与 `go get` 完全等价的首选流程, 编辑后至少应运行 `go mod tidy` 并测试。
 
 #### 使用 `replace` 进行本地替换
 
@@ -1956,7 +2322,7 @@ go get github.com/gin-gonic/gin@abc1234   # 指定某个 commit
 go mod edit -replace=github.com/gin-gonic/gin=../local/gin
 ```
 
-用本地目录替换远程包，适合本地调试或 fork 自己维护。
+用本地目录替换远程包, 适合本地调试或 fork 自己维护。
 
 #### `require` 与 `replace` 的区别
 
@@ -1975,17 +2341,187 @@ replace (
 )
 ```
 
----
+## 互斥锁和读写锁
+
+### 互斥锁
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+// child
+// 4.2 需要传入子协程 告诉go语言执行完毕
+func worker(menu *[]string, new string, wg *sync.WaitGroup, mu *sync.Mutex) {
+
+	mu.Lock() // 锁的范围之内称为临界区
+
+	/*
+		注意：现在menu传入的是指针（切片的指针）
+		如果需要使用menu需要解引用---> *menu（切片）
+		使用append 所有的更改都需要是切片而不是指针
+	*/
+	*menu = append(*menu, new)
+	mu.Unlock() // 锁的范围之内称为临界区
+
+	defer wg.Done() // 5. 告诉go执行完毕
+}
+
+// main
+func main() {
+	// wg大法
+	// 1. 声明wg
+	var wg sync.WaitGroup
+
+	var mu sync.Mutex // 互斥锁 同一时间内只能有一个协程去操作临界区的共享数据
+
+	menu := []string{"伍仁月饼", "三鲜月饼", "肉月饼"}
+	wg.Add(3)                         // 2. 告诉go有几个子协程
+	go worker(&menu, "甜月饼", &wg, &mu) // 4.1 需要传入子协程 告诉go语言执行完毕
+	go worker(&menu, "咸月饼", &wg, &mu)
+	go worker(&menu, "芝麻月饼", &wg, &mu)
+	wg.Wait() // 3. 等待
+	fmt.Println(menu)
+}
+```
+
+### RW锁
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+// 读写分离
+func workerRead(menu *[]string, wg *sync.WaitGroup, mu *sync.RWMutex) {
+
+	mu.Lock() // 锁的范围之内称为临界区
+
+	time.Sleep(50 * time.Millisecond)
+	fmt.Println("111", *menu) // 读取menu之后的数据
+
+	mu.Unlock() // 锁的范围之内称为临界区
+
+	defer wg.Done()
+}
+
+func workerWrite(menu *[]string, new string, wg *sync.WaitGroup, mu *sync.RWMutex) {
+	time.Sleep(1 * time.Millisecond) // 人为故意延迟1ms 让读锁先触发
+	mu.RLock()                       // 锁的范围之内称为临界区
+
+	*menu = append(*menu, new)
+	mu.RUnlock() // 锁的范围之内称为临界区
+
+	defer wg.Done()
+}
+
+// main
+func main() {
+	// wg大法
+	// 1. 声明wg
+	var wg sync.WaitGroup
+
+	var mu sync.RWMutex // 读写锁
+	// 读和读 共享
+	// 读和写 互斥
+
+	menu := []string{"伍仁月饼", "三鲜月饼", "肉月饼"}
+	wg.Add(3)
+	go workerRead(&menu, &wg, &mu)
+	go workerRead(&menu, &wg, &mu)
+	go workerWrite(&menu, "芝麻月饼", &wg, &mu)
+	wg.Wait()
+	fmt.Println("222", menu)
+}
+```
+
+### 区别
+
+访问同一份共享数据的代码, 都按规则使用同一把锁。
+
+| 同时发生的操作 | `sync.Mutex` 互斥锁 | `sync.RWMutex` 读写锁 |
+| -------------- | ------------------- | --------------------- |
+| 读 + 读        | 互斥, 排队执行      | 可以同时执行          |
+| 读 + 写        | 互斥                | 互斥                  |
+| 写 + 写        | 互斥                | 互斥                  |
+
+## 文件操作
+
+### 基本操作
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+func main() {
+
+	// 创建文件
+	file, _ := os.Create("index.txt")
+
+	// 一些操作
+	// 1. 追加内容
+	file.WriteString("11111\n")
+	file.Write([]byte("xxxxx"))
+
+	// 关闭文件
+	file.Close()
+
+	// 2. 读取操作
+	data, err := os.ReadFile("index.txt")
+	if err != nil {
+		fmt.Println("xxxx")
+	}
+	fmt.Println(string(data))
+
+	// 3. 读取文件元信息
+	fileInfo, _ := os.Stat("index.txt")
+	fmt.Println(fileInfo)
+	fmt.Println(fileInfo.IsDir())
+	fmt.Println(fileInfo.Size())
+
+	// 4. 删除文件
+	os.Remove("index.txt")
+}
+```
+
+### 高级操作
+
+```go
+package main
+
+import "os"
+
+func main() {
+	file, _ := os.OpenFile("index.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o777)
+	// 0o777 权限 Windows无效
+
+	file.WriteString("11111")
+
+	file.Close()
+}
+
+```
 
 ## 单元测试
 
-Go 自带测试框架，不需要第三方库。规则简单、约定大于配置：
+Go 自带测试框架, 不需要第三方库。规则简单、约定大于配置：
 
 ### 基本约定
 
-1. 测试文件名必须以 `_test.go` 结尾（如 `main_test.go`），编译时不会被建进产物。
-2. 测试函数签名是 `func TestXxx(t *testing.T)`：名称以 `Test` 开头，紧随其后的首个字符不能是小写字母，且函数不能有其他参数或返回值。
-3. 测试文件可以使用被测包本身，也可以使用以 `_test` 结尾的外部测试包；前者可访问包内未导出标识符，后者只能通过导出 API 测试。
+1. 测试文件名必须以 `_test.go` 结尾（如 `main_test.go`）, 编译时不会被建进产物。
+2. 测试函数签名是 `func TestXxx(t *testing.T)`：名称以 `Test` 开头, 紧随其后的首个字符不能是小写字母, 且函数不能有其他参数或返回值。
+3. 测试文件可以使用被测包本身, 也可以使用以 `_test` 结尾的外部测试包；前者可访问包内未导出标识符, 后者只能通过导出 API 测试。
 
 ### 第一个测试
 
@@ -2027,7 +2563,7 @@ go test -coverprofile=cover.out && go tool cover -html=cover.out  # 生成 HTML 
 
 ### 表驱动测试
 
-把多组输入/期望列成表，循环跑，避免为每种情况写一个函数：
+把多组输入/期望列成表, 循环跑, 避免为每种情况写一个函数：
 
 ```go
 package calc
@@ -2047,7 +2583,7 @@ func TestAdd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) { // 子测试，可单独 -run 指定
+		t.Run(tc.name, func(t *testing.T) { // 子测试, 可单独 -run 指定
 			if got := Add(tc.a, tc.b); got != tc.want {
 				t.Errorf("Add(%d, %d) = %d, want %d", tc.a, tc.b, got, tc.want)
 			}
@@ -2056,37 +2592,37 @@ func TestAdd(t *testing.T) {
 }
 ```
 
-`t.Run` 创建**子测试**，输出会按用例名分组，`go test -run TestAdd/负数` 可以只跑某个子用例。
+`t.Run` 创建**子测试**, 输出会按用例名分组, `go test -run TestAdd/负数` 可以只跑某个子用例。
 
 ### 失败、跳过与日志
 
 | API                    | 行为                                                           |
 | ---------------------- | -------------------------------------------------------------- |
-| `t.Error` / `t.Errorf` | 标记失败，**继续**往下执行                                     |
-| `t.Fatal` / `t.Fatalf` | 标记失败，**立刻停止**当前测试函数（遇到不能继续的错误用这个） |
+| `t.Error` / `t.Errorf` | 标记失败, **继续**往下执行                                     |
+| `t.Fatal` / `t.Fatalf` | 标记失败, **立刻停止**当前测试函数（遇到不能继续的错误用这个） |
 | `t.Skip` / `t.Skipf`   | 跳过该用例（如缺环境）                                         |
-| `t.Log` / `t.Logf`     | 记录日志；测试失败时会显示，成功测试通常需配合 `-v` 才显示     |
+| `t.Log` / `t.Logf`     | 记录日志；测试失败时会显示, 成功测试通常需配合 `-v` 才显示     |
 
 ```go
 func TestSlice(t *testing.T) {
 	s := []int{1, 2, 3}
 	if len(s) != 3 {
-		t.Fatalf("长度不对，无法继续: %d", len(s)) // 后面依赖长度，直接 Fatal
+		t.Fatalf("长度不对, 无法继续: %d", len(s)) // 后面依赖长度, 直接 Fatal
 	}
 	if s[0] != 1 {
-		t.Errorf("首元素应为 1，实际 %d", s[0]) // 不致命，继续检查别的
+		t.Errorf("首元素应为 1, 实际 %d", s[0]) // 不致命, 继续检查别的
 	}
 }
 ```
 
 ### `testing.T` 的常用方法
 
-- `t.Parallel()` —— 先暂停当前测试，待所属的顺序测试函数返回后，再与其他并行测试一起运行。并行用例不能无同步地共享可变状态。
-- `t.Cleanup(func())` —— 注册清理函数，测试结束时按 LIFO 顺序执行（替代手写 defer 链）。
+- `t.Parallel()` —— 先暂停当前测试, 待所属的顺序测试函数返回后, 再与其他并行测试一起运行。并行用例不能无同步地共享可变状态。
+- `t.Cleanup(func())` —— 注册清理函数, 测试结束时按 LIFO 顺序执行（替代手写 defer 链）。
 
 ## 基准测试
 
-签名 `func BenchmarkXxx(b *testing.B)`。Go 1.24 起推荐使用 `b.Loop()`，由测试框架控制迭代次数并更准确地管理计时区间：
+签名 `func BenchmarkXxx(b *testing.B)`。Go 1.24 起推荐使用 `b.Loop()`, 由测试框架控制迭代次数并更准确地管理计时区间：
 
 ```go
 func BenchmarkAdd(b *testing.B) {
@@ -2097,15 +2633,15 @@ func BenchmarkAdd(b *testing.B) {
 ```
 
 ```bash
-go test -run=^$ -bench=.                         # 只跑所有基准，不运行普通测试
+go test -run=^$ -bench=.                         # 只跑所有基准, 不运行普通测试
 go test -run=^$ -bench=BenchmarkAdd -benchmem   # 同时看内存分配
 ```
 
-如果不指定 `-run=^$`，`go test -bench=...` 默认仍会先运行匹配的普通测试。
+如果不指定 `-run=^$`, `go test -bench=...` 默认仍会先运行匹配的普通测试。
 
 ## 小结
 
-- 文件使用 `_test.go`，测试函数使用规定签名；可选择同包测试或 `_test` 外部包测试。
+- 文件使用 `_test.go`, 测试函数使用规定签名；可选择同包测试或 `_test` 外部包测试。
 - 首选**表驱动 + `t.Run` 子测试**；失败 `t.Error`（继续）/ `t.Fatal`（停止）。
-- `go test -v -cover` 看详情和覆盖率，`-bench` 跑性能。
-- 这个项目目录就叫 `test-demo`，正好可以建 `xxx_test.go` 实操——`go test` 是 Go 工程的肌肉记忆。
+- `go test -v -cover` 看详情和覆盖率, `-bench` 跑性能。
+- 这个项目目录就叫 `test-demo`, 正好可以建 `xxx_test.go` 实操——`go test` 是 Go 工程的肌肉记忆。
