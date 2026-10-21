@@ -3,6 +3,7 @@ import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  lang: "zh-CN",
   vite: {
     plugins: [
       visualizer({
@@ -16,6 +17,8 @@ export default defineConfig({
   title: "加菲猫的博客",
   lastUpdated: true, // 显示最后更新时间
   head: [
+    // Restore visual preferences before first paint; storage may be unavailable.
+    ["script", {}, `(function(){try{var r=document.documentElement,s=localStorage,a=s.getItem('vitepress-theme-accent'),p=s.getItem('knowledge-reading-style'),w=s.getItem('knowledge-reading-width');if(['sky','teal','amber','rose','purple'].includes(a))r.setAttribute('data-accent',a);if(['card','plain'].includes(p))r.setAttribute('data-reading-style',p);if(['normal','wide'].includes(w))r.setAttribute('data-reading-width',w)}catch(e){}})();`],
     // SEO优化
     ["link", { rel: "icon", href: "/site-blog/favicon.ico" }], // 修改图标
     ["meta", { name: "theme-color", content: "#3eaf7c" }],

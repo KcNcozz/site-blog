@@ -1,29 +1,7 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
-
-hero:
-  name: "加菲猫的知识库"
-  text: "一个用于记录学习过程的小站"
-  tagline:
-    学习 创作 记录
-    # 添加主页的图片
-  image:
-    src: vitepress-logo-large.svg
-    alt: "加菲猫的博客"
-  actions:
-    - theme: alt
-      text: 简介
-      link: /简介
-    - theme: brand
-      text: 知识板块
-      link: /主要内容概述
-
-features:
-  - title: 学习笔记
-    details: 记录学习新技术的过程，总结学习笔记
-  - title: 剪辑知识
-    details: 摘录一些剪辑相关的知识
-  - title: 学习日志
-    details: 不知道该怎么说的日常吐槽
+knowledgeHome: true
+title: 加菲猫的知识库
+titleTemplate: false
+description: 前端、后端与 AI 学习笔记，开发实践与日常记录。
 ---
