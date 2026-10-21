@@ -1,5 +1,7 @@
 import { defineConfig } from "vitepress";
 import { visualizer } from "rollup-plugin-visualizer";
+import { knowledgeConfig } from "./theme/knowledge.config";
+import { preferenceRestoreScript } from "./theme/preferences";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -14,11 +16,17 @@ export default defineConfig({
       }),
     ], // 打包分析
   },
-  title: "加菲猫的博客",
+  title: knowledgeConfig.site.title,
+  transformPageData(pageData) {
+    if (pageData.frontmatter.knowledgeHome) {
+      pageData.title = knowledgeConfig.site.title;
+      pageData.description = knowledgeConfig.site.description;
+    }
+  },
   lastUpdated: true, // 显示最后更新时间
   head: [
     // Restore visual preferences before first paint; storage may be unavailable.
-    ["script", {}, `(function(){try{var r=document.documentElement,s=localStorage,a=s.getItem('vitepress-theme-accent'),p=s.getItem('knowledge-reading-style'),w=s.getItem('knowledge-reading-width');if(['sky','teal','amber','rose','purple'].includes(a))r.setAttribute('data-accent',a);if(['card','plain'].includes(p))r.setAttribute('data-reading-style',p);if(['normal','wide'].includes(w))r.setAttribute('data-reading-width',w)}catch(e){}})();`],
+    ["script", {}, preferenceRestoreScript],
     // SEO优化
     ["link", { rel: "icon", href: "/site-blog/favicon.ico" }], // 修改图标
     ["meta", { name: "theme-color", content: "#3eaf7c" }],
@@ -28,8 +36,8 @@ export default defineConfig({
       { name: "apple-mobile-web-app-status-bar-style", content: "black" },
     ],
     ["meta", { property: "og:type", content: "website" }],
-    ["meta", { property: "og:title", content: "加菲猫的技术知识库" }],
-    ["meta", { property: "og:description", content: "记录自己的学习过程" }],
+    ["meta", { property: "og:title", content: knowledgeConfig.site.title }],
+    ["meta", { property: "og:description", content: knowledgeConfig.site.description }],
   ],
   // 站点地图 SEO
   sitemap: {
@@ -48,7 +56,7 @@ export default defineConfig({
     },
   },
 
-  description: "记录自己的学习过程",
+  description: knowledgeConfig.site.description,
   base: "/site-blog/",
   outDir: "docs", // 修改构建输出目录
   themeConfig: {
@@ -56,7 +64,7 @@ export default defineConfig({
     search: {
       provider: "local",
     },
-    siteTitle: "加菲猫",
+    siteTitle: knowledgeConfig.site.name,
     // https://vitepress.dev/reference/default-theme-config
 
     // // 改进的导航

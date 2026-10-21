@@ -1,6 +1,7 @@
 import { createContentLoader } from "vitepress";
+import { knowledgeConfig, type TopicId } from "./knowledge.config";
 
-export type TopicId = "frontend" | "backend" | "AI" | "demo" | "web" | "other" | "story";
+export type { TopicId } from "./knowledge.config";
 
 export interface KnowledgeArticle {
   title: string;
@@ -8,6 +9,9 @@ export interface KnowledgeArticle {
   url: string;
   category: TopicId;
   categoryLabel: string;
+  /** Stable within the original directory tree, e.g. frontend/base or web/_root. */
+  groupId: string;
+  groupLabel: string;
   summary: string;
   wordCount: number;
   readingMinutes: number;
@@ -15,10 +19,19 @@ export interface KnowledgeArticle {
   lastUpdated?: string;
 }
 
+export interface KnowledgeGroup {
+  id: string;
+  label: string;
+  count: number;
+}
+
 export interface KnowledgeTopic {
   id: TopicId;
   label: string;
   description: string;
+  icon: string;
+  code: string;
+  groups: KnowledgeGroup[];
   /** First article in this topic; no generated directory route is assumed. */
   url: string;
   count: number;
@@ -34,15 +47,7 @@ export interface KnowledgeData {
 
 export declare const data: KnowledgeData;
 
-const topicDefinitions: Array<Pick<KnowledgeTopic, "id" | "label" | "description">> = [
-  { id: "frontend", label: "前端开发", description: "从页面基础到框架与工程实践" },
-  { id: "backend", label: "后端开发", description: "服务端语言、数据库与部署运维" },
-  { id: "AI", label: "AI 探索", description: "大模型、RAG 与 Agent 学习笔记" },
-  { id: "demo", label: "项目实践", description: "把知识串联起来的项目记录" },
-  { id: "web", label: "知识手册", description: "开发中常用的方法与问题整理" },
-  { id: "other", label: "生活记录", description: "学习日志、工具使用与日常积累" },
-  { id: "story", label: "随笔故事", description: "技术之外的阅读与思考" },
-];
+const topicDefinitions = knowledgeConfig.topics;
 
 const htmlEntities: Record<string, string> = {
   "&nbsp;": " ", "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&apos;": "'",
@@ -131,6 +136,11 @@ export default createContentLoader<KnowledgeData>("src/**/*.md", {
       const path = readablePath(page.url);
       const category = topicDefinitions.find((topic) => path.startsWith(`/src/${topic.id}/`))
         ?? topicDefinitions.find((topic) => topic.id === "other")!;
+      const pathParts = path.split("/").filter(Boolean);
+      const groupDirectory = pathParts.length > 3 ? pathParts[2] : "";
+      const groupId = `${category.id}/${groupDirectory || "_root"}`;
+      const groupLabel = groupDirectory
+        ? category.groupLabels[groupDirectory] ?? groupDirectory : category.rootGroupLabel;
       const firstHeading = body.match(/^#\s+(.+?)\s*#*\s*$/m)?.[1];
       const filename = path.split("/").filter(Boolean).pop()?.replace(/\.(?:html|md)$/, "") ?? "未命名笔记";
       const title = plainText(typeof page.frontmatter.title === "string" ? page.frontmatter.title : "")
@@ -149,6 +159,8 @@ export default createContentLoader<KnowledgeData>("src/**/*.md", {
         url: page.url,
         category: category.id,
         categoryLabel: category.label,
+        groupId,
+        groupLabel,
         summary: shorten(description || prose) || "这篇笔记还在整理中，打开查看完整内容。",
         wordCount: cjkCount + otherWords,
         readingMinutes: Math.max(1, Math.ceil(cjkCount / 400 + otherWords / 200)),
@@ -163,8 +175,24 @@ export default createContentLoader<KnowledgeData>("src/**/*.md", {
 
     const topics = topicDefinitions.map((topic) => {
       const entries = articles.filter((article) => article.category === topic.id);
+      const groupMap = new Map<string, KnowledgeGroup>();
+      for (const article of entries) {
+        const group = groupMap.get(article.groupId);
+        if (group) group.count++;
+        else groupMap.set(article.groupId, { id: article.groupId, label: article.groupLabel, count: 1 });
+      }
+      const groupOrder = ["_root", ...Object.keys(topic.groupLabels)].map((directory) => `${topic.id}/${directory}`);
+      const rank = (id: string) => {
+        const index = groupOrder.indexOf(id);
+        return index < 0 ? groupOrder.length : index;
+      };
       return {
-        ...topic,
+        id: topic.id,
+        label: topic.label,
+        description: topic.description,
+        icon: topic.icon,
+        code: topic.code,
+        groups: [...groupMap.values()].sort((a, b) => rank(a.id) - rank(b.id) || a.label.localeCompare(b.label, "zh-CN")),
         url: entries[0]?.url ?? "",
         count: entries.length,
         wordCount: entries.reduce((total, article) => total + article.wordCount, 0),

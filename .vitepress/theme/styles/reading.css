@@ -5,7 +5,14 @@
   --kb-reading-muted: var(--vp-c-text-2);
   --kb-reading-padding: clamp(24px, 3vw, 44px);
   --kb-reading-measure: 816px;
+  --kb-reading-font-size: 16px;
+  --kb-reading-line-height: 1.95;
 }
+
+html[data-reading-font-size="18"] .VPDoc { --kb-reading-font-size: 18px; }
+html[data-reading-font-size="20"] .VPDoc { --kb-reading-font-size: 20px; }
+html[data-reading-line-height="compact"] .VPDoc { --kb-reading-line-height: 1.65; }
+html[data-reading-line-height="relaxed"] .VPDoc { --kb-reading-line-height: 2.2; }
 
 .VPDoc > .container > .content > .content-container {
   box-sizing: border-box;
@@ -108,47 +115,6 @@ html[data-reading-style="plain"] .VPDoc > .container > .content > .content-conta
   color: var(--vp-c-text-3);
 }
 
-.kb-reading-options {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 9px;
-}
-
-.kb-reading-segment {
-  display: inline-flex;
-  gap: 2px;
-  padding: 3px;
-  border: 1px solid var(--kb-reading-line);
-  border-radius: 9px;
-  background: var(--vp-c-bg-soft);
-}
-
-.kb-reading-segment button {
-  min-width: 42px;
-  min-height: 30px;
-  padding: 3px 9px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  color: var(--vp-c-text-2);
-  font-family: inherit;
-  font-size: 12px;
-  line-height: 1.5;
-  cursor: pointer;
-  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
-}
-
-.kb-reading-segment button:hover {
-  color: var(--vp-c-brand-1);
-}
-
-.kb-reading-segment button[aria-pressed="true"] {
-  border-color: var(--kb-reading-line);
-  background: var(--vp-c-bg);
-  color: var(--vp-c-brand-1);
-}
-
-.kb-reading-segment button:focus-visible,
 .kb-breadcrumb a:focus-visible {
   outline: 2px solid var(--vp-c-brand-1);
   outline-offset: 3px;
@@ -156,6 +122,7 @@ html[data-reading-style="plain"] .VPDoc > .container > .content > .content-conta
 
 .VPDoc .vp-doc {
   color: var(--vp-c-text-1);
+  font-size: var(--kb-reading-font-size);
   overflow-wrap: break-word;
 }
 
@@ -182,8 +149,9 @@ html[data-reading-style="plain"] .VPDoc > .container > .content > .content-conta
   line-height: 1.6;
 }
 
-.VPDoc .vp-doc :where(p, li) {
-  line-height: 1.95;
+.VPDoc .vp-doc :where(p, li, td, th, blockquote) {
+  font-size: var(--kb-reading-font-size);
+  line-height: var(--kb-reading-line-height);
 }
 
 .VPDoc .vp-doc :where(p, ul, ol, blockquote, table, .custom-block) {
@@ -214,6 +182,11 @@ html[data-reading-style="plain"] .VPDoc > .container > .content > .content-conta
   max-width: 100%;
   height: auto;
   border-radius: 8px;
+}
+
+/* Embedded examples should stay within the article on narrow screens. */
+.VPDoc .vp-doc :is(iframe, video, audio, embed, object, svg) {
+  max-width: 100%;
 }
 
 .VPDoc .VPDocFooter {
@@ -337,9 +310,6 @@ html[data-reading-style="plain"] .VPDoc > .container > .content > .content-conta
     margin-left: auto;
   }
 
-  .kb-reading-width {
-    display: none;
-  }
 }
 
 @media (max-width: 639px) {
@@ -381,10 +351,6 @@ html[data-reading-style="plain"] .VPDoc > .container > .content > .content-conta
     font-size: 11px;
   }
 
-  .kb-reading-segment button {
-    min-height: 34px;
-  }
-
   .VPDoc .vp-doc h1 {
     font-size: 27px;
   }
@@ -411,7 +377,6 @@ html[data-reading-style="plain"] .VPDoc > .container > .content > .content-conta
 }
 
 @media print {
-  .kb-reading-options,
   .VPSidebar,
   .VPDoc .aside,
   .VPDoc .VPDocFooter .prev-next {
